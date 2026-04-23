@@ -1,12 +1,7 @@
 ---
-import fs from 'node:fs';
-import path from 'node:path';
 import BaseLayout from '../layouts/BaseLayout.astro';
 
-const publicDir = path.resolve('./public');
-const userLogoCandidates = ['logo.png', 'logo.jpg', 'logo.jpeg', 'logo.webp', 'logo.svg'];
-const userLogo = userLogoCandidates.find((f) => fs.existsSync(path.join(publicDir, f)));
-const logoSrc = userLogo ? `/${userLogo}` : '/logo-placeholder.svg';
+const logoSrc = '/logo.jpeg';
 ---
 
 <BaseLayout title="Sobre mí" description="Quién está detrás de Geek By Carlos.">

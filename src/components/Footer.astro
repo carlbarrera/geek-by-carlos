@@ -1,12 +1,6 @@
 ---
-import fs from 'node:fs';
-import path from 'node:path';
-
 const year = new Date().getFullYear();
-const publicDir = path.resolve('./public');
-const userLogoCandidates = ['logo.png', 'logo.jpg', 'logo.jpeg', 'logo.webp', 'logo.svg'];
-const userLogo = userLogoCandidates.find((f) => fs.existsSync(path.join(publicDir, f)));
-const logoSrc = userLogo ? `/${userLogo}` : '/logo-placeholder.svg';
+const logoSrc = '/logo.jpeg';
 ---
 
 <footer class="border-t border-[var(--color-border)] bg-[var(--color-bg-elev)] mt-20">

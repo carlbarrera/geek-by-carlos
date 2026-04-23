@@ -1,7 +1,4 @@
 ---
-import fs from 'node:fs';
-import path from 'node:path';
-
 const pathname = Astro.url.pathname;
 const isActive = (href: string) =>
   href === '/' ? pathname === '/' : pathname.startsWith(href);
@@ -14,10 +11,7 @@ const links = [
   { href: '/sobre', label: 'Sobre mí' },
 ];
 
-const publicDir = path.resolve('./public');
-const userLogoCandidates = ['logo.png', 'logo.jpg', 'logo.jpeg', 'logo.webp', 'logo.svg'];
-const userLogo = userLogoCandidates.find((f) => fs.existsSync(path.join(publicDir, f)));
-const logoSrc = userLogo ? `/${userLogo}` : '/logo-placeholder.svg';
+const logoSrc = '/logo.jpeg';
 ---
 
 <header class="sticky top-0 z-50 backdrop-blur-md bg-[rgba(11,13,18,0.85)] border-b border-[var(--color-border)]">

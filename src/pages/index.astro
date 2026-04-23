@@ -1,15 +1,10 @@
 ---
-import fs from 'node:fs';
-import path from 'node:path';
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PostCard from '../components/PostCard.astro';
 import ExpansionCard from '../components/ExpansionCard.astro';
 
-const publicDir = path.resolve('./public');
-const userLogoCandidates = ['logo.png', 'logo.jpg', 'logo.jpeg', 'logo.webp', 'logo.svg'];
-const userLogo = userLogoCandidates.find((f) => fs.existsSync(path.join(publicDir, f)));
-const logoSrc = userLogo ? `/${userLogo}` : '/logo-placeholder.svg';
+const logoSrc = '/logo.jpeg';
 
 const posts = (await getCollection('blog')).sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
