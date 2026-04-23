@@ -1,0 +1,112 @@
+---
+import fs from 'node:fs';
+import path from 'node:path';
+
+const pathname = Astro.url.pathname;
+const isActive = (href: string) =>
+  href === '/' ? pathname === '/' : pathname.startsWith(href);
+
+const links = [
+  { href: '/', label: 'Inicio' },
+  { href: '/blog', label: 'Blog' },
+  { href: '/expansiones', label: 'Expansiones' },
+  { href: '/tienda', label: 'Tienda', badge: 'Pronto' },
+  { href: '/sobre', label: 'Sobre mí' },
+];
+
+const publicDir = path.resolve('./public');
+const userLogoCandidates = ['logo.png', 'logo.jpg', 'logo.jpeg', 'logo.webp', 'logo.svg'];
+const userLogo = userLogoCandidates.find((f) => fs.existsSync(path.join(publicDir, f)));
+const logoSrc = userLogo ? `/${userLogo}` : '/logo-placeholder.svg';
+---
+
+<header class="sticky top-0 z-50 backdrop-blur-md bg-[rgba(11,13,18,0.85)] border-b border-[var(--color-border)]">
+  <div class="container-page flex items-center justify-between h-20">
+    <a href="/" class="flex items-center gap-3 group">
+      <img
+        src={logoSrc}
+        alt="Geek By Carlos logo"
+        class="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover ring-2 ring-[var(--color-accent)] shadow-lg shadow-[rgba(255,203,5,0.3)] group-hover:scale-105 group-hover:ring-4 transition-all duration-300"
+        loading="eager"
+        decoding="async"
+      />
+      <span class="font-[var(--font-display)] font-bold text-lg sm:text-xl tracking-tight">
+        Geek <span class="text-[var(--color-accent)]">By</span> Carlos
+      </span>
+    </a>
+
+    <nav class="hidden md:flex items-center gap-1">
+      {links.map((link) => (
+        <a
+          href={link.href}
+          class={`px-3 py-2 rounded-lg text-sm font-medium transition-colors inline-flex items-center gap-1.5 ${
+            isActive(link.href)
+              ? 'text-[var(--color-accent)] bg-[var(--color-bg-card)]'
+              : 'text-[var(--color-text-dim)] hover:text-white hover:bg-[var(--color-bg-card)]'
+          }`}
+        >
+          {link.label}
+          {link.badge && (
+            <span class="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-[var(--color-accent)] text-black">
+              {link.badge}
+            </span>
+          )}
+        </a>
+      ))}
+    </nav>
+
+    <button
+      id="menu-toggle"
+      type="button"
+      class="md:hidden p-2 rounded-lg hover:bg-[var(--color-bg-card)] transition-colors"
+      aria-label="Abrir menú"
+      aria-expanded="false"
+    >
+      <svg id="menu-icon-open" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+      <svg id="menu-icon-close" class="hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+
+  <div id="mobile-menu" class="hidden md:hidden border-t border-[var(--color-border)]">
+    <nav class="container-page flex flex-col py-3 gap-1">
+      {links.map((link) => (
+        <a
+          href={link.href}
+          class={`px-4 py-3 rounded-lg text-base font-medium transition-colors flex items-center gap-2 ${
+            isActive(link.href)
+              ? 'text-[var(--color-accent)] bg-[var(--color-bg-card)]'
+              : 'text-[var(--color-text-dim)] hover:text-white hover:bg-[var(--color-bg-card)]'
+          }`}
+        >
+          {link.label}
+          {link.badge && (
+            <span class="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-[var(--color-accent)] text-black">
+              {link.badge}
+            </span>
+          )}
+        </a>
+      ))}
+    </nav>
+  </div>
+</header>
+
+<script>
+  const toggle = document.getElementById('menu-toggle');
+  const menu = document.getElementById('mobile-menu');
+  const iconOpen = document.getElementById('menu-icon-open');
+  const iconClose = document.getElementById('menu-icon-close');
+
+  toggle?.addEventListener('click', () => {
+    const isOpen = menu?.classList.toggle('hidden') === false;
+    toggle.setAttribute('aria-expanded', String(isOpen));
+    iconOpen?.classList.toggle('hidden', isOpen);
+    iconClose?.classList.toggle('hidden', !isOpen);
+  });
+</script>

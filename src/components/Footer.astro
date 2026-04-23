@@ -1,0 +1,68 @@
+---
+import fs from 'node:fs';
+import path from 'node:path';
+
+const year = new Date().getFullYear();
+const publicDir = path.resolve('./public');
+const userLogoCandidates = ['logo.png', 'logo.jpg', 'logo.jpeg', 'logo.webp', 'logo.svg'];
+const userLogo = userLogoCandidates.find((f) => fs.existsSync(path.join(publicDir, f)));
+const logoSrc = userLogo ? `/${userLogo}` : '/logo-placeholder.svg';
+---
+
+<footer class="border-t border-[var(--color-border)] bg-[var(--color-bg-elev)] mt-20">
+  <div class="container-page py-12">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+      <div>
+        <div class="flex items-center gap-2.5 mb-3">
+          <img
+            src={logoSrc}
+            alt="Geek By Carlos logo"
+            class="w-9 h-9 rounded-full object-cover ring-2 ring-[var(--color-accent)]"
+            loading="lazy"
+            decoding="async"
+          />
+          <span class="font-bold tracking-tight">Geek By Carlos</span>
+        </div>
+        <p class="text-sm text-[var(--color-text-dim)] leading-relaxed">
+          Un blog personal sobre Pokémon TCG, expansiones, reviews y todo lo geek que me apasiona.
+        </p>
+      </div>
+
+      <div>
+        <h3 class="font-semibold mb-3 text-sm uppercase tracking-wider text-[var(--color-text-mute)]">
+          Navegación
+        </h3>
+        <ul class="space-y-2 text-sm">
+          <li><a href="/" class="text-[var(--color-text-dim)] hover:text-[var(--color-accent)]">Inicio</a></li>
+          <li><a href="/blog" class="text-[var(--color-text-dim)] hover:text-[var(--color-accent)]">Blog</a></li>
+          <li><a href="/expansiones" class="text-[var(--color-text-dim)] hover:text-[var(--color-accent)]">Expansiones</a></li>
+          <li>
+            <a href="/tienda" class="text-[var(--color-text-dim)] hover:text-[var(--color-accent)] inline-flex items-center gap-2">
+              Tienda
+              <span class="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-[var(--color-accent)] text-black">Pronto</span>
+            </a>
+          </li>
+          <li><a href="/sobre" class="text-[var(--color-text-dim)] hover:text-[var(--color-accent)]">Sobre mí</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="font-semibold mb-3 text-sm uppercase tracking-wider text-[var(--color-text-mute)]">
+          Aviso legal
+        </h3>
+        <p class="text-xs text-[var(--color-text-mute)] leading-relaxed">
+          Pokémon y todos los nombres, personajes y marcas relacionados son propiedad de
+          <strong class="text-[var(--color-text-dim)]">Nintendo</strong>,
+          <strong class="text-[var(--color-text-dim)]">Game Freak</strong> y
+          <strong class="text-[var(--color-text-dim)]">The Pokémon Company</strong>.
+          Este sitio es un proyecto personal sin afiliación oficial.
+        </p>
+      </div>
+    </div>
+
+    <div class="mt-10 pt-6 border-t border-[var(--color-border)] flex flex-col md:flex-row justify-between items-center gap-3 text-xs text-[var(--color-text-mute)]">
+      <p>© {year} Geek By Carlos. Hecho con cariño y café ☕</p>
+      <p>Construido con Astro + Tailwind</p>
+    </div>
+  </div>
+</footer>

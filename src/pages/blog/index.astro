@@ -1,0 +1,53 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+
+const posts = (await getCollection('blog')).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+
+const categories = [...new Set(posts.map((p) => p.data.category))];
+---
+
+<BaseLayout title="Blog" description="Todos los artículos del blog Geek By Carlos.">
+  <section class="container-page py-12 md:py-16">
+    <div class="max-w-3xl mb-10">
+      <h1 class="font-[var(--font-display)] text-4xl md:text-5xl font-bold mb-4">
+        El <span class="holo-text">blog</span>
+      </h1>
+      <p class="text-lg text-[var(--color-text-dim)]">
+        Todos los artículos sobre Pokémon TCG, expansiones, guías y reviews.
+      </p>
+    </div>
+
+    {categories.length > 1 && (
+      <div class="flex flex-wrap gap-2 mb-10">
+        {categories.map((cat) => (
+          <span class="text-xs font-semibold px-3 py-1.5 rounded-full bg-[var(--color-bg-card)] border border-[var(--color-border)] text-[var(--color-text-dim)]">
+            {cat}
+          </span>
+        ))}
+      </div>
+    )}
+
+    {posts.length === 0 ? (
+      <div class="text-center py-20 border border-dashed border-[var(--color-border)] rounded-2xl">
+        <p class="text-[var(--color-text-dim)]">Aún no hay artículos publicados. ¡Pronto!</p>
+      </div>
+    ) : (
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
+        {posts.map((post) => (
+          <PostCard
+            href={`/blog/${post.id}`}
+            title={post.data.title}
+            description={post.data.description}
+            pubDate={post.data.pubDate}
+            category={post.data.category}
+            tags={post.data.tags}
+          />
+        ))}
+      </div>
+    )}
+  </section>
+</BaseLayout>

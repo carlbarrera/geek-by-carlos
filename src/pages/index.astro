@@ -1,0 +1,216 @@
+---
+import fs from 'node:fs';
+import path from 'node:path';
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PostCard from '../components/PostCard.astro';
+import ExpansionCard from '../components/ExpansionCard.astro';
+
+const publicDir = path.resolve('./public');
+const userLogoCandidates = ['logo.png', 'logo.jpg', 'logo.jpeg', 'logo.webp', 'logo.svg'];
+const userLogo = userLogoCandidates.find((f) => fs.existsSync(path.join(publicDir, f)));
+const logoSrc = userLogo ? `/${userLogo}` : '/logo-placeholder.svg';
+
+const posts = (await getCollection('blog')).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+const featured = posts.find((p) => p.data.featured) ?? posts[0];
+const recientes = posts.filter((p) => p.id !== featured?.id).slice(0, 4);
+
+const expansiones = (await getCollection('expansiones'))
+  .sort((a, b) => b.data.fechaLanzamiento.valueOf() - a.data.fechaLanzamiento.valueOf())
+  .slice(0, 3);
+---
+
+<BaseLayout title="Geek By Carlos">
+  <section class="relative overflow-hidden border-b border-[var(--color-border)]">
+    <div class="absolute inset-0 opacity-20" aria-hidden="true">
+      <div class="absolute -top-32 -left-32 w-96 h-96 rounded-full holo-gradient blur-3xl"></div>
+      <div class="absolute -bottom-32 -right-32 w-96 h-96 rounded-full holo-gradient blur-3xl"></div>
+    </div>
+
+    <img
+      src="/pokeball.svg"
+      alt=""
+      aria-hidden="true"
+      class="absolute -right-16 -top-10 w-64 h-64 opacity-10 md:opacity-20 rotate-12 pointer-events-none select-none"
+    />
+    <img
+      src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png"
+      alt=""
+      aria-hidden="true"
+      class="hidden md:block absolute right-8 bottom-4 w-56 lg:w-72 opacity-30 lg:opacity-40 pointer-events-none select-none drop-shadow-[0_10px_30px_rgba(255,203,5,0.3)]"
+      loading="eager"
+    />
+
+    <div class="container-page relative py-16 md:py-28 grid md:grid-cols-[1.5fr_1fr] gap-10 items-center">
+      <div class="max-w-3xl">
+        <div class="flex items-center gap-4 mb-6 sm:hidden">
+          <div class="relative shrink-0">
+            <div class="absolute inset-0 holo-gradient blur-xl opacity-50 rounded-full"></div>
+            <img
+              src={logoSrc}
+              alt="Geek By Carlos logo"
+              class="relative w-20 h-20 rounded-full object-cover ring-4 ring-[var(--color-accent)] shadow-2xl shadow-[rgba(255,203,5,0.4)]"
+              loading="eager"
+            />
+          </div>
+        </div>
+        <p class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[var(--color-accent)] bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-full px-3 py-1.5 mb-6">
+          <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-success)] animate-pulse"></span>
+          Nuevo blog · 2026
+        </p>
+        <h1 class="font-[var(--font-display)] text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.05] tracking-tight mb-6">
+          Mi rincón <span class="holo-text">geek</span>:<br />
+          Pokémon TCG y más.
+        </h1>
+        <p class="text-lg md:text-xl text-[var(--color-text-dim)] leading-relaxed mb-8 max-w-2xl">
+          Reviews de expansiones, guías para coleccionistas, análisis del meta y todo lo que me apasiona del mundo del Trading Card Game.
+        </p>
+        <div class="flex flex-wrap gap-3">
+          <a
+            href="/blog"
+            class="inline-flex items-center gap-2 bg-[var(--color-accent)] text-black font-semibold px-5 py-3 rounded-xl hover:scale-105 transition-transform"
+          >
+            Explorar el blog
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </a>
+          <a
+            href="/expansiones"
+            class="inline-flex items-center gap-2 bg-[var(--color-bg-card)] border border-[var(--color-border)] text-white font-semibold px-5 py-3 rounded-xl hover:border-[var(--color-accent)] transition-colors"
+          >
+            Ver expansiones
+          </a>
+        </div>
+      </div>
+
+      <div class="hidden md:flex justify-center items-center relative">
+        <div class="absolute inset-0 holo-gradient blur-3xl opacity-30 rounded-full"></div>
+        <img
+          src="https://images.pokemontcg.io/sv3pt5/199_hires.png"
+          alt="Carta destacada de Pokémon TCG (Charizard ex)"
+          class="relative w-full max-w-[280px] lg:max-w-[340px] rounded-2xl shadow-2xl shadow-black/50 rotate-3 hover:rotate-0 transition-transform duration-500"
+          loading="eager"
+        />
+      </div>
+    </div>
+  </section>
+
+  {featured && (
+    <section class="container-page py-16">
+      <div class="flex items-end justify-between mb-8">
+        <div>
+          <h2 class="font-[var(--font-display)] text-2xl md:text-3xl font-bold mb-1">Destacado</h2>
+          <p class="text-sm text-[var(--color-text-dim)]">El artículo del momento</p>
+        </div>
+      </div>
+
+      <PostCard
+        href={`/blog/${featured.id}`}
+        title={featured.data.title}
+        description={featured.data.description}
+        pubDate={featured.data.pubDate}
+        category={featured.data.category}
+        tags={featured.data.tags}
+        featured={true}
+      />
+    </section>
+  )}
+
+  <section class="container-page py-8">
+    <a
+      href="/tienda"
+      class="group block relative overflow-hidden rounded-2xl border border-[var(--color-accent)] bg-gradient-to-br from-[var(--color-bg-card)] via-[var(--color-bg-card)] to-[#2a1a3e] p-6 md:p-8 hover:shadow-2xl hover:shadow-[rgba(255,203,5,0.2)] transition-all"
+    >
+      <div class="absolute -right-12 -top-12 w-48 h-48 holo-gradient rounded-full blur-3xl opacity-30 group-hover:opacity-50 transition-opacity"></div>
+      <img
+        src="/pokeball.svg"
+        alt=""
+        aria-hidden="true"
+        class="absolute -right-8 -bottom-8 w-44 h-44 opacity-20 group-hover:rotate-12 transition-transform duration-500"
+      />
+      <div class="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div class="max-w-2xl">
+          <div class="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-black bg-[var(--color-accent)] rounded-full px-2.5 py-1 mb-3">
+            <span class="w-1.5 h-1.5 rounded-full bg-black animate-pulse"></span>
+            Próximamente
+          </div>
+          <h2 class="font-[var(--font-display)] text-2xl md:text-3xl font-bold mb-2">
+            Tienda <span class="holo-text">en construcción</span> 🚧
+          </h2>
+          <p class="text-[var(--color-text-dim)] text-sm md:text-base">
+            Sobres sueltos originales y accesorios para coleccionistas. Empezamos pequeño — mira la vista previa y déjame tu correo para avisarte cuando abramos.
+          </p>
+        </div>
+        <span class="shrink-0 inline-flex items-center gap-2 bg-[var(--color-accent)] text-black font-semibold px-4 py-2.5 rounded-xl group-hover:scale-105 transition-transform">
+          Ver tienda
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </span>
+      </div>
+    </a>
+  </section>
+
+  {recientes.length > 0 && (
+    <section class="container-page py-8">
+      <div class="flex items-end justify-between mb-8">
+        <div>
+          <h2 class="font-[var(--font-display)] text-2xl md:text-3xl font-bold mb-1">Últimos artículos</h2>
+          <p class="text-sm text-[var(--color-text-dim)]">Lo más reciente del blog</p>
+        </div>
+        <a href="/blog" class="text-sm text-[var(--color-accent)] hover:underline hidden sm:inline-flex items-center gap-1">
+          Ver todos →
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
+        {recientes.map((post) => (
+          <PostCard
+            href={`/blog/${post.id}`}
+            title={post.data.title}
+            description={post.data.description}
+            pubDate={post.data.pubDate}
+            category={post.data.category}
+            tags={post.data.tags}
+          />
+        ))}
+      </div>
+    </section>
+  )}
+
+  {expansiones.length > 0 && (
+    <section class="container-page py-16">
+      <div class="flex items-end justify-between mb-8">
+        <div>
+          <h2 class="font-[var(--font-display)] text-2xl md:text-3xl font-bold mb-1">Expansiones</h2>
+          <p class="text-sm text-[var(--color-text-dim)]">Sets recientes que vale la pena conocer</p>
+        </div>
+        <a href="/expansiones" class="text-sm text-[var(--color-accent)] hover:underline hidden sm:inline-flex items-center gap-1">
+          Ver todas →
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
+        {expansiones.map((exp) => (
+          <ExpansionCard
+            href={`/expansiones/${exp.id}`}
+            nombre={exp.data.nombre}
+            codigo={exp.data.codigo}
+            serie={exp.data.serie}
+            fechaLanzamiento={exp.data.fechaLanzamiento}
+            totalCartas={exp.data.totalCartas}
+            descripcion={exp.data.descripcion}
+            color={exp.data.color}
+            cartaDestacada={exp.data.cartaDestacada}
+            cartaDestacadaAlt={exp.data.cartaDestacadaAlt}
+          />
+        ))}
+      </div>
+    </section>
+  )}
+</BaseLayout>

@@ -1,0 +1,57 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ExpansionCard from '../../components/ExpansionCard.astro';
+
+const expansiones = (await getCollection('expansiones')).sort(
+  (a, b) => b.data.fechaLanzamiento.valueOf() - a.data.fechaLanzamiento.valueOf()
+);
+
+const series = [...new Set(expansiones.map((e) => e.data.serie))];
+---
+
+<BaseLayout title="Expansiones" description="Catálogo de expansiones de Pokémon TCG.">
+  <section class="container-page py-12 md:py-16">
+    <div class="max-w-3xl mb-10">
+      <h1 class="font-[var(--font-display)] text-4xl md:text-5xl font-bold mb-4">
+        <span class="holo-text">Expansiones</span>
+      </h1>
+      <p class="text-lg text-[var(--color-text-dim)]">
+        Una guía rápida de los sets más recientes del Pokémon Trading Card Game.
+      </p>
+    </div>
+
+    {series.length > 0 && (
+      <div class="flex flex-wrap gap-2 mb-10">
+        {series.map((s) => (
+          <span class="text-xs font-semibold px-3 py-1.5 rounded-full bg-[var(--color-bg-card)] border border-[var(--color-border)] text-[var(--color-text-dim)]">
+            {s}
+          </span>
+        ))}
+      </div>
+    )}
+
+    {expansiones.length === 0 ? (
+      <div class="text-center py-20 border border-dashed border-[var(--color-border)] rounded-2xl">
+        <p class="text-[var(--color-text-dim)]">Próximamente. Estoy preparando el catálogo.</p>
+      </div>
+    ) : (
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
+        {expansiones.map((exp) => (
+          <ExpansionCard
+            href={`/expansiones/${exp.id}`}
+            nombre={exp.data.nombre}
+            codigo={exp.data.codigo}
+            serie={exp.data.serie}
+            fechaLanzamiento={exp.data.fechaLanzamiento}
+            totalCartas={exp.data.totalCartas}
+            descripcion={exp.data.descripcion}
+            color={exp.data.color}
+            cartaDestacada={exp.data.cartaDestacada}
+            cartaDestacadaAlt={exp.data.cartaDestacadaAlt}
+          />
+        ))}
+      </div>
+    )}
+  </section>
+</BaseLayout>

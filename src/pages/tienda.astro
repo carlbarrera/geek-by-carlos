@@ -1,0 +1,225 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const productosDemo = [
+  {
+    nombre: 'Sobre · Mega Evolution',
+    descripcion: 'Sobre individual del set que inaugura la era Mega. 10 cartas por sobre.',
+    precio: 28000,
+    imagen: 'https://images.pokemontcg.io/me1/181_hires.png',
+    color: '#9333ea',
+    categoria: 'Sobre',
+    stock: 'Pre-venta',
+  },
+  {
+    nombre: 'Sobre · Pokémon 151',
+    descripcion: 'Sobre individual del set especial de Kanto. Posible Charizard ex SIR.',
+    precio: 35000,
+    imagen: 'https://images.pokemontcg.io/sv3pt5/199_hires.png',
+    color: '#dc2626',
+    categoria: 'Sobre',
+    stock: 'Pre-venta',
+  },
+  {
+    nombre: 'Sobre · Prismatic Evolutions',
+    descripcion: 'Sobre del set de Eeveelutions. Posible Umbreon ex SIR.',
+    precio: 45000,
+    imagen: 'https://images.pokemontcg.io/sv8pt5/161_hires.png',
+    color: '#a855f7',
+    categoria: 'Sobre',
+    stock: 'Lista de espera',
+  },
+  {
+    nombre: 'Sobre · Surging Sparks',
+    descripcion: 'Sobre individual del set eléctrico. Posible Pikachu ex SIR.',
+    precio: 26000,
+    imagen: 'https://images.pokemontcg.io/sv8/247_hires.png',
+    color: '#facc15',
+    categoria: 'Sobre',
+    stock: 'Pre-venta',
+  },
+  {
+    nombre: 'Sleeves protectores (×65)',
+    descripcion: 'Pack de 65 fundas estándar para proteger tus cartas. Negras, mate.',
+    precio: 22000,
+    imagen: 'https://images.pokemontcg.io/sv4pt5/234_hires.png',
+    color: '#3b82f6',
+    categoria: 'Accesorio',
+    stock: 'Pre-venta',
+  },
+  {
+    nombre: 'Top loaders rígidos (×25)',
+    descripcion: 'Fundas rígidas para tus cartas más valiosas. Calidad premium.',
+    precio: 18000,
+    imagen: 'https://images.pokemontcg.io/sv6/216_hires.png',
+    color: '#10b981',
+    categoria: 'Accesorio',
+    stock: 'Pre-venta',
+  },
+];
+
+const formatoCOP = (n: number) =>
+  new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n);
+---
+
+<BaseLayout
+  title="Tienda"
+  description="Tienda de producto sellado original de Pokémon TCG. Booster boxes, ETBs, sobres y más. Próximamente abriendo en Colombia."
+>
+  <section class="relative overflow-hidden border-b border-[var(--color-border)]">
+    <div class="absolute inset-0 opacity-30 pointer-events-none" aria-hidden="true">
+      <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full holo-gradient blur-3xl"></div>
+    </div>
+    <img
+      src="/pokeball.svg"
+      alt=""
+      aria-hidden="true"
+      class="absolute -right-20 top-12 w-72 h-72 opacity-10 rotate-12 pointer-events-none select-none"
+    />
+
+    <div class="container-page relative py-16 md:py-24 text-center">
+      <div class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-black bg-[var(--color-accent)] rounded-full px-4 py-2 mb-6 shadow-lg shadow-[rgba(255,203,5,0.3)]">
+        <span class="w-2 h-2 rounded-full bg-black animate-pulse"></span>
+        Próximamente · En construcción
+      </div>
+      <h1 class="font-[var(--font-display)] text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.05] tracking-tight mb-6 max-w-4xl mx-auto">
+        La <span class="holo-text">tienda</span> está casi lista.
+      </h1>
+      <p class="text-lg md:text-xl text-[var(--color-text-dim)] leading-relaxed mb-8 max-w-2xl mx-auto">
+        Estamos preparando una tienda pequeña de <strong class="text-white">sobres sueltos originales</strong> y
+        <strong class="text-white">accesorios</strong> de Pokémon TCG para Colombia. Empezamos pequeño y crecemos
+        con la comunidad.
+      </p>
+      <div class="flex flex-wrap gap-3 justify-center">
+        <a
+          href="mailto:carlisbarrera29@gmail.com?subject=Avísame%20cuando%20la%20tienda%20abra"
+          class="inline-flex items-center gap-2 bg-[var(--color-accent)] text-black font-semibold px-5 py-3 rounded-xl hover:scale-105 transition-transform"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+            <polyline points="22,6 12,13 2,6"></polyline>
+          </svg>
+          Avísame cuando abra
+        </a>
+        <a
+          href="#productos"
+          class="inline-flex items-center gap-2 bg-[var(--color-bg-card)] border border-[var(--color-border)] text-white font-semibold px-5 py-3 rounded-xl hover:border-[var(--color-accent)] transition-colors"
+        >
+          Ver lo que vendremos
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-page py-12 md:py-16">
+    <div class="bg-gradient-to-br from-[var(--color-bg-card)] to-[var(--color-bg-elev)] border border-[var(--color-border)] rounded-2xl p-6 md:p-8 mb-12">
+      <div class="grid sm:grid-cols-3 gap-6 text-center">
+        <div>
+          <div class="w-12 h-12 rounded-xl bg-[var(--color-accent)] text-black flex items-center justify-center mx-auto mb-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 12l2 2 4-4"></path>
+              <path d="M21 12c0 1.66-4.03 3-9 3s-9-1.34-9-3"></path>
+              <path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"></path>
+              <path d="M3 5c0-1.66 4.03-3 9-3s9 1.34 9 3-4.03 3-9 3-9-1.34-9-3z"></path>
+            </svg>
+          </div>
+          <h3 class="font-bold mb-1">100% original</h3>
+          <p class="text-sm text-[var(--color-text-dim)]">Producto sellado del distribuidor oficial.</p>
+        </div>
+        <div>
+          <div class="w-12 h-12 rounded-xl bg-[var(--color-accent-2)] text-white flex items-center justify-center mx-auto mb-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="1" y="3" width="15" height="13" rx="2"></rect>
+              <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+              <circle cx="5.5" cy="18.5" r="2.5"></circle>
+              <circle cx="18.5" cy="18.5" r="2.5"></circle>
+            </svg>
+          </div>
+          <h3 class="font-bold mb-1">Envíos a toda Colombia</h3>
+          <p class="text-sm text-[var(--color-text-dim)]">Empacado seguro, seguimiento de envío.</p>
+        </div>
+        <div>
+          <div class="w-12 h-12 rounded-xl bg-[var(--color-accent-3)] text-white flex items-center justify-center mx-auto mb-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+            </svg>
+          </div>
+          <h3 class="font-bold mb-1">Atención directa</h3>
+          <p class="text-sm text-[var(--color-text-dim)]">Te respondo yo, nada de bots.</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="productos" class="flex items-end justify-between mb-8 scroll-mt-24">
+      <div>
+        <h2 class="font-[var(--font-display)] text-2xl md:text-3xl font-bold mb-1">
+          Vista previa del catálogo
+        </h2>
+        <p class="text-sm text-[var(--color-text-dim)]">
+          Estos son ejemplos de los productos que estarán disponibles. Precios y stock referenciales.
+        </p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
+      {productosDemo.map((p) => (
+        <div class="group relative rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-card)] overflow-hidden card-hover">
+          <div class="absolute top-3 right-3 z-10 text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-black/70 backdrop-blur text-[var(--color-accent)] border border-[var(--color-border)]">
+            {p.stock}
+          </div>
+          <div
+            class="relative aspect-[4/3] overflow-hidden"
+            style={`background: radial-gradient(circle at 50% 50%, ${p.color}30, transparent 70%), linear-gradient(135deg, #131722 0%, #0b0d12 100%);`}
+          >
+            <img
+              src={p.imagen}
+              alt={p.nombre}
+              class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[110%] object-contain drop-shadow-2xl group-hover:scale-105 transition-transform duration-500"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+          <div class="p-5">
+            <p class="text-xs uppercase tracking-wider text-[var(--color-text-mute)] mb-1.5">
+              {p.categoria}
+            </p>
+            <h3 class="font-[var(--font-display)] text-lg font-bold mb-2 leading-tight">
+              {p.nombre}
+            </h3>
+            <p class="text-sm text-[var(--color-text-dim)] mb-4 line-clamp-2">
+              {p.descripcion}
+            </p>
+            <div class="flex items-center justify-between pt-3 border-t border-[var(--color-border)]">
+              <span class="font-[var(--font-display)] text-xl font-bold text-[var(--color-accent)]">
+                {formatoCOP(p.precio)}
+              </span>
+              <button
+                disabled
+                class="text-xs font-semibold px-3 py-2 rounded-lg bg-[var(--color-bg-elev)] text-[var(--color-text-mute)] cursor-not-allowed border border-dashed border-[var(--color-border)]"
+              >
+                Pronto
+              </button>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <div class="mt-16 text-center bg-[var(--color-bg-card)] border border-dashed border-[var(--color-border)] rounded-2xl p-8 md:p-12">
+      <div class="text-4xl mb-3">🚧</div>
+      <h2 class="font-[var(--font-display)] text-2xl md:text-3xl font-bold mb-3">
+        Trabajando duro para abrir pronto
+      </h2>
+      <p class="text-[var(--color-text-dim)] max-w-xl mx-auto mb-6">
+        Estoy montando el inventario, los procesos de envío y la pasarela de pagos. Si quieres ser de
+        los primeros en saber cuando abramos, déjame tu correo y te aviso.
+      </p>
+      <a
+        href="mailto:carlisbarrera29@gmail.com?subject=Avísame%20cuando%20la%20tienda%20abra"
+        class="inline-flex items-center gap-2 bg-[var(--color-accent)] text-black font-semibold px-5 py-3 rounded-xl hover:scale-105 transition-transform"
+      >
+        Avísame por correo
+      </a>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,163 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #0b0d12;
+  --color-bg-elev: #131722;
+  --color-bg-card: #1a1f2e;
+  --color-border: #252b3d;
+  --color-text: #e6e9f2;
+  --color-text-dim: #9ba3b8;
+  --color-text-mute: #6b7388;
+  --color-accent: #ffcb05;
+  --color-accent-2: #3b82f6;
+  --color-accent-3: #ec4899;
+  --color-success: #22c55e;
+
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-display: 'Space Grotesk', 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    min-height: 100vh;
+  }
+
+  ::selection {
+    background: var(--color-accent);
+    color: #000;
+  }
+}
+
+@layer utilities {
+  .holo-gradient {
+    background: linear-gradient(
+      120deg,
+      #ffcb05 0%,
+      #ec4899 30%,
+      #3b82f6 60%,
+      #22c55e 100%
+    );
+  }
+
+  .holo-text {
+    background: linear-gradient(120deg, #ffcb05, #ec4899, #3b82f6);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .card-hover {
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  }
+
+  .card-hover:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-accent);
+    box-shadow: 0 12px 40px -10px rgba(255, 203, 5, 0.25);
+  }
+
+  .container-page {
+    max-width: 1200px;
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+
+  @media (min-width: 768px) {
+    .container-page {
+      padding-inline: 2rem;
+    }
+  }
+
+  .prose-custom {
+    color: var(--color-text);
+    line-height: 1.75;
+  }
+
+  .prose-custom h2 {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--color-text);
+  }
+
+  .prose-custom h3 {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 600;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    color: var(--color-text);
+  }
+
+  .prose-custom p {
+    margin-bottom: 1.25rem;
+    color: var(--color-text-dim);
+  }
+
+  .prose-custom a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .prose-custom a:hover {
+    color: #fff;
+  }
+
+  .prose-custom ul,
+  .prose-custom ol {
+    margin-bottom: 1.25rem;
+    padding-left: 1.5rem;
+    color: var(--color-text-dim);
+  }
+
+  .prose-custom ul {
+    list-style: disc;
+  }
+
+  .prose-custom ol {
+    list-style: decimal;
+  }
+
+  .prose-custom li {
+    margin-bottom: 0.5rem;
+  }
+
+  .prose-custom blockquote {
+    border-left: 3px solid var(--color-accent);
+    padding-left: 1rem;
+    margin: 1.5rem 0;
+    font-style: italic;
+    color: var(--color-text-dim);
+  }
+
+  .prose-custom code {
+    background: var(--color-bg-card);
+    padding: 0.15rem 0.4rem;
+    border-radius: 0.25rem;
+    font-size: 0.9em;
+    color: var(--color-accent);
+  }
+
+  .prose-custom strong {
+    color: var(--color-text);
+    font-weight: 600;
+  }
+
+  .prose-custom hr {
+    border-color: var(--color-border);
+    margin: 2.5rem 0;
+  }
+}

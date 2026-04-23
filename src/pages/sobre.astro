@@ -1,0 +1,80 @@
+---
+import fs from 'node:fs';
+import path from 'node:path';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const publicDir = path.resolve('./public');
+const userLogoCandidates = ['logo.png', 'logo.jpg', 'logo.jpeg', 'logo.webp', 'logo.svg'];
+const userLogo = userLogoCandidates.find((f) => fs.existsSync(path.join(publicDir, f)));
+const logoSrc = userLogo ? `/${userLogo}` : '/logo-placeholder.svg';
+---
+
+<BaseLayout title="Sobre mí" description="Quién está detrás de Geek By Carlos.">
+  <section class="container-page py-12 md:py-20 max-w-3xl">
+    <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-8">
+      <div class="relative shrink-0">
+        <div class="absolute inset-0 holo-gradient blur-2xl opacity-50 rounded-full"></div>
+        <img
+          src={logoSrc}
+          alt="Logo Geek By Carlos"
+          class="relative w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 rounded-full object-cover ring-4 ring-[var(--color-accent)] shadow-2xl shadow-[rgba(255,203,5,0.4)]"
+        />
+      </div>
+      <div class="text-center sm:text-left">
+        <h1 class="font-[var(--font-display)] text-4xl md:text-5xl font-bold mb-3">
+          Hola, soy <span class="holo-text">Carlos</span> 👋
+        </h1>
+        <p class="text-[var(--color-text-dim)] text-lg">
+          Coleccionista, fan del TCG y todo lo geek.
+        </p>
+      </div>
+    </div>
+
+    <div class="prose-custom text-lg">
+      <p>
+        Bienvenido a <strong>Geek By Carlos</strong>, mi rincón personal en internet donde escribo sobre
+        las cosas que me apasionan: <strong>Pokémon TCG</strong>, coleccionismo, videojuegos retro,
+        cultura geek y todo lo que se cruce en el camino.
+      </p>
+
+      <p>
+        Este blog nació como un espacio para compartir lo que aprendo del mundo del Trading Card Game:
+        análisis de expansiones nuevas, guías para coleccionistas que recién empiezan, comentarios sobre
+        el meta competitivo y, más adelante, también será una pequeña tienda donde podrás encontrar
+        producto sellado original.
+      </p>
+
+      <h2>¿Qué encontrarás aquí?</h2>
+      <ul>
+        <li><strong>Reviews</strong> de las expansiones más recientes</li>
+        <li><strong>Guías</strong> para nuevos coleccionistas y jugadores</li>
+        <li><strong>Análisis</strong> del meta y cartas destacadas</li>
+        <li><strong>Noticias</strong> del mundo TCG</li>
+        <li><strong>Próximamente:</strong> tienda con producto sellado original</li>
+      </ul>
+
+      <h2>Aviso legal</h2>
+      <p>
+        Este sitio es un <strong>proyecto personal independiente</strong> y no tiene ninguna afiliación
+        oficial con Nintendo, Game Freak ni The Pokémon Company.
+      </p>
+      <p>
+        <strong>Pokémon</strong> y todos los nombres, personajes, imágenes y marcas relacionadas son
+        propiedad de <strong>Nintendo</strong>, <strong>Game Freak</strong> y
+        <strong>The Pokémon Company</strong>. El uso de estos nombres en este blog se hace exclusivamente
+        con fines informativos y educativos, bajo el principio de uso justo (fair use), sin ánimo de
+        infringir ningún derecho de propiedad intelectual.
+      </p>
+      <p>
+        Si eres titular de algún derecho y consideras que algún contenido de este sitio debe ser
+        modificado o retirado, por favor escríbeme y lo atenderé con prioridad.
+      </p>
+
+      <h2>¿Quieres saludar?</h2>
+      <p>
+        Puedes escribirme a <a href="mailto:carlisbarrera29@gmail.com">carlisbarrera29@gmail.com</a>.
+        Siempre es bueno conocer a otra gente del mundo geek.
+      </p>
+    </div>
+  </section>
+</BaseLayout>

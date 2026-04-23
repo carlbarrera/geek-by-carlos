@@ -1,0 +1,70 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+
+const formattedDate = post.data.pubDate.toLocaleDateString('es-CO', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+
+<BaseLayout title={post.data.title} description={post.data.description}>
+  <article class="container-page py-12 md:py-16 max-w-3xl">
+    <a href="/blog" class="inline-flex items-center gap-2 text-sm text-[var(--color-text-dim)] hover:text-[var(--color-accent)] mb-8">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      Volver al blog
+    </a>
+
+    <header class="mb-10 pb-8 border-b border-[var(--color-border)]">
+      <div class="flex flex-wrap items-center gap-3 mb-5">
+        <span class="text-xs font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full bg-[var(--color-accent)] text-black">
+          {post.data.category}
+        </span>
+        <time class="text-sm text-[var(--color-text-mute)]">{formattedDate}</time>
+      </div>
+
+      <h1 class="font-[var(--font-display)] text-3xl sm:text-4xl md:text-5xl font-bold leading-tight tracking-tight mb-5">
+        {post.data.title}
+      </h1>
+
+      <p class="text-lg text-[var(--color-text-dim)] leading-relaxed">
+        {post.data.description}
+      </p>
+
+      {post.data.tags.length > 0 && (
+        <div class="flex flex-wrap gap-2 mt-6">
+          {post.data.tags.map((tag: string) => (
+            <span class="text-xs text-[var(--color-text-mute)] bg-[var(--color-bg-card)] px-2.5 py-1 rounded">
+              #{tag}
+            </span>
+          ))}
+        </div>
+      )}
+    </header>
+
+    <div class="prose-custom">
+      <Content />
+    </div>
+
+    <footer class="mt-16 pt-8 border-t border-[var(--color-border)]">
+      <a href="/blog" class="inline-flex items-center gap-2 text-sm font-medium text-[var(--color-accent)] hover:underline">
+        ← Ver más artículos
+      </a>
+    </footer>
+  </article>
+</BaseLayout>
