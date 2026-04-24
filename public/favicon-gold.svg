@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" shape-rendering="crispEdges">
+  <!-- Alternate favicon: 8-bit Pokéball with Shiny Rayquaza palette
+       (gold top + dark-navy bottom) to match the site's theme. -->
+  <rect width="16" height="16" rx="3" fill="#070b16"/>
+
+  <!-- Row 1 -->
+  <rect x="6" y="1" width="4" height="1" fill="#1f2937"/>
+
+  <!-- Row 2 -->
+  <rect x="4" y="2" width="2" height="1" fill="#1f2937"/>
+  <rect x="6" y="2" width="4" height="1" fill="#fbbf24"/>
+  <rect x="10" y="2" width="2" height="1" fill="#1f2937"/>
+
+  <!-- Row 3 -->
+  <rect x="3" y="3" width="1" height="1" fill="#1f2937"/>
+  <rect x="4" y="3" width="8" height="1" fill="#fbbf24"/>
+  <rect x="12" y="3" width="1" height="1" fill="#1f2937"/>
+
+  <!-- Row 4 (highlight) -->
+  <rect x="2" y="4" width="1" height="1" fill="#1f2937"/>
+  <rect x="3" y="4" width="2" height="1" fill="#fde68a"/>
+  <rect x="5" y="4" width="8" height="1" fill="#fbbf24"/>
+  <rect x="13" y="4" width="1" height="1" fill="#1f2937"/>
+
+  <!-- Row 5 -->
+  <rect x="2" y="5" width="1" height="1" fill="#1f2937"/>
+  <rect x="3" y="5" width="10" height="1" fill="#fbbf24"/>
+  <rect x="13" y="5" width="1" height="1" fill="#1f2937"/>
+
+  <!-- Row 6 -->
+  <rect x="1" y="6" width="1" height="1" fill="#1f2937"/>
+  <rect x="2" y="6" width="12" height="1" fill="#fbbf24"/>
+  <rect x="14" y="6" width="1" height="1" fill="#1f2937"/>
+
+  <!-- Row 7: band -->
+  <rect x="1" y="7" width="14" height="1" fill="#1f2937"/>
+
+  <!-- Row 8: button -->
+  <rect x="1" y="8" width="5" height="1" fill="#1f2937"/>
+  <rect x="6" y="8" width="4" height="1" fill="#c5d1e5"/>
+  <rect x="10" y="8" width="5" height="1" fill="#1f2937"/>
+
+  <!-- Row 9: bottom -->
+  <rect x="1" y="9" width="1" height="1" fill="#1f2937"/>
+  <rect x="2" y="9" width="5" height="1" fill="#1e3a8a"/>
+  <rect x="7" y="9" width="2" height="1" fill="#1f2937"/>
+  <rect x="9" y="9" width="5" height="1" fill="#1e3a8a"/>
+  <rect x="14" y="9" width="1" height="1" fill="#1f2937"/>
+
+  <!-- Row 10 -->
+  <rect x="2" y="10" width="1" height="1" fill="#1f2937"/>
+  <rect x="3" y="10" width="10" height="1" fill="#1e3a8a"/>
+  <rect x="13" y="10" width="1" height="1" fill="#1f2937"/>
+
+  <!-- Row 11 -->
+  <rect x="2" y="11" width="1" height="1" fill="#1f2937"/>
+  <rect x="3" y="11" width="10" height="1" fill="#1e40af"/>
+  <rect x="13" y="11" width="1" height="1" fill="#1f2937"/>
+
+  <!-- Row 12 -->
+  <rect x="3" y="12" width="1" height="1" fill="#1f2937"/>
+  <rect x="4" y="12" width="8" height="1" fill="#1e40af"/>
+  <rect x="12" y="12" width="1" height="1" fill="#1f2937"/>
+
+  <!-- Row 13 -->
+  <rect x="4" y="13" width="2" height="1" fill="#1f2937"/>
+  <rect x="6" y="13" width="4" height="1" fill="#1e40af"/>
+  <rect x="10" y="13" width="2" height="1" fill="#1f2937"/>
+
+  <!-- Row 14: bottom -->
+  <rect x="6" y="14" width="4" height="1" fill="#1f2937"/>
+</svg>
