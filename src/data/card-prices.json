@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-04-24T11:53:19.808Z",
+  "fetchedAt": "2026-04-24T12:16:11.238Z",
   "prices": {
     "151": {
       "cardId": "sv3pt5-199",
@@ -34,6 +34,17 @@
       "updatedAt": "2026/04/24",
       "tcgplayerUrl": "https://prices.pokemontcg.io/tcgplayer/zsv10pt5-165"
     },
+    "celebrations": {
+      "cardId": "cel25c-4_A",
+      "name": "Charizard",
+      "rarity": "Classic Collection",
+      "variant": "holofoil",
+      "market": 200.21,
+      "low": 144.07,
+      "high": 4321,
+      "updatedAt": "2026/04/24",
+      "tcgplayerUrl": "https://prices.pokemontcg.io/tcgplayer/cel25c-4_A"
+    },
     "crown-zenith": {
       "cardId": "swsh12pt5gg-GG70",
       "name": "Arceus VSTAR",
@@ -56,6 +67,28 @@
       "updatedAt": "2026/04/24",
       "tcgplayerUrl": "https://prices.pokemontcg.io/tcgplayer/sv10-229"
     },
+    "evolving-skies": {
+      "cardId": "swsh7-215",
+      "name": "Umbreon VMAX",
+      "rarity": "Rare Rainbow",
+      "variant": "holofoil",
+      "market": 2023.52,
+      "low": 1999.99,
+      "high": 6000,
+      "updatedAt": "2026/04/24",
+      "tcgplayerUrl": "https://prices.pokemontcg.io/tcgplayer/swsh7-215"
+    },
+    "hidden-fates": {
+      "cardId": "sm115-69",
+      "name": "Moltres & Zapdos & Articuno-GX",
+      "rarity": "Rare Rainbow",
+      "variant": "holofoil",
+      "market": 39.28,
+      "low": 34.45,
+      "high": 200.76,
+      "updatedAt": "2026/04/24",
+      "tcgplayerUrl": "https://prices.pokemontcg.io/tcgplayer/sm115-69"
+    },
     "journey-together": {
       "cardId": "sv9-187",
       "name": "Salamence ex",
@@ -66,6 +99,17 @@
       "high": 9999,
       "updatedAt": "2026/04/24",
       "tcgplayerUrl": "https://prices.pokemontcg.io/tcgplayer/sv9-187"
+    },
+    "lost-origin": {
+      "cardId": "swsh11-186",
+      "name": "Giratina V",
+      "rarity": "Rare Ultra",
+      "variant": "holofoil",
+      "market": 664.03,
+      "low": 625,
+      "high": 1450,
+      "updatedAt": "2026/04/24",
+      "tcgplayerUrl": "https://prices.pokemontcg.io/tcgplayer/swsh11-186"
     },
     "mega-evolution": {
       "cardId": "me1-181",
@@ -154,6 +198,17 @@
       "high": 4321,
       "updatedAt": "2026/04/24",
       "tcgplayerUrl": "https://prices.pokemontcg.io/tcgplayer/sv6pt5-90"
+    },
+    "silver-tempest": {
+      "cardId": "swsh12-186",
+      "name": "Lugia V",
+      "rarity": "Rare Ultra",
+      "variant": "holofoil",
+      "market": 442.67,
+      "low": 400,
+      "high": 3761.87,
+      "updatedAt": "2026/04/24",
+      "tcgplayerUrl": "https://prices.pokemontcg.io/tcgplayer/swsh12-186"
     },
     "stellar-crown": {
       "cardId": "sv7-170",

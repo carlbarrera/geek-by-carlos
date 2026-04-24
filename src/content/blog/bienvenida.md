@@ -4,7 +4,7 @@ description: "Por qué arranco este blog, de qué va a tratar y qué puedes espe
 pubDate: 2026-04-23
 category: "Personal"
 tags: ["bienvenida", "personal", "blog"]
-featured: true
+featured: false
 ---
 
 ¡Hola! Si llegaste hasta aquí, gracias por pasar. Este es el primer post oficial de **Geek By Carlos**, mi proyecto personal donde voy a compartir todo lo que me apasiona del mundo geek, especialmente del **Pokémon Trading Card Game**.

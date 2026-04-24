@@ -16,7 +16,9 @@ const outputFile = path.resolve('./src/data/card-prices.json');
 // ("https://images.scrydex.com/pokemon/me3-124/large" -> "me3-124")
 function extractCardId(imageUrl) {
   if (!imageUrl) return null;
-  const pkmntcg = imageUrl.match(/pokemontcg\.io\/([^/]+)\/([^_/.]+)/);
+  // pokemontcg.io uses "SETID/CARDNUM_hires.png" or "SETID/CARDNUM_SUFFIX_hires.png"
+  // (cel25c has cards like 4_A where "_A" is part of the card ID, not the _hires suffix)
+  const pkmntcg = imageUrl.match(/pokemontcg\.io\/([^/]+)\/(.+?)(?:_hires)?\.(?:png|jpg|webp)$/);
   if (pkmntcg) return `${pkmntcg[1]}-${pkmntcg[2]}`;
   const scrydex = imageUrl.match(/scrydex\.com\/pokemon\/([^/]+)/);
   if (scrydex) return scrydex[1];
