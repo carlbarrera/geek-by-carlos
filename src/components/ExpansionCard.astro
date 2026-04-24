@@ -46,7 +46,11 @@ const fmtUSD = (n?: number) =>
     ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n)
     : '—';
 
-const setApiId = cartaDestacada?.match(/pokemontcg\.io\/([^/]+)\//)?.[1];
+// setApiId comes from either pokemontcg.io (older sets) or scrydex.com (newer sets like me2pt5, me3)
+const setApiId =
+  cartaDestacada?.match(/pokemontcg\.io\/([^/]+)\//)?.[1] ??
+  cartaDestacada?.match(/scrydex\.com\/pokemon\/([^/-]+)-/)?.[1] ??
+  null;
 const pkmnggUrl = setApiId ? `https://pkmn.gg/sets/${setApiId}` : null;
 const tcgplayerUrl = price?.tcgplayerUrl;
 ---

@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-04-24T11:31:57.748Z",
+  "fetchedAt": "2026-04-24T11:53:19.808Z",
   "prices": {
     "151": {
       "cardId": "sv3pt5-199",
@@ -11,6 +11,17 @@
       "high": 1000,
       "updatedAt": "2026/04/24",
       "tcgplayerUrl": "https://prices.pokemontcg.io/tcgplayer/sv3pt5-199"
+    },
+    "ascended-heroes": {
+      "cardId": "me2pt5-284",
+      "name": "Mega Gengar ex",
+      "rarity": "Special Illustration Rare",
+      "variant": null,
+      "market": null,
+      "low": null,
+      "high": null,
+      "updatedAt": null,
+      "tcgplayerUrl": "https://prices.pokemontcg.io/tcgplayer/me2pt5-284"
     },
     "black-bolt": {
       "cardId": "zsv10pt5-165",
@@ -99,6 +110,17 @@
       "high": 100,
       "updatedAt": "2026/04/24",
       "tcgplayerUrl": "https://prices.pokemontcg.io/tcgplayer/sv4-245"
+    },
+    "perfect-order": {
+      "cardId": "me3-124",
+      "name": "Mega Zygarde ex",
+      "rarity": "Mega Hyper Rare",
+      "variant": null,
+      "market": null,
+      "low": null,
+      "high": null,
+      "updatedAt": null,
+      "tcgplayerUrl": "https://prices.pokemontcg.io/tcgplayer/me3-124"
     },
     "phantasmal-flames": {
       "cardId": "me2-125",

@@ -10,12 +10,17 @@ import path from 'node:path';
 const expansionsDir = path.resolve('./src/content/expansiones');
 const outputFile = path.resolve('./src/data/card-prices.json');
 
-// Extract "me1/181" from "https://images.pokemontcg.io/me1/181_hires.png"
+// Extract card id from either old-style pokemontcg.io URLs
+// ("https://images.pokemontcg.io/me1/181_hires.png" -> "me1-181")
+// or new scrydex.com URLs for recent sets
+// ("https://images.scrydex.com/pokemon/me3-124/large" -> "me3-124")
 function extractCardId(imageUrl) {
   if (!imageUrl) return null;
-  const match = imageUrl.match(/pokemontcg\.io\/([^/]+)\/([^_/.]+)/);
-  if (!match) return null;
-  return `${match[1]}-${match[2]}`;
+  const pkmntcg = imageUrl.match(/pokemontcg\.io\/([^/]+)\/([^_/.]+)/);
+  if (pkmntcg) return `${pkmntcg[1]}-${pkmntcg[2]}`;
+  const scrydex = imageUrl.match(/scrydex\.com\/pokemon\/([^/]+)/);
+  if (scrydex) return scrydex[1];
+  return null;
 }
 
 async function fetchCardPrice(cardId) {
@@ -25,16 +30,17 @@ async function fetchCardPrice(cardId) {
     const { data } = await res.json();
     const prices = data?.tcgplayer?.prices ?? {};
     const [variant, info] = Object.entries(prices)[0] ?? [];
-    if (!info) return null;
+    // Return entry even without market price — the TCGPlayer URL is still
+    // useful and the UI will gracefully omit the price badge when missing.
     return {
       name: data.name,
       rarity: data.rarity,
-      variant,
-      market: info.market,
-      low: info.low,
-      high: info.high,
-      updatedAt: data.tcgplayer?.updatedAt,
-      tcgplayerUrl: data.tcgplayer?.url,
+      variant: variant ?? null,
+      market: info?.market ?? null,
+      low: info?.low ?? null,
+      high: info?.high ?? null,
+      updatedAt: data.tcgplayer?.updatedAt ?? null,
+      tcgplayerUrl: data.tcgplayer?.url ?? null,
     };
   } catch (err) {
     console.error(`[prices] error fetching ${cardId}:`, err.message);
