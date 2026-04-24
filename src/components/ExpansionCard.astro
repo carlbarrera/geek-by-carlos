@@ -1,6 +1,15 @@
 ---
+interface PriceEntry {
+  name: string;
+  market?: number;
+  low?: number;
+  updatedAt?: string;
+  tcgplayerUrl?: string;
+}
+
 interface Props {
   href: string;
+  slug: string;
   nombre: string;
   codigo: string;
   serie: string;
@@ -10,6 +19,7 @@ interface Props {
   color?: string;
   cartaDestacada?: string;
   cartaDestacadaAlt?: string;
+  price?: PriceEntry;
 }
 
 const {
@@ -23,18 +33,25 @@ const {
   color = '#ffcb05',
   cartaDestacada,
   cartaDestacadaAlt,
+  price,
 } = Astro.props;
 
 const fecha = fechaLanzamiento.toLocaleDateString('es-CO', {
   year: 'numeric',
   month: 'short',
 });
+
+const fmtUSD = (n?: number) =>
+  typeof n === 'number'
+    ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n)
+    : '—';
+
+const setApiId = cartaDestacada?.match(/pokemontcg\.io\/([^/]+)\//)?.[1];
+const pkmnggUrl = setApiId ? `https://pkmn.gg/sets/${setApiId}` : null;
+const tcgplayerUrl = price?.tcgplayerUrl;
 ---
 
-<a
-  href={href}
-  class="card-hover group block rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-card)] overflow-hidden"
->
+<article class="card-hover group relative rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-card)] overflow-hidden">
   {cartaDestacada && (
     <div
       class="relative aspect-[16/10] overflow-hidden"
@@ -48,6 +65,16 @@ const fecha = fechaLanzamiento.toLocaleDateString('es-CO', {
         decoding="async"
       />
       <div class="absolute inset-0 bg-gradient-to-t from-[var(--color-bg-card)] via-transparent to-transparent pointer-events-none"></div>
+      {price?.market && (
+        <div class="absolute top-3 left-3 backdrop-blur-sm bg-black/60 border border-[var(--color-border)] rounded-lg px-2.5 py-1.5 flex flex-col pointer-events-none">
+          <span class="text-[9px] uppercase tracking-wider text-[var(--color-text-mute)] leading-none mb-0.5">
+            TCGPlayer
+          </span>
+          <span class="font-[var(--font-display)] font-bold text-sm text-white leading-none">
+            {fmtUSD(price.market)}
+          </span>
+        </div>
+      )}
     </div>
   )}
   <div
@@ -61,11 +88,13 @@ const fecha = fechaLanzamiento.toLocaleDateString('es-CO', {
           {serie}
         </p>
         <h3 class="font-[var(--font-display)] text-xl font-bold leading-tight group-hover:text-[var(--color-accent)] transition-colors">
-          {nombre}
+          <a href={href} class="before:absolute before:inset-0 before:content-[''] before:z-0">
+            {nombre}
+          </a>
         </h3>
       </div>
       <span
-        class="shrink-0 text-xs font-mono font-semibold px-2 py-1 rounded border border-[var(--color-border)]"
+        class="shrink-0 text-xs font-mono font-semibold px-2 py-1 rounded border border-[var(--color-border)] relative z-10"
         style={`color: ${color};`}
       >
         {codigo}
@@ -90,5 +119,30 @@ const fecha = fechaLanzamiento.toLocaleDateString('es-CO', {
         {totalCartas} cartas
       </span>
     </div>
+
+    {(tcgplayerUrl || pkmnggUrl) && (
+      <div class="flex gap-2 mt-3 relative z-10">
+        {tcgplayerUrl && (
+          <a
+            href={tcgplayerUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex-1 text-center text-[11px] font-semibold px-2 py-1.5 rounded-md bg-[var(--color-bg-elev)] border border-[var(--color-border)] text-[var(--color-text-dim)] hover:text-[var(--color-accent)] hover:border-[var(--color-accent)] transition-colors"
+          >
+            TCGPlayer ↗
+          </a>
+        )}
+        {pkmnggUrl && (
+          <a
+            href={pkmnggUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex-1 text-center text-[11px] font-semibold px-2 py-1.5 rounded-md bg-[var(--color-bg-elev)] border border-[var(--color-border)] text-[var(--color-text-dim)] hover:text-[var(--color-accent)] hover:border-[var(--color-accent)] transition-colors"
+          >
+            pkmn.gg ↗
+          </a>
+        )}
+      </div>
+    )}
   </div>
-</a>
+</article>

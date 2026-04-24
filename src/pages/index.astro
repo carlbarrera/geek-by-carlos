@@ -3,6 +3,9 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PostCard from '../components/PostCard.astro';
 import ExpansionCard from '../components/ExpansionCard.astro';
+import pricesData from '../data/card-prices.json';
+
+const prices = (pricesData as any).prices ?? {};
 
 const logoSrc = '/logo.jpeg';
 
@@ -194,6 +197,7 @@ const expansiones = (await getCollection('expansiones'))
         {expansiones.map((exp) => (
           <ExpansionCard
             href={`/expansiones/${exp.id}`}
+            slug={exp.id}
             nombre={exp.data.nombre}
             codigo={exp.data.codigo}
             serie={exp.data.serie}
@@ -203,6 +207,7 @@ const expansiones = (await getCollection('expansiones'))
             color={exp.data.color}
             cartaDestacada={exp.data.cartaDestacada}
             cartaDestacadaAlt={exp.data.cartaDestacadaAlt}
+            price={prices[exp.id]}
           />
         ))}
       </div>

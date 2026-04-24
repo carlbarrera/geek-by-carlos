@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import pricesData from '../../data/card-prices.json';
 
 export async function getStaticPaths() {
   const expansiones = await getCollection('expansiones');
@@ -13,11 +14,27 @@ export async function getStaticPaths() {
 const { exp } = Astro.props;
 const { Content } = await render(exp);
 
+const prices = (pricesData as any).prices ?? {};
+const price = prices[exp.id];
+
+const setApiId = exp.data.cartaDestacada?.match(/pokemontcg\.io\/([^/]+)\//)?.[1];
+const pkmnggUrl = setApiId ? `https://pkmn.gg/sets/${setApiId}` : null;
+const tcgplayerUrl = price?.tcgplayerUrl;
+
 const fecha = exp.data.fechaLanzamiento.toLocaleDateString('es-CO', {
   year: 'numeric',
   month: 'long',
   day: 'numeric',
 });
+
+const fmtUSD = (n?: number) =>
+  typeof n === 'number'
+    ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }).format(n)
+    : '—';
+
+const priceFetchedAt = (pricesData as any).fetchedAt
+  ? new Date((pricesData as any).fetchedAt).toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' })
+  : null;
 ---
 
 <BaseLayout title={exp.data.nombre} description={exp.data.descripcion}>
@@ -50,16 +67,65 @@ const fecha = exp.data.fechaLanzamiento.toLocaleDateString('es-CO', {
             {exp.data.descripcion}
           </p>
 
-          <div class="grid grid-cols-2 gap-4 max-w-md">
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 max-w-md">
             <div class="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-xl p-4">
               <p class="text-xs uppercase tracking-wider text-[var(--color-text-mute)] mb-1">Lanzamiento</p>
-              <p class="font-semibold">{fecha}</p>
+              <p class="font-semibold text-sm">{fecha}</p>
             </div>
             <div class="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-xl p-4">
               <p class="text-xs uppercase tracking-wider text-[var(--color-text-mute)] mb-1">Total cartas</p>
               <p class="font-semibold">{exp.data.totalCartas}</p>
             </div>
+            {price?.market && (
+              <div
+                class="border rounded-xl p-4 col-span-2 sm:col-span-1"
+                style={`background: linear-gradient(135deg, ${exp.data.color}15, var(--color-bg-card)); border-color: ${exp.data.color}40;`}
+              >
+                <p class="text-xs uppercase tracking-wider text-[var(--color-text-mute)] mb-1">Chase card</p>
+                <p class="font-[var(--font-display)] font-bold text-lg" style={`color: ${exp.data.color};`}>
+                  {fmtUSD(price.market)}
+                </p>
+              </div>
+            )}
           </div>
+
+          {(tcgplayerUrl || pkmnggUrl) && (
+            <div class="flex flex-wrap gap-2 mt-5">
+              {tcgplayerUrl && (
+                <a
+                  href={tcgplayerUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center gap-1.5 text-sm font-semibold px-4 py-2 rounded-lg bg-[var(--color-bg-card)] border border-[var(--color-border)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] transition-colors"
+                >
+                  Ver en TCGPlayer
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M7 17L17 7"></path>
+                    <path d="M7 7h10v10"></path>
+                  </svg>
+                </a>
+              )}
+              {pkmnggUrl && (
+                <a
+                  href={pkmnggUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center gap-1.5 text-sm font-semibold px-4 py-2 rounded-lg bg-[var(--color-bg-card)] border border-[var(--color-border)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] transition-colors"
+                >
+                  Explorar en pkmn.gg
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M7 17L17 7"></path>
+                    <path d="M7 7h10v10"></path>
+                  </svg>
+                </a>
+              )}
+            </div>
+          )}
+          {priceFetchedAt && price?.market && (
+            <p class="text-xs text-[var(--color-text-mute)] mt-3">
+              Precio actualizado: {priceFetchedAt} · fuente TCGPlayer vía pokemontcg.io
+            </p>
+          )}
         </div>
 
         {exp.data.cartaDestacada && (
