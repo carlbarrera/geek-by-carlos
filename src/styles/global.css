@@ -1,17 +1,26 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg: #0b0d12;
-  --color-bg-elev: #131722;
-  --color-bg-card: #1a1f2e;
-  --color-border: #252b3d;
-  --color-text: #e6e9f2;
-  --color-text-dim: #9ba3b8;
-  --color-text-mute: #6b7388;
-  --color-accent: #ffcb05;
-  --color-accent-2: #3b82f6;
-  --color-accent-3: #ec4899;
+  /* Theme: Shiny Rayquaza (black + gold) + Lugia (silver + deep blue)
+     Background tones sit between shiny Rayquaza's near-black and deep ocean blue.
+     Primary accent is Rayquaza gold; secondary is Lugia's deep blue. */
+  --color-bg: #070b16;
+  --color-bg-elev: #111830;
+  --color-bg-card: #18213d;
+  --color-border: #293354;
+  --color-text: #eaeef9;
+  --color-text-dim: #a4afc8;
+  --color-text-mute: #6d7a96;
+
+  --color-accent: #fbbf24;        /* Shiny Rayquaza gold */
+  --color-accent-2: #3b82f6;      /* Lugia deep blue */
+  --color-accent-3: #c5d1e5;      /* Lugia silver body */
+  --color-accent-4: #ef4444;      /* Lugia eye red / Rayquaza accent */
   --color-success: #22c55e;
+
+  --color-rayquaza: #fbbf24;
+  --color-lugia: #3b82f6;
+  --color-lugia-silver: #c5d1e5;
 
   --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-display: 'Space Grotesk', 'Inter', ui-sans-serif, system-ui, sans-serif;
@@ -39,21 +48,33 @@
 }
 
 @layer utilities {
+  /* Holo gradient inspired by Shiny Rayquaza (gold/red) shifting into Lugia (blue/silver) */
   .holo-gradient {
     background: linear-gradient(
       120deg,
-      #ffcb05 0%,
-      #ec4899 30%,
-      #3b82f6 60%,
-      #22c55e 100%
+      #fbbf24 0%,
+      #f97316 22%,
+      #ef4444 45%,
+      #3b82f6 72%,
+      #c5d1e5 100%
     );
   }
 
   .holo-text {
-    background: linear-gradient(120deg, #ffcb05, #ec4899, #3b82f6);
+    background: linear-gradient(120deg, #fbbf24 0%, #f97316 30%, #3b82f6 70%, #c5d1e5 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+  }
+
+  /* Rayquaza-specific gradient: all-gold, for logos and buttons */
+  .rayquaza-gradient {
+    background: linear-gradient(135deg, #fde047 0%, #fbbf24 45%, #d97706 100%);
+  }
+
+  /* Lugia-specific gradient: silver-blue, for ethereal elements */
+  .lugia-gradient {
+    background: linear-gradient(135deg, #e2e8f0 0%, #93c5fd 45%, #1e40af 100%);
   }
 
   .card-hover {
@@ -63,7 +84,7 @@
   .card-hover:hover {
     transform: translateY(-4px);
     border-color: var(--color-accent);
-    box-shadow: 0 12px 40px -10px rgba(255, 203, 5, 0.25);
+    box-shadow: 0 12px 40px -10px rgba(251, 191, 36, 0.35);
   }
 
   .container-page {
