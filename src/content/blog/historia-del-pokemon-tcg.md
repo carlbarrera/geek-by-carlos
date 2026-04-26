@@ -4,7 +4,7 @@ description: "De Japón 1996 a la era Mega Evolution de 2026: un recorrido por l
 pubDate: 2026-04-24
 category: "Pokémon TCG"
 tags: ["historia", "base-set", "tcg-clasico", "wotc", "1999"]
-featured: true
+featured: false
 ---
 
 Todo lo que hoy conocemos como "Pokémon TCG" — Mega Charizard X a $836, Moonbreon a $2.000, sobres agotándose en minutos — arrancó en **octubre de 1996** con 102 cartas, una compañía japonesa pequeña, y un video juego que apenas llevaba 8 meses en el mercado. Esta es la historia de cómo un producto diseñado para vender más copias de Pokémon Red/Blue se convirtió en uno de los TCG más exitosos de la historia.
