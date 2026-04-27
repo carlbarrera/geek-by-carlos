@@ -1,0 +1,78 @@
+---
+interface Props {
+  /** Era name, e.g. "WotC Base" */
+  name: string;
+  /** Years span, e.g. "1999-2003" */
+  years: string;
+  /** Iconic card image URL */
+  image: string;
+  /** Iconic card name caption */
+  cardName: string;
+  /** Key mechanic / theme of the era */
+  mechanic: string;
+  /** Theme color for the era (hex) */
+  color?: string;
+  /** Optional sequence number, e.g. "1" or "9" */
+  step?: string | number;
+}
+
+const {
+  name,
+  years,
+  image,
+  cardName,
+  mechanic,
+  color = '#fbbf24',
+  step,
+} = Astro.props;
+---
+
+<article class="relative rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-card)] overflow-hidden group hover:-translate-y-1 transition-transform duration-300"
+  style={`box-shadow: 0 12px 32px -16px ${color}40;`}
+>
+  {step != null && (
+    <div
+      class="absolute top-3 left-3 z-10 w-8 h-8 rounded-full flex items-center justify-center font-[var(--font-display)] font-bold text-xs"
+      style={`background: ${color}; color: #000;`}
+    >
+      {step}
+    </div>
+  )}
+
+  <div
+    class="relative aspect-[4/3] overflow-hidden"
+    style={`background: radial-gradient(circle at 50% 40%, ${color}25, transparent 70%), linear-gradient(135deg, #131722 0%, #0b0d12 100%);`}
+  >
+    <img
+      src={image}
+      alt={cardName}
+      loading="lazy"
+      decoding="async"
+      class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[120%] object-contain drop-shadow-2xl group-hover:scale-105 transition-transform duration-500"
+    />
+    <div class="absolute inset-0 bg-gradient-to-t from-[var(--color-bg-card)] via-transparent to-transparent pointer-events-none"></div>
+  </div>
+
+  <div
+    class="h-1.5 w-full"
+    style={`background: linear-gradient(90deg, ${color}, ${color}80);`}
+  ></div>
+
+  <div class="p-5">
+    <p class="text-[10px] uppercase tracking-[0.2em] text-[var(--color-text-mute)] mb-1">
+      {years}
+    </p>
+    <h3
+      class="font-[var(--font-display)] text-xl font-bold leading-tight mb-2"
+      style={`color: ${color};`}
+    >
+      {name}
+    </h3>
+    <p class="text-sm text-[var(--color-text-dim)] leading-relaxed mb-3">
+      {mechanic}
+    </p>
+    <p class="text-xs text-[var(--color-text-mute)] italic border-t border-[var(--color-border)] pt-3">
+      Carta ícono: <span class="text-[var(--color-text-dim)] not-italic font-medium">{cardName}</span>
+    </p>
+  </div>
+</article>

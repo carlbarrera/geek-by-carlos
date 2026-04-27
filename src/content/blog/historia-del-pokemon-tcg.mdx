@@ -10,6 +10,7 @@ featured: false
 import Callout from '../../components/blog/Callout.astro';
 import StatsBox from '../../components/blog/StatsBox.astro';
 import CardShowcase from '../../components/blog/CardShowcase.astro';
+import EraCard from '../../components/blog/EraCard.astro';
 
 Todo lo que hoy conocemos como "Pokémon TCG" — Mega Charizard X a $836, Moonbreon a $2.000, sobres agotándose en minutos — arrancó en **octubre de 1996** con 102 cartas, una compañía japonesa pequeña, y un video juego que apenas llevaba 8 meses en el mercado. Esta es la historia de cómo un producto diseñado para vender más copias de Pokémon Red/Blue se convirtió en uno de los TCG más exitosos de la historia.
 
@@ -106,19 +107,91 @@ Si agarras una carta de 1999 y una de Mega Evolution de 2025, el **95% de las me
 
 En 2003, Wizards of the Coast perdió la licencia. **Pokémon USA (hoy The Pokémon Company International, TPCi)** tomó el control directo del TCG en Occidente.
 
-### Timeline de eras
+### Las 9 eras del Pokémon TCG (con su carta ícono)
 
-| Era | Años | Mecánica clave |
-|---|---|---|
-| **WotC Base** | 1999-2003 | Las raíces |
-| **EX** | 2003-2007 | Pokémon-EX (primeros prize-2) |
-| **Diamond & Pearl** | 2007-2010 | Evolution lines complejas |
-| **Black & White** | 2011-2013 | Simplificación |
-| **XY** | 2014-2016 | **Mega Pokémon (1ra vez)** |
-| **Sun & Moon** | 2017-2019 | Pokémon-GX, Tag Teams |
-| **Sword & Shield** | 2020-2022 | V, VMAX, VSTAR (era boom) |
-| **Scarlet & Violet** | 2023-2025 | Pokémon ex modernos, SIR |
-| **Mega Evolution** | 2025-presente | **Megas regresan** |
+<div class="not-prose my-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+  <EraCard
+    step={1}
+    name="WotC Base"
+    years="1999-2003"
+    image="https://images.pokemontcg.io/base1/4_hires.png"
+    cardName="Charizard #4 Base Set"
+    mechanic="Las raíces. Wizards of the Coast lleva el TCG a Occidente. Charizard Base se vuelve la carta más icónica de la historia."
+    color="#ef4444"
+  />
+  <EraCard
+    step={2}
+    name="EX"
+    years="2003-2007"
+    image="https://images.pokemontcg.io/ex11/1_hires.png"
+    cardName="Beedrill δ (Delta Species)"
+    mechanic="Pokémon USA toma el control. Aparecen los Pokémon-EX (primeros prize-2) y la era de las Delta Species con tipos cambiados."
+    color="#f59e0b"
+  />
+  <EraCard
+    step={3}
+    name="Diamond & Pearl"
+    years="2007-2010"
+    image="https://images.pokemontcg.io/dp1/1_hires.png"
+    cardName="Dialga (DP base)"
+    mechanic="Evolution lines complejas, primeros legendarios de Sinnoh y la introducción del tipo Acero como tipo independiente."
+    color="#06b6d4"
+  />
+  <EraCard
+    step={4}
+    name="Black & White"
+    years="2011-2013"
+    image="https://images.pokemontcg.io/bw1/26_hires.png"
+    cardName="Reshiram (BW base)"
+    mechanic="Simplificación de las mecánicas. Reshiram y Zekrom como caras del bloque. Vuelven los box legendaries protagonistas."
+    color="#fbbf24"
+  />
+  <EraCard
+    step={5}
+    name="XY"
+    years="2014-2016"
+    image="https://images.pokemontcg.io/xy2/13_hires.png"
+    cardName="M Charizard EX (Flashfire)"
+    mechanic="🔥 Primera era de Mega Pokémon. Mega Charizard X y Y se vuelven cartas chase. La estética cambia completamente."
+    color="#dc2626"
+  />
+  <EraCard
+    step={6}
+    name="Sun & Moon"
+    years="2017-2019"
+    image="https://images.pokemontcg.io/sm9/33_hires.png"
+    cardName="Pikachu & Zekrom GX (Team Up)"
+    mechanic="Pokémon-GX y los Tag Team GX (dos Pokémon en una carta). Hidden Fates introduce el formato Shiny Vault."
+    color="#facc15"
+  />
+  <EraCard
+    step={7}
+    name="Sword & Shield"
+    years="2020-2022"
+    image="https://images.pokemontcg.io/swsh7/215_hires.png"
+    cardName="Umbreon VMAX 'Moonbreon'"
+    mechanic="La era del boom. V, VMAX y VSTAR. Llega la pandemia, los precios explotan y nace el coleccionismo moderno masivo."
+    color="#1e293b"
+  />
+  <EraCard
+    step={8}
+    name="Scarlet & Violet"
+    years="2023-2025"
+    image="https://images.pokemontcg.io/sv3pt5/199_hires.png"
+    cardName="Charizard ex (Pokémon 151)"
+    mechanic="Pokémon ex modernos y la nueva rareza Special Illustration Rare (SIR). Producción aumentada estabiliza el mercado."
+    color="#3b82f6"
+  />
+  <EraCard
+    step={9}
+    name="Mega Evolution"
+    years="2025-presente"
+    image="https://images.pokemontcg.io/me2/125_hires.png"
+    cardName="Mega Charizard X ex SIR"
+    mechanic="✨ Los Megas regresan 10 años después de XY. Mega Charizard X SIR se vuelve la chase del año a $836 USD."
+    color="#fbbf24"
+  />
+</div>
 
 ## 2020 — El boom explosivo
 
