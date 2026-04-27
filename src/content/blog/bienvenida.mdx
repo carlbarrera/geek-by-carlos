@@ -9,8 +9,15 @@ featured: false
 
 import Callout from '../../components/blog/Callout.astro';
 import StatsBox from '../../components/blog/StatsBox.astro';
+import CardGrid from '../../components/blog/CardGrid.astro';
+import MiniCard from '../../components/blog/MiniCard.astro';
 
 ¡Hola! Si llegaste hasta aquí, gracias por pasar. Este es el primer post oficial de **Geek By Carlos**, mi proyecto personal donde voy a compartir todo lo que me apasiona del mundo geek, especialmente del **Pokémon Trading Card Game**.
+
+<figure>
+  <img src="/logo.jpeg" alt="Logo de Geek By Carlos — badge circular con Pokébola, Rayquaza, Game Boy y Guantelete del Infinito" />
+  <figcaption>El logo del proyecto: Pokémon, retro gaming y todo lo geek en una sola moneda.</figcaption>
+</figure>
 
 <StatsBox
   title="El plan en cifras"
@@ -48,6 +55,49 @@ Mi plan inicial cubre cuatro grandes líneas:
   Porque mi mundo no es solo Pokémon — también hay videojuegos, cómics, retro y todo lo que se cruce. Posts ocasionales fuera del TCG.
 </Callout>
 
+## Las cartas que me obsesionan
+
+Para que tengas idea del nivel de pasión: estas son algunas de las cartas que han redefinido el coleccionismo Pokémon TCG moderno y de las que vamos a hablar mucho en este blog.
+
+<CardGrid title="Algunas de mis cartas favoritas para hablar">
+  <MiniCard
+    image="https://images.pokemontcg.io/sv8pt5/161_hires.png"
+    name="Umbreon ex SIR"
+    number="161"
+    price={1471.16}
+    color="#a855f7"
+    tcgplayerUrl="https://prices.pokemontcg.io/tcgplayer/sv8pt5-161"
+    rank="🌙"
+  />
+  <MiniCard
+    image="https://images.pokemontcg.io/me2/125_hires.png"
+    name="Mega Charizard X ex"
+    number="125"
+    price={836.07}
+    color="#ef4444"
+    tcgplayerUrl="https://prices.pokemontcg.io/tcgplayer/me2-125"
+    rank="🔥"
+  />
+  <MiniCard
+    image="https://images.pokemontcg.io/me1/181_hires.png"
+    name="Mega Latias ex SIR"
+    number="181"
+    price={85.22}
+    color="#9333ea"
+    tcgplayerUrl="https://prices.pokemontcg.io/tcgplayer/me1-181"
+    rank="✨"
+  />
+  <MiniCard
+    image="https://images.pokemontcg.io/swsh7/215_hires.png"
+    name="Moonbreon"
+    number="215"
+    price={2023.52}
+    color="#1e293b"
+    tcgplayerUrl="https://prices.pokemontcg.io/tcgplayer/swsh7-215"
+    rank="👑"
+  />
+</CardGrid>
+
 ## ¿Y la tienda?
 
 Sí, la idea es que este blog evolucione. En el mediano plazo voy a abrir una sección de **tienda con producto sellado original** (sobres, ETBs, accesorios) para la comunidad colombiana y latinoamericana. Pero primero quiero construir una base de contenido sólida y una comunidad real.
@@ -59,7 +109,7 @@ Sí, la idea es que este blog evolucione. En el mediano plazo voy a abrir una se
 ## ¿Cómo puedes acompañarme?
 
 - **Lee los artículos** y compártelos si te gustan
-- **Escríbeme** si tienes ideas de temas o preguntas a `carlisbarrera29@gmail.com`
+- **Escríbeme** si tienes ideas de temas o preguntas a [carlos@geekbycarlos.com](mailto:carlos@geekbycarlos.com)
 - **Vuelve seguido** — la idea es publicar al menos un post cada semana
 
 Gracias por estar acá desde el día uno. Esto apenas empieza.
