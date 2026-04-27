@@ -1,0 +1,65 @@
+---
+interface Props {
+  image: string;
+  name: string;
+  number?: string;
+  price?: number;
+  color?: string;
+  tcgplayerUrl?: string;
+  rank?: number | string;
+}
+
+const { image, name, number, price, color = '#fbbf24', tcgplayerUrl, rank } = Astro.props;
+
+const fmtUSD = (n?: number) =>
+  typeof n === 'number'
+    ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n)
+    : '—';
+
+const Wrapper = tcgplayerUrl ? 'a' : 'div';
+const wrapperProps = tcgplayerUrl
+  ? { href: tcgplayerUrl, target: '_blank', rel: 'noopener noreferrer' }
+  : {};
+---
+
+<Wrapper
+  {...wrapperProps}
+  class="relative block rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-card)] overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl"
+  style={`box-shadow: 0 8px 24px -16px ${color}66;`}
+>
+  {rank != null && (
+    <div
+      class="absolute top-2 left-2 z-10 w-7 h-7 rounded-full flex items-center justify-center font-[var(--font-display)] font-bold text-xs"
+      style={`background: ${color}; color: #000;`}
+    >
+      {rank}
+    </div>
+  )}
+
+  <div
+    class="relative aspect-[3/4] overflow-hidden"
+    style={`background: radial-gradient(circle at 50% 30%, ${color}25, transparent 70%), linear-gradient(135deg, #131722 0%, #0b0d12 100%);`}
+  >
+    <img
+      src={image}
+      alt={name}
+      loading="lazy"
+      decoding="async"
+      class="absolute inset-0 w-full h-full object-contain p-2 drop-shadow-xl"
+    />
+  </div>
+
+  <div class="p-3 pt-2.5 border-t border-[var(--color-border)]">
+    <p class="font-[var(--font-display)] text-sm font-bold text-white leading-tight truncate">
+      {name}
+    </p>
+    <div class="flex items-baseline justify-between mt-1">
+      {number && <span class="text-[10px] text-[var(--color-text-mute)] font-mono">#{number}</span>}
+      {price != null && (
+        <span class="font-[var(--font-display)] font-bold text-sm" style={`color: ${color};`}>
+          {fmtUSD(price)}
+        </span>
+      )}
+    </div>
+  </div>
+</Wrapper>

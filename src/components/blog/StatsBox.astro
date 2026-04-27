@@ -1,0 +1,46 @@
+---
+interface Stat {
+  label: string;
+  value: string;
+  hint?: string;
+  color?: string;
+}
+
+interface Props {
+  stats: Stat[];
+  title?: string;
+}
+
+const { stats, title } = Astro.props;
+---
+
+<div class="not-prose my-7">
+  {title && (
+    <p class="text-xs uppercase tracking-[0.25em] text-[var(--color-accent)] font-semibold mb-3">
+      {title}
+    </p>
+  )}
+  <div class={`grid grid-cols-2 sm:grid-cols-${Math.min(stats.length, 4)} gap-3`}>
+    {stats.map((stat) => (
+      <div
+        class="rounded-xl border p-4"
+        style={`background: linear-gradient(135deg, ${stat.color ?? '#fbbf24'}10, var(--color-bg-card)); border-color: ${stat.color ?? 'var(--color-border)'}40;`}
+      >
+        <p class="text-[10px] uppercase tracking-wider text-[var(--color-text-mute)] mb-1.5">
+          {stat.label}
+        </p>
+        <p
+          class="font-[var(--font-display)] font-bold text-xl mb-1 leading-none"
+          style={`color: ${stat.color ?? 'var(--color-accent)'};`}
+        >
+          {stat.value}
+        </p>
+        {stat.hint && (
+          <p class="text-[11px] text-[var(--color-text-dim)] leading-tight">
+            {stat.hint}
+          </p>
+        )}
+      </div>
+    ))}
+  </div>
+</div>

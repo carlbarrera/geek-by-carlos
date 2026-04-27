@@ -1,0 +1,90 @@
+---
+interface Row {
+  name: string;
+  price: number | null;
+  rank?: number | string;
+  note?: string;
+  color?: string;
+}
+
+interface Props {
+  rows: Row[];
+  title?: string;
+  /** Currency (default USD) */
+  currency?: 'USD' | 'COP';
+  /** Show total row at bottom */
+  total?: boolean;
+}
+
+const { rows, title, currency = 'USD', total = false } = Astro.props;
+
+const fmt = (n: number | null) => {
+  if (n == null) return '—';
+  return new Intl.NumberFormat(currency === 'USD' ? 'en-US' : 'es-CO', {
+    style: 'currency',
+    currency,
+    maximumFractionDigits: currency === 'USD' ? 2 : 0,
+  }).format(n);
+};
+
+const sumPrices = rows.reduce((acc, r) => acc + (r.price ?? 0), 0);
+
+const rankMedal: Record<string, string> = {
+  '1': '🥇',
+  '2': '🥈',
+  '3': '🥉',
+};
+---
+
+<div class="not-prose my-7 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-card)] overflow-hidden">
+  {title && (
+    <div class="px-5 py-3 border-b border-[var(--color-border)] bg-[var(--color-bg-elev)]">
+      <h3 class="font-[var(--font-display)] font-bold text-base text-white">
+        {title}
+      </h3>
+    </div>
+  )}
+
+  <table class="w-full">
+    <thead class="text-[10px] uppercase tracking-wider text-[var(--color-text-mute)] bg-[var(--color-bg-elev)]/50">
+      <tr>
+        <th class="text-left px-4 py-2 font-semibold w-12">#</th>
+        <th class="text-left px-4 py-2 font-semibold">Carta</th>
+        <th class="text-right px-4 py-2 font-semibold">Precio</th>
+      </tr>
+    </thead>
+    <tbody>
+      {rows.map((row) => {
+        const rankStr = String(row.rank ?? '');
+        const medal = rankMedal[rankStr];
+        return (
+          <tr class="border-t border-[var(--color-border)] hover:bg-[var(--color-bg-elev)]/30 transition-colors">
+            <td class="px-4 py-3 text-sm font-bold" style={`color: ${row.color ?? 'var(--color-text-dim)'};`}>
+              {medal || row.rank || ''}
+            </td>
+            <td class="px-4 py-3">
+              <p class="font-semibold text-white text-sm">{row.name}</p>
+              {row.note && <p class="text-xs text-[var(--color-text-mute)] mt-0.5">{row.note}</p>}
+            </td>
+            <td class="px-4 py-3 text-right">
+              <span class="font-[var(--font-display)] font-bold text-base" style={`color: ${row.color ?? 'var(--color-accent)'};`}>
+                {fmt(row.price)}
+              </span>
+            </td>
+          </tr>
+        );
+      })}
+      {total && (
+        <tr class="border-t-2 border-[var(--color-accent)] bg-[var(--color-bg-elev)]/40">
+          <td class="px-4 py-3"></td>
+          <td class="px-4 py-3 font-bold text-white uppercase text-xs tracking-wider">Total</td>
+          <td class="px-4 py-3 text-right">
+            <span class="font-[var(--font-display)] font-bold text-lg text-[var(--color-accent)]">
+              {fmt(sumPrices)}
+            </span>
+          </td>
+        </tr>
+      )}
+    </tbody>
+  </table>
+</div>

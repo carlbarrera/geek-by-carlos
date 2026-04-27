@@ -1,0 +1,145 @@
+---
+interface Props {
+  /** Card image URL (Pokémon TCG API or scrydex) */
+  image: string;
+  /** Card name */
+  name: string;
+  /** Card number, e.g. "4/102" */
+  number?: string;
+  /** Type, e.g. "Fuego", "Agua" */
+  type?: string;
+  /** HP value */
+  hp?: number;
+  /** Set name, e.g. "Base Set 1999" */
+  set?: string;
+  /** Illustrator credit */
+  illustrator?: string;
+  /** Market price in USD */
+  price?: number;
+  /** Optional TCGPlayer link */
+  tcgplayerUrl?: string;
+  /** Optional theme color (hex). Defaults to gold. */
+  color?: string;
+  /** Tagline shown above the name (e.g. "🥇 Chase card") */
+  tagline?: string;
+}
+
+const {
+  image,
+  name,
+  number,
+  type,
+  hp,
+  set,
+  illustrator,
+  price,
+  tcgplayerUrl,
+  color = '#fbbf24',
+  tagline,
+} = Astro.props;
+
+const fmtUSD = (n?: number) =>
+  typeof n === 'number'
+    ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }).format(n)
+    : null;
+---
+
+<figure class="not-prose my-7 group">
+  <div
+    class="grid sm:grid-cols-[180px_1fr] gap-5 sm:gap-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-card)] p-5 sm:p-6 transition-colors hover:border-[var(--color-accent)]"
+    style={`background-image: linear-gradient(135deg, ${color}10 0%, transparent 50%);`}
+  >
+    <div class="relative justify-self-center sm:justify-self-start shrink-0">
+      <div
+        class="absolute inset-0 blur-2xl opacity-30 group-hover:opacity-50 transition-opacity rounded-full"
+        style={`background: ${color};`}
+      ></div>
+      <img
+        src={image}
+        alt={name}
+        loading="lazy"
+        decoding="async"
+        class="relative w-44 sm:w-[180px] rounded-xl shadow-2xl shadow-black/40 group-hover:rotate-1 transition-transform duration-500"
+      />
+    </div>
+
+    <div class="min-w-0">
+      {tagline && (
+        <p class="text-xs font-bold uppercase tracking-[0.2em] mb-1.5" style={`color: ${color};`}>
+          {tagline}
+        </p>
+      )}
+
+      <h3 class="font-[var(--font-display)] text-2xl font-bold leading-tight mb-2 text-white">
+        {name}
+      </h3>
+
+      {set && (
+        <p class="text-sm text-[var(--color-text-mute)] mb-4">
+          {set}{number ? ` · #${number}` : ''}
+        </p>
+      )}
+
+      <div class="flex flex-wrap gap-x-5 gap-y-2 text-sm mb-4">
+        {hp != null && (
+          <div>
+            <span class="text-[var(--color-text-mute)] uppercase text-[10px] tracking-wider mr-1.5">HP</span>
+            <span class="font-bold text-white">{hp}</span>
+          </div>
+        )}
+        {type && (
+          <div>
+            <span class="text-[var(--color-text-mute)] uppercase text-[10px] tracking-wider mr-1.5">Tipo</span>
+            <span class="font-bold text-white">{type}</span>
+          </div>
+        )}
+        {illustrator && (
+          <div>
+            <span class="text-[var(--color-text-mute)] uppercase text-[10px] tracking-wider mr-1.5">Ilustrador</span>
+            <span class="font-medium text-[var(--color-text-dim)]">{illustrator}</span>
+          </div>
+        )}
+      </div>
+
+      <div class="card-body text-[0.95rem] text-[var(--color-text-dim)] leading-relaxed mb-4">
+        <slot />
+      </div>
+
+      {(price != null || tcgplayerUrl) && (
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-[var(--color-border)]">
+          {price != null && (
+            <div>
+              <p class="text-[10px] uppercase tracking-wider text-[var(--color-text-mute)] leading-none mb-1">
+                TCGPlayer market
+              </p>
+              <p class="font-[var(--font-display)] font-bold text-xl" style={`color: ${color};`}>
+                {fmtUSD(price)}
+              </p>
+            </div>
+          )}
+          {tcgplayerUrl && (
+            <a
+              href={tcgplayerUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg bg-[var(--color-bg-elev)] border border-[var(--color-border)] text-[var(--color-text-dim)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] transition-colors"
+            >
+              Ver en TCGPlayer
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M7 17L17 7"></path>
+                <path d="M7 7h10v10"></path>
+              </svg>
+            </a>
+          )}
+        </div>
+      )}
+    </div>
+  </div>
+</figure>
+
+<style>
+  .card-body :global(p) { margin-bottom: 0.5rem; }
+  .card-body :global(p:last-child) { margin-bottom: 0; }
+  .card-body :global(strong) { color: var(--color-text); font-weight: 600; }
+  .card-body :global(em) { color: var(--color-accent); font-style: italic; }
+</style>

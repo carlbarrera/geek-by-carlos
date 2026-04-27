@@ -1,0 +1,27 @@
+---
+interface Props {
+  /** Optional title shown above the grid */
+  title?: string;
+  /** Number of columns at lg breakpoint (default 3) */
+  cols?: 2 | 3 | 4;
+}
+
+const { title, cols = 3 } = Astro.props;
+
+const colClass = {
+  2: 'sm:grid-cols-2',
+  3: 'sm:grid-cols-2 lg:grid-cols-3',
+  4: 'sm:grid-cols-2 lg:grid-cols-4',
+}[cols];
+---
+
+<div class="not-prose my-8">
+  {title && (
+    <h3 class="font-[var(--font-display)] text-xl font-bold mb-5 text-white">
+      {title}
+    </h3>
+  )}
+  <div class={`grid grid-cols-1 ${colClass} gap-4`}>
+    <slot />
+  </div>
+</div>

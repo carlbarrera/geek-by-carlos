@@ -1,0 +1,57 @@
+---
+type CalloutType = 'info' | 'tip' | 'warning' | 'danger' | 'success';
+
+interface Props {
+  type?: CalloutType;
+  title?: string;
+}
+
+const { type = 'info', title } = Astro.props;
+
+const palette: Record<CalloutType, { bg: string; border: string; accent: string; icon: string; defaultTitle: string }> = {
+  info:    { bg: 'rgba(59,130,246,0.08)',  border: '#3b82f6', accent: '#93c5fd', icon: 'ℹ️',  defaultTitle: 'Nota' },
+  tip:     { bg: 'rgba(34,197,94,0.08)',   border: '#22c55e', accent: '#86efac', icon: '💡',  defaultTitle: 'Tip' },
+  warning: { bg: 'rgba(251,191,36,0.10)',  border: '#fbbf24', accent: '#fde047', icon: '⚠️',  defaultTitle: 'Atención' },
+  danger:  { bg: 'rgba(239,68,68,0.10)',   border: '#ef4444', accent: '#fca5a5', icon: '🚨',  defaultTitle: 'Cuidado' },
+  success: { bg: 'rgba(34,197,94,0.08)',   border: '#22c55e', accent: '#86efac', icon: '✅',  defaultTitle: 'Bien hecho' },
+};
+
+const c = palette[type];
+const heading = title ?? c.defaultTitle;
+---
+
+<aside
+  class="my-6 rounded-xl border-l-4 p-5 not-prose"
+  style={`background: ${c.bg}; border-color: ${c.border};`}
+  role="note"
+>
+  <div class="flex items-start gap-3">
+    <span class="text-xl shrink-0 leading-none mt-0.5" aria-hidden="true">{c.icon}</span>
+    <div class="flex-1 min-w-0">
+      <p class="font-[var(--font-display)] font-bold text-base mb-1.5" style={`color: ${c.accent};`}>
+        {heading}
+      </p>
+      <div class="text-[var(--color-text-dim)] leading-relaxed text-[0.95rem] callout-body">
+        <slot />
+      </div>
+    </div>
+  </div>
+</aside>
+
+<style>
+  .callout-body :global(p) { margin-bottom: 0.5rem; }
+  .callout-body :global(p:last-child) { margin-bottom: 0; }
+  .callout-body :global(a) {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .callout-body :global(strong) { color: var(--color-text); }
+  .callout-body :global(code) {
+    background: var(--color-bg-card);
+    padding: 0.1rem 0.35rem;
+    border-radius: 0.25rem;
+    font-size: 0.85em;
+    color: var(--color-accent);
+  }
+</style>
