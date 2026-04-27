@@ -4,7 +4,7 @@ description: "Carta por carta del Base Set legendario de 1999: HP, ataques, ilus
 pubDate: 2026-04-26
 category: "Pokémon TCG"
 tags: ["base-set", "1999", "wotc", "historia", "coleccionismo", "holograficas"]
-featured: true
+featured: false
 ---
 
 En el [post anterior](/blog/historia-del-pokemon-tcg/) repasamos cómo nació el Pokémon TCG en Japón 1996 y llegó a Occidente en 1999. Hoy bajamos al detalle de **las 16 cartas más buscadas de aquel Base Set original** — las **holográficas**.

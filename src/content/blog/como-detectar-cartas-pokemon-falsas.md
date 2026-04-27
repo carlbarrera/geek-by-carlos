@@ -1,0 +1,239 @@
+---
+title: "Cómo detectar cartas Pokémon falsas en 2026 (guía completa con 9 tests)"
+description: "Con cartas valiendo cientos o miles de dólares, los falsificadores se han vuelto profesionales. Aprende los 9 tests clave para detectar fakes — desde el peso hasta el rip test — con foco especial en Base Set 1999."
+pubDate: 2026-04-27
+category: "Guías"
+tags: ["falsificaciones", "guia", "base-set", "coleccionismo", "fakes"]
+featured: true
+---
+
+En los [dos posts](/blog/historia-del-pokemon-tcg/) [pasados](/blog/base-set-1999-las-16-holograficas/) hablamos de la historia del TCG y de cómo el Charizard Base Set Unlimited vale **$555 USD raw** (y $420.000 USD en PSA 10 1st Edition Shadowless).
+
+Con esos precios, ¿adivina qué pasó? **Los falsificadores se profesionalizaron.** Ya no son las "fakes" obvias del 2010 con colores chillones y errores de ortografía. Hoy te llegan reproducciones que **superan el 95% de imitación** — y solo se detectan con tests específicos.
+
+Esta es la guía completa. Si compras producto sellado, cartas sueltas en Mercado Libre, o lotes en grupos de Facebook, **léela entera antes de gastar plata**.
+
+---
+
+## ¿Por qué importa especialmente con Base Set 1999?
+
+Porque es el set **más falsificado de la historia** del Pokémon TCG. Razones:
+
+1. **Precio alto:** un Charizard auténtico = $556 USD. Una falsificación = $0.50 USD producirla.
+2. **Edad:** el desgaste natural ayuda a disimular fallas de impresión modernas.
+3. **Demanda nostálgica:** millones de adultos quieren su Charizard de la infancia y compran sin verificar.
+4. **Fakes se han mejorado mucho:** las falsificaciones del 2024-2026 incluyen patrones holográficos casi idénticos.
+
+---
+
+## Los 9 tests para detectar una carta falsa
+
+### 1. ⚖️ Test de peso (el más confiable)
+
+**Carta auténtica:** entre **1.65 y 1.90 gramos** (promedio ~1.78g).
+
+**Falsificaciones comunes:**
+- **Más livianas (1.0-1.5g):** papel delgado sin la capa de foil interno
+- **Más pesadas (2.0-2.5g):** doble capa de cartón pegado
+
+**Cómo medirlo:** una báscula digital de cocina con precisión de 0.1g (cuestan $30.000 COP en cualquier parte). Compara con una carta moderna oficial — debería estar en el mismo rango.
+
+> **Truco profesional:** si vas a una tienda física a comprar cartas individuales caras, lleva tu báscula de bolsillo. Si el vendedor se molesta, ya tienes tu respuesta.
+
+---
+
+### 2. 💡 Test de luz (no destructivo)
+
+Las cartas Pokémon tienen **3 capas internas**:
+- Capa exterior superior (frente con arte)
+- **Capa intermedia negra** (el secreto del peso correcto)
+- Capa exterior inferior (back azul)
+
+**El test:** sostén la carta contra una bombilla LED brillante (linterna del celular sirve).
+
+- **Auténtica:** **no pasa la luz** o pasa apenas un poco amarillento (la capa negra bloquea)
+- **Falsificación:** pasa **mucha luz** porque le falta la capa negra
+
+Es el mejor test rápido sin necesidad de báscula.
+
+---
+
+### 3. ✂️ Rip test (definitivo pero destructivo)
+
+⚠️ **Solo úsalo en cartas de las que estás 95% seguro que son fakes.** Una vez rasgada, la carta es inservible.
+
+**Cómo:** sostén la carta por una esquina y rasga apenas 1-2mm. Mira el corte.
+
+- **Auténtica:** verás claramente **3 capas** — blanca (frente), **negra (centro)**, azul (atrás)
+- **Falsificación:** solo verás 2 capas o 1 sola, **sin la línea negra**
+
+Es 100% definitivo. Pero la mayoría de coleccionistas no lo hace porque destruye la carta.
+
+---
+
+### 4. 🔤 Test de fuente y texto
+
+Las falsificaciones suelen fallar en **detalles tipográficos**.
+
+**Qué revisar en cualquier carta auténtica:**
+- **Fonts uniformes** y nítidos (sin pixelación cuando haces zoom)
+- **Espaciado consistente** entre letras y palabras
+- **Símbolos de energía** con bordes claros y colores vivos
+- **Letra "é" en "Pokémon"** correctamente acentuada (muchos fakes ponen "Pokemon" sin acento)
+- **Números de carta** en la posición exacta (esquina inferior derecha generalmente)
+
+**Test rápido:** zoom 4x con la cámara del celular sobre el texto pequeño. Si ves pixelación o bordes irregulares = fake.
+
+---
+
+### 5. 🎨 Test del símbolo del set
+
+**Aquí Base Set tiene un dato único:** el Base Set original de 1999 es el **único set sin símbolo**. Todas las demás expansiones (Jungle, Fossil, Team Rocket en adelante) tienen un símbolo distintivo al lado del número de carta.
+
+**Reglas:**
+- Si una carta dice "Charizard #4/102" y **TIENE** un símbolo de set → **FALSA**
+- Si una carta dice "Charizard #4/102" y **NO** tiene símbolo → puede ser auténtica del Base Set
+
+Para sets posteriores, busca el símbolo correcto del set en [PokemonCard.io](https://pokemoncard.io/sets) o pkmn.gg.
+
+---
+
+### 6. ✨ Test del holográfico
+
+Las cartas holográficas tienen patrones de foil específicos según la era:
+
+**Base Set holos (1999):**
+- Foil **solo en el arte** (no en bordes ni texto)
+- Patrón "estrellitas" o "lluvia diagonal" sutil
+- El holo se ve **multicromático** al inclinar la carta
+
+**Falsificaciones comunes:**
+- Foil que cubre **toda la carta** (incluyendo el marco) → fake
+- Patrón holo demasiado uniforme o con líneas rectas → fake
+- Holo sin cambio de color al inclinar → fake
+
+**Test rápido:** inclina la carta bajo luz natural. Una holo auténtica cambia de color visiblemente; una fake apenas brilla.
+
+---
+
+### 7. 🃏 Test del back (parte de atrás)
+
+El back de Pokémon (la imagen azul con la Pokébola y "Pokémon" arriba) es **idéntico en todas las cartas oficiales** desde 1999.
+
+**Compara con una carta auténtica conocida:**
+- **Tono del azul:** idéntico (un azul "denim" específico)
+- **Bordes:** mismo grosor (~3mm)
+- **Logo "Pokémon" arriba:** misma fuente, mismo tamaño
+- **Pokébola del centro:** mismas proporciones
+
+**Falsificaciones comunes:**
+- Azul más claro u opaco
+- Logo "Pokémon" más grueso o más delgado
+- Pokébola con proporciones raras
+
+**Tip:** si tienes una carta auténtica nueva, ponla **espalda con espalda** con la sospechosa. Las diferencias saltan inmediatamente.
+
+---
+
+### 8. 📏 Test de tamaño y bordes
+
+Las cartas auténticas miden **63mm × 88mm** (estándar Magic/Pokémon/Yu-Gi-Oh).
+
+**Qué verificar:**
+- **Tamaño exacto:** una regla en mm es suficiente
+- **Bordes redondeados consistentes:** todas las esquinas del mismo radio
+- **Bordes blancos:** del mismo grosor en los 4 lados (a menos que sea full-art)
+
+**Falsificaciones comunes:**
+- Bordes blancos asimétricos (más grueso de un lado que del otro = corte mal hecho)
+- Esquinas demasiado redondeadas o demasiado puntudas
+- Tamaño 1-2mm más pequeño (típico de fakes chinos baratos)
+
+---
+
+### 9. 🏷️ Test del Regulation Mark (cartas modernas, 2020+)
+
+Esto solo aplica a cartas **a partir de Sword & Shield (2020)**. Tienen una pequeña letra en la esquina inferior izquierda del arte:
+
+| Letra | Era | Años |
+|---|---|---|
+| **D** | Sword & Shield base | 2020-2021 |
+| **E** | SwSh - Vivid Voltage en adelante | 2021-2022 |
+| **F** | SwSh - Brilliant Stars en adelante | 2022 |
+| **G** | Scarlet & Violet base | 2023-2024 |
+| **H** | SV - Twilight Masquerade en adelante | 2024-2025 |
+| **I** | Mega Evolution era | 2025+ |
+
+**Si una carta moderna no tiene regulation mark = falsa.**
+**Si tiene la letra incorrecta para su era = falsa.**
+
+Por ejemplo: un Mega Charizard X SIR de Phantasmal Flames (set me2, nov 2025) debe tener **"I"**. Si tiene "G" o "H" → fake.
+
+---
+
+## Casos reales en Colombia
+
+He visto estos en Mercado Libre y grupos de Facebook colombianos:
+
+### Estafa #1: "Booster Box sellada de Base Set" — $300.000 COP
+**Realidad:** Falsificación china con sobres re-sellados conteniendo cartas fake. El precio real de una booster box auténtica de Base Set sellada es **$50.000-$150.000 USD** ($200.000.000 COP o más). Si te ofrecen una por menos de $50 millones de pesos, es 100% falsa.
+
+### Estafa #2: "Lote 100 cartas Pokémon originales" — $80.000 COP
+**Realidad:** 80% son cartas de juegos de imitación (Bandai, etc.) o impresiones caseras. El truco: las primeras 5-10 son auténticas comunes baratas para que pases el test rápido.
+
+### Estafa #3: "Charizard Base Set holográfico" — $200.000 COP
+**Realidad:** A ese precio (~$50 USD) y con foto borrosa, es siempre fake. Un Charizard auténtico Unlimited NM cuesta **$2.000.000+ COP** ($500+ USD).
+
+> **Regla de oro:** si el precio parece **demasiado bueno**, es una falsificación. Los precios reales del mercado están publicados en TCGPlayer y pkmn.gg — usa esos como referencia.
+
+---
+
+## Apps y herramientas que te van a salvar
+
+### Verificación rápida (gratis)
+- **[TCGPlayer](https://www.tcgplayer.com)** — busca el nombre exacto de la carta + set, ve precios de mercado
+- **[pkmn.gg](https://pkmn.gg)** — base de datos visual con todas las cartas auténticas
+- **[Bulbapedia](https://bulbapedia.bulbagarden.net)** — descripciones detalladas de cada set
+
+### Verificación física (gratis o barato)
+- **Báscula digital de cocina** — $30.000 COP en cualquier mercado
+- **Linterna del celular** — gratis (test de luz)
+- **Lupa de joyero 10x** — $15.000 COP en Mercado Libre, esencial para revisar fonts
+
+### Verificación profesional (paga)
+- **PSA, BGS, CGC** — los 3 grading services oficiales. Cuesta $15-$50 USD por carta. Para cartas de $200+ USD vale la pena.
+- **Ludkins Collectibles** (UK) — servicio de autenticación remoto si el grading queda muy caro
+
+---
+
+## Si ya te estafaron, qué hacer
+
+1. **Mercado Libre Colombia:** abre disputa por "producto inauténtico". Si tienes fotos comparativas con cartas reales, ML reembolsa en el 80% de los casos.
+2. **Facebook Marketplace:** reporta al vendedor + a Facebook. Si pagaste por transferencia, considera perdida.
+3. **PayPal (compras internacionales):** "Item not as described" — PayPal devuelve plata casi siempre.
+4. **Tarjeta de crédito:** chargeback al banco. Tu banco te respalda hasta 90 días después de la transacción.
+
+**Lo que NO debes hacer:**
+- Confrontar al vendedor por chat acusándolo (te bloquea y pierdes evidencia)
+- Devolver la carta sin antes documentar todo (fotos, mensajes, comprobantes)
+
+---
+
+## Cierre
+
+La regla más importante: **compra solo de fuentes verificadas**.
+
+- Tiendas físicas con reputación
+- Vendedores TCGPlayer con buen rating
+- Coleccionistas conocidos en grupos de Facebook con historial
+- Subastas de eBay con devoluciones garantizadas
+
+**Si vas a comprar cartas valiosas (>$100 USD), insiste en que esté graduada PSA/BGS/CGC.** Esto elimina el 99% del riesgo de falsificación.
+
+Y si tienes dudas con una carta — **pregunta antes de pagar**. La comunidad colombiana de TCG en Reddit (r/PokemonTCG) y Discord es muy activa y responde con paciencia.
+
+---
+
+**Próximo post:** voy a hacer un **review honesto del set Mega Charizard X SIR de Phantasmal Flames** — la carta más cara del bloque Mega ($836 USD). ¿Vale la pena? ¿Va a subir más? Análisis frío de oferta y demanda.
+
+*— Carlos*
