@@ -1,15 +1,15 @@
 {
-  "fetchedAt": "2026-04-27T20:50:00.303Z",
+  "fetchedAt": "2026-05-05T20:04:38.539Z",
   "prices": {
     "151": {
       "cardId": "sv3pt5-199",
       "name": "Charizard ex",
       "rarity": "Special Illustration Rare",
       "variant": "holofoil",
-      "market": 436.7,
-      "low": 379.99,
+      "market": 427.4,
+      "low": 379.69,
       "high": 1000,
-      "updatedAt": "2026/04/27",
+      "updatedAt": "2026/05/05",
       "tcgplayerUrl": "https://prices.pokemontcg.io/tcgplayer/sv3pt5-199"
     },
     "ascended-heroes": {
@@ -28,10 +28,10 @@
       "name": "Kyurem ex",
       "rarity": "Special Illustration Rare",
       "variant": "holofoil",
-      "market": 68.64,
-      "low": 67,
+      "market": 69.34,
+      "low": 70.57,
       "high": 703.8,
-      "updatedAt": "2026/04/27",
+      "updatedAt": "2026/05/05",
       "tcgplayerUrl": "https://prices.pokemontcg.io/tcgplayer/zsv10pt5-165"
     },
     "celebrations": {
@@ -39,10 +39,10 @@
       "name": "Charizard",
       "rarity": "Classic Collection",
       "variant": "holofoil",
-      "market": 194.6,
-      "low": 179,
-      "high": 4321,
-      "updatedAt": "2026/04/27",
+      "market": 193.78,
+      "low": 174.99,
+      "high": 999.99,
+      "updatedAt": "2026/05/05",
       "tcgplayerUrl": "https://prices.pokemontcg.io/tcgplayer/cel25c-4_A"
     },
     "crown-zenith": {
@@ -50,10 +50,10 @@
       "name": "Arceus VSTAR",
       "rarity": "Rare Secret",
       "variant": "holofoil",
-      "market": 155.84,
-      "low": 150,
-      "high": 1338.13,
-      "updatedAt": "2026/04/27",
+      "market": 164.86,
+      "low": 180,
+      "high": 1337.91,
+      "updatedAt": "2026/05/05",
       "tcgplayerUrl": "https://prices.pokemontcg.io/tcgplayer/swsh12pt5gg-GG70"
     },
     "destined-rivals": {
@@ -61,10 +61,10 @@
       "name": "Team Rocket's Moltres ex",
       "rarity": "Special Illustration Rare",
       "variant": "holofoil",
-      "market": 96.03,
-      "low": 93.71,
+      "market": 99.71,
+      "low": 95,
       "high": 919.9,
-      "updatedAt": "2026/04/27",
+      "updatedAt": "2026/05/05",
       "tcgplayerUrl": "https://prices.pokemontcg.io/tcgplayer/sv10-229"
     },
     "evolving-skies": {
@@ -72,10 +72,10 @@
       "name": "Umbreon VMAX",
       "rarity": "Rare Rainbow",
       "variant": "holofoil",
-      "market": 2031.51,
-      "low": 2000.99,
+      "market": 2136.24,
+      "low": 2012,
       "high": 6000,
-      "updatedAt": "2026/04/27",
+      "updatedAt": "2026/05/05",
       "tcgplayerUrl": "https://prices.pokemontcg.io/tcgplayer/swsh7-215"
     },
     "hidden-fates": {
@@ -83,10 +83,10 @@
       "name": "Moltres & Zapdos & Articuno-GX",
       "rarity": "Rare Rainbow",
       "variant": "holofoil",
-      "market": 40.86,
+      "market": 43.03,
       "low": 34.45,
-      "high": 210.76,
-      "updatedAt": "2026/04/27",
+      "high": 255.76,
+      "updatedAt": "2026/05/05",
       "tcgplayerUrl": "https://prices.pokemontcg.io/tcgplayer/sm115-69"
     },
     "journey-together": {
@@ -94,10 +94,10 @@
       "name": "Salamence ex",
       "rarity": "Special Illustration Rare",
       "variant": "holofoil",
-      "market": 62.7,
-      "low": 60,
+      "market": 63.34,
+      "low": 61.42,
       "high": 9999,
-      "updatedAt": "2026/04/27",
+      "updatedAt": "2026/05/05",
       "tcgplayerUrl": "https://prices.pokemontcg.io/tcgplayer/sv9-187"
     },
     "lost-origin": {
@@ -105,10 +105,10 @@
       "name": "Giratina V",
       "rarity": "Rare Ultra",
       "variant": "holofoil",
-      "market": 663.55,
-      "low": 625,
-      "high": 1450,
-      "updatedAt": "2026/04/27",
+      "market": 747.98,
+      "low": 629.99,
+      "high": 917.52,
+      "updatedAt": "2026/05/05",
       "tcgplayerUrl": "https://prices.pokemontcg.io/tcgplayer/swsh11-186"
     },
     "mega-evolution": {
@@ -116,10 +116,10 @@
       "name": "Mega Latias ex",
       "rarity": "Special Illustration Rare",
       "variant": "holofoil",
-      "market": 83.51,
-      "low": 74,
+      "market": 86.99,
+      "low": 81.69,
       "high": 999,
-      "updatedAt": "2026/04/27",
+      "updatedAt": "2026/05/05",
       "tcgplayerUrl": "https://prices.pokemontcg.io/tcgplayer/me1-181"
     },
     "paldea-evolved": {
@@ -127,10 +127,10 @@
       "name": "Meowscarada ex",
       "rarity": "Special Illustration Rare",
       "variant": "holofoil",
-      "market": 30.99,
-      "low": 24.99,
+      "market": 32,
+      "low": 29.7,
       "high": 275.32,
-      "updatedAt": "2026/04/27",
+      "updatedAt": "2026/05/05",
       "tcgplayerUrl": "https://prices.pokemontcg.io/tcgplayer/sv2-256"
     },
     "paldean-fates": {
@@ -138,10 +138,10 @@
       "name": "Charizard ex",
       "rarity": "Special Illustration Rare",
       "variant": "holofoil",
-      "market": 302.92,
-      "low": 300,
-      "high": 1514.6,
-      "updatedAt": "2026/04/27",
+      "market": 332.41,
+      "low": 270,
+      "high": 1662.05,
+      "updatedAt": "2026/05/05",
       "tcgplayerUrl": "https://prices.pokemontcg.io/tcgplayer/sv4pt5-234"
     },
     "paradox-rift": {
@@ -149,10 +149,10 @@
       "name": "Garchomp ex",
       "rarity": "Special Illustration Rare",
       "variant": "holofoil",
-      "market": 35.03,
-      "low": 27.6,
+      "market": 35.11,
+      "low": 33.99,
       "high": 100,
-      "updatedAt": "2026/04/27",
+      "updatedAt": "2026/05/05",
       "tcgplayerUrl": "https://prices.pokemontcg.io/tcgplayer/sv4-245"
     },
     "perfect-order": {
@@ -171,10 +171,10 @@
       "name": "Mega Charizard X ex",
       "rarity": "Special Illustration Rare",
       "variant": "holofoil",
-      "market": 809.45,
-      "low": 700.86,
+      "market": 889.17,
+      "low": 879.99,
       "high": 10000,
-      "updatedAt": "2026/04/27",
+      "updatedAt": "2026/05/05",
       "tcgplayerUrl": "https://prices.pokemontcg.io/tcgplayer/me2-125"
     },
     "prismatic-evolutions": {
@@ -182,10 +182,10 @@
       "name": "Umbreon ex",
       "rarity": "Special Illustration Rare",
       "variant": "holofoil",
-      "market": 1458.66,
-      "low": 1399.98,
+      "market": 1470.79,
+      "low": 1482.22,
       "high": 5000,
-      "updatedAt": "2026/04/27",
+      "updatedAt": "2026/05/05",
       "tcgplayerUrl": "https://prices.pokemontcg.io/tcgplayer/sv8pt5-161"
     },
     "shrouded-fable": {
@@ -193,10 +193,10 @@
       "name": "Okidogi ex",
       "rarity": "Special Illustration Rare",
       "variant": "holofoil",
-      "market": 20.51,
+      "market": 21.15,
       "low": 17,
-      "high": 4321,
-      "updatedAt": "2026/04/27",
+      "high": 999,
+      "updatedAt": "2026/05/05",
       "tcgplayerUrl": "https://prices.pokemontcg.io/tcgplayer/sv6pt5-90"
     },
     "silver-tempest": {
@@ -204,10 +204,10 @@
       "name": "Lugia V",
       "rarity": "Rare Ultra",
       "variant": "holofoil",
-      "market": 448.55,
+      "market": 459.31,
       "low": 400,
       "high": 3761.87,
-      "updatedAt": "2026/04/27",
+      "updatedAt": "2026/05/05",
       "tcgplayerUrl": "https://prices.pokemontcg.io/tcgplayer/swsh12-186"
     },
     "stellar-crown": {
@@ -215,10 +215,10 @@
       "name": "Terapagos ex",
       "rarity": "Special Illustration Rare",
       "variant": "holofoil",
-      "market": 33.27,
-      "low": 31.1,
+      "market": 77.18,
+      "low": 31.2,
       "high": 315.6,
-      "updatedAt": "2026/04/27",
+      "updatedAt": "2026/05/05",
       "tcgplayerUrl": "https://prices.pokemontcg.io/tcgplayer/sv7-170"
     },
     "surging-sparks": {
@@ -226,10 +226,10 @@
       "name": "Pikachu ex",
       "rarity": "Hyper Rare",
       "variant": "holofoil",
-      "market": 81.38,
-      "low": 81.96,
+      "market": 83.69,
+      "low": 71.99,
       "high": 568.7,
-      "updatedAt": "2026/04/27",
+      "updatedAt": "2026/05/05",
       "tcgplayerUrl": "https://prices.pokemontcg.io/tcgplayer/sv8-247"
     },
     "temporal-forces": {
@@ -237,10 +237,10 @@
       "name": "Gouging Fire ex",
       "rarity": "Special Illustration Rare",
       "variant": "holofoil",
-      "market": 34.07,
+      "market": 35.14,
       "low": 29.99,
       "high": 74.95,
-      "updatedAt": "2026/04/27",
+      "updatedAt": "2026/05/05",
       "tcgplayerUrl": "https://prices.pokemontcg.io/tcgplayer/sv5-204"
     },
     "twilight-masquerade": {
@@ -248,10 +248,10 @@
       "name": "Bloodmoon Ursaluna ex",
       "rarity": "Special Illustration Rare",
       "variant": "holofoil",
-      "market": 40.13,
-      "low": 36.81,
+      "market": 42.22,
+      "low": 37,
       "high": 999,
-      "updatedAt": "2026/04/27",
+      "updatedAt": "2026/05/05",
       "tcgplayerUrl": "https://prices.pokemontcg.io/tcgplayer/sv6-216"
     },
     "white-flare": {
@@ -259,10 +259,10 @@
       "name": "Keldeo ex",
       "rarity": "Special Illustration Rare",
       "variant": "holofoil",
-      "market": 54.38,
+      "market": 56.19,
       "low": 51.37,
       "high": 556.9,
-      "updatedAt": "2026/04/27",
+      "updatedAt": "2026/05/05",
       "tcgplayerUrl": "https://prices.pokemontcg.io/tcgplayer/rsv10pt5-167"
     }
   }
