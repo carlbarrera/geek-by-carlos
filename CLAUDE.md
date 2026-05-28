@@ -396,6 +396,7 @@ Lista actualizada cada vez que sale un post nuevo:
 
 | Fecha | Slug | Categoría |
 |---|---|---|
+| 2026-05-28 | `5-pokemon-no-charizard-coleccionista` ⭐ featured | Pokémon TCG |
 | 2026-05-23 | `charizard-a-traves-de-las-eras` | Pokémon TCG |
 | 2026-05-02 | `glosario-pokemon-tcg-2026` | Guías |
 | 2026-04-30 | `top-10-cartas-mas-caras-tcg-moderno` | Pokémon TCG |
@@ -407,7 +408,7 @@ Lista actualizada cada vez que sale un post nuevo:
 | 2026-04-20 | `guia-empezar-coleccionar-pokemon-tcg` | Guías |
 | 2026-04-15 | `scarlet-violet-impacto` | Reviews |
 
-**Post pendiente prometido:** "5 Pokémon que NO son Charizard que cualquier coleccionista debe tener" (incluir Eevee, Lugia, Mewtwo, Pikachu, Umbreon).
+**Post pendiente prometido:** "Análisis del meta competitivo actual del Pokémon TCG en 2026" — qué decks ganan torneos, base de cada arquetipo, qué cartas salen del Standard cuando rote SwSh en septiembre 2026.
 
 ---
 
