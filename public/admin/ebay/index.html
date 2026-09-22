@@ -20,7 +20,8 @@ body {
 }
 .header h1 { color:white; font-size:26px; margin-bottom:6px; }
 .header p { color:rgba(255,255,255,0.9); font-size:13px; }
-.grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; }
+@media (max-width:640px) { .grid { grid-template-columns:1fr; } }
 .tile {
   background:#131c3a; border:1px solid #2a3a6e;
   border-radius:14px; padding:26px 22px; text-decoration:none; color:inherit;
@@ -50,6 +51,11 @@ body {
       <div class="icon">📋</div>
       <h2>Ver pedidos</h2>
       <p>Lista de todo lo que se ha cargado</p>
+    </a>
+    <a class="tile" href="/admin/ebay/editar.html">
+      <div class="icon">🔧</div>
+      <h2>Editar pedido</h2>
+      <p>Agregar tracking, imagen o notas a un pedido existente</p>
     </a>
   </div>
 </div>

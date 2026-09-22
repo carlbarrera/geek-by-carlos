@@ -178,6 +178,52 @@ async function apiPedidosPost(request: Request, env: Env, userName: string): Pro
   return json({ ok: true, order_id: orderId, total_pedidos: ids.length });
 }
 
+async function apiPedidoEdit(request: Request, env: Env): Promise<Response> {
+  let body: Record<string, unknown>;
+  try {
+    body = await request.json();
+  } catch {
+    return json({ error: 'Body no es JSON válido' }, 400);
+  }
+  const orderId = toStr(body.order_id);
+  if (!orderId) return json({ error: 'order_id requerido' }, 400);
+  const key = `pedido:${orderId}`;
+  const raw = await env.PEDIDOS_KV.get(key);
+  if (!raw) return json({ error: 'no encontrado' }, 404);
+  const pedido = JSON.parse(raw);
+
+  // Tracking (crea/actualiza el primer tracking del array)
+  const trackingNum = toStr(body.tracking);
+  if ('tracking' in body || 'carrier' in body) {
+    const carrier = toStr(body.carrier);
+    if (trackingNum) {
+      pedido.trackings = [{ numero: trackingNum, carrier, carrier_raw: carrier }];
+    } else if ('tracking' in body) {
+      pedido.trackings = [];
+    }
+  }
+
+  // Imagen del primer item
+  if ('imagen' in body) {
+    if (!pedido.items) pedido.items = [{}];
+    if (!pedido.items[0]) pedido.items[0] = {};
+    pedido.items[0].imagen = toStr(body.imagen);
+  }
+
+  // URL del item
+  if ('item_url' in body) {
+    if (!pedido.items) pedido.items = [{}];
+    if (!pedido.items[0]) pedido.items[0] = {};
+    pedido.items[0].url = toStr(body.item_url);
+  }
+
+  // Notas
+  if ('notas' in body) pedido.notas = toStr(body.notas);
+
+  await env.PEDIDOS_KV.put(key, JSON.stringify(pedido));
+  return json({ ok: true, order_id: orderId });
+}
+
 async function apiMetaSave(request: Request, env: Env): Promise<Response> {
   let body: Record<string, unknown>;
   try {
@@ -284,6 +330,11 @@ export default {
       // Cambiar estado personal de un pedido
       if (path === '/api/ebay/pedidos/estado' && request.method === 'POST') {
         return apiPedidosEstado(request, env);
+      }
+
+      // Editar cualquier campo de un pedido (tracking, imagen, etc.)
+      if (path === '/api/ebay/pedidos/edit' && request.method === 'POST') {
+        return apiPedidoEdit(request, env);
       }
 
       // Compatibilidad con la UI local del dashboard
