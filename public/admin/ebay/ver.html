@@ -1594,7 +1594,14 @@ body {
                                         </div>
                                         <div class="field">
                                             <label>🚚 Carrier</label>
-                                            <input type="text" class="f-carrier" placeholder="eBay Standard / USPS / FedEx…" value="${escapeHtml((p.trackings && p.trackings[0] && p.trackings[0].carrier) || '')}">
+                                            <select class="f-carrier">
+                                                ${(() => {
+                                                    const current = (p.trackings && p.trackings[0] && p.trackings[0].carrier) || '';
+                                                    const opts = ['', 'eBay Standard Delivery', 'USPS', 'FedEx', 'UPS', 'DHL', 'USPS First Class', 'USPS Priority', 'USPS Ground Advantage', 'Otro'];
+                                                    if (current && !opts.includes(current)) opts.splice(1, 0, current);
+                                                    return opts.map(v => `<option value="${escapeHtml(v)}" ${v===current?'selected':''}>${v||'— Elegir —'}</option>`).join('');
+                                                })()}
+                                            </select>
                                         </div>
                                     </div>
                                     <div class="field">
