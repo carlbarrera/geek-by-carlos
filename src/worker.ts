@@ -178,6 +178,32 @@ async function apiPedidosPost(request: Request, env: Env, userName: string): Pro
   return json({ ok: true, order_id: orderId, total_pedidos: ids.length });
 }
 
+async function apiPedidosEstado(request: Request, env: Env): Promise<Response> {
+  let body: Record<string, unknown>;
+  try {
+    body = await request.json();
+  } catch {
+    return json({ error: 'Body no es JSON válido' }, 400);
+  }
+  const orderId = toStr(body.order_id);
+  if (!orderId) return json({ error: 'order_id requerido' }, 400);
+  const estado = toStr(body.estado_personal);
+  const ESTADOS_VALIDOS = ['', 'en-usa', 'en-camino', 'recibido', 'archivado'];
+  if (!ESTADOS_VALIDOS.includes(estado)) return json({ error: 'estado_personal inválido' }, 400);
+
+  const key = `pedido:${orderId}`;
+  const raw = await env.PEDIDOS_KV.get(key);
+  if (!raw) return json({ error: 'no encontrado' }, 404);
+
+  const pedido = JSON.parse(raw);
+  pedido.estado_personal = estado;
+  if (estado === 'recibido' && !pedido.fecha_recibido) {
+    pedido.fecha_recibido = new Date().toISOString();
+  }
+  await env.PEDIDOS_KV.put(key, JSON.stringify(pedido));
+  return json({ ok: true, order_id: orderId, estado_personal: estado });
+}
+
 async function apiPedidosDelete(url: URL, env: Env): Promise<Response> {
   const orderId = url.searchParams.get('order_id')?.trim();
   if (!orderId) return json({ error: 'order_id requerido' }, 400);
@@ -207,6 +233,11 @@ export default {
         if (method === 'POST') return apiPedidosPost(request, env, auth.userName);
         if (method === 'DELETE') return apiPedidosDelete(url, env);
         return json({ error: 'Método no soportado' }, 405);
+      }
+
+      // Cambiar estado personal de un pedido
+      if (path === '/api/ebay/pedidos/estado' && request.method === 'POST') {
+        return apiPedidosEstado(request, env);
       }
 
       // Otros /api/* → 404
