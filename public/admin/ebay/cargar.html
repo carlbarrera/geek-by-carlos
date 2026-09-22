@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cargar pedido eBay — Geek By Carlos</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: linear-gradient(180deg, #0a1024 0%, #0d1330 100%);
+  color: #e2e8f0; min-height:100vh; padding:20px;
+}
+.container { max-width: 780px; margin:0 auto; }
+.header {
+  background: linear-gradient(135deg, #e53238 0%, #0064d2 33%, #f5af02 66%, #86b817 100%);
+  padding: 22px 26px; border-radius: 14px; margin-bottom: 24px;
+  box-shadow: 0 4px 20px rgba(0,100,210,0.4);
+}
+.header h1 { font-size: 22px; color:white; }
+.header p { color:rgba(255,255,255,0.9); font-size:13px; margin-top:4px; }
+
+.card {
+  background:#131c3a; border:1px solid #2a3a6e;
+  border-radius:12px; padding:22px; margin-bottom:18px;
+}
+h2 {
+  font-size:14px; color:#f5af02; text-transform:uppercase;
+  letter-spacing:1px; margin-bottom:14px; padding-bottom:8px;
+  border-bottom:1px solid #2a3a6e;
+}
+
+.field { margin-bottom:14px; }
+.field label {
+  display:block; font-size:11px; color:#94a3b8;
+  text-transform:uppercase; letter-spacing:0.5px; font-weight:600; margin-bottom:6px;
+}
+.field label .req { color:#ff6b6b; margin-left:3px; }
+.field .hint { font-size:11px; color:#64748b; margin-top:4px; }
+
+input, textarea, select {
+  width:100%; background:#0f1730; border:1px solid #2a3a6e;
+  color:#e2e8f0; padding:10px 14px; border-radius:8px;
+  font-size:14px; font-family:inherit;
+}
+input:focus, textarea:focus, select:focus {
+  outline:none; border-color:#f5af02;
+  box-shadow:0 0 0 3px rgba(245,175,2,0.15);
+}
+textarea { resize:vertical; min-height:70px; }
+.row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.row3 { display:grid; grid-template-columns:2fr 1fr 1fr; gap:12px; }
+
+.actions {
+  display:flex; gap:12px; justify-content:flex-end;
+  padding-top:12px; border-top:1px solid #2a3a6e; margin-top:10px;
+}
+.btn {
+  padding:12px 26px; border:none; border-radius:8px;
+  cursor:pointer; font-weight:700; font-size:14px;
+  transition:all 0.15s;
+}
+.btn:hover { transform:translateY(-1px); }
+.btn-primary { background:linear-gradient(135deg,#00a86b,#0064d2); color:white; }
+.btn-secondary { background:#2a3a6e; color:#e2e8f0; }
+
+.msg {
+  padding:14px 18px; border-radius:8px; margin-bottom:16px;
+  font-size:14px; font-weight:600;
+}
+.msg.ok { background:rgba(0,168,107,0.15); border:1px solid #00a86b; color:#4ade80; }
+.msg.err { background:rgba(229,50,56,0.15); border:1px solid #e53238; color:#f87171; }
+.hidden { display:none; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>📦 Cargar pedido eBay manualmente</h1>
+    <p>Copia y pega los datos desde el correo de confirmación de eBay. Los campos con * son obligatorios.</p>
+    <p style="margin-top:8px;"><a href="/admin/ebay/ver.html" style="color:#f5af02; text-decoration:none; font-weight:600;">📋 Ver pedidos ya cargados →</a></p>
+  </div>
+
+  <div id="msg" class="msg hidden"></div>
+
+  <form id="form">
+
+    <div class="card">
+      <h2>1. Datos del pedido</h2>
+
+      <div class="field">
+        <label>Order ID (Número de pedido) <span class="req">*</span></label>
+        <input type="text" name="order_id" placeholder="Ej: 15-14795-99120" required>
+        <div class="hint">Está arriba del correo de eBay, formato como XX-XXXXX-XXXXX</div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>Fecha de compra</label>
+          <input type="date" name="fecha_compra">
+        </div>
+        <div class="field">
+          <label>Vendedor</label>
+          <input type="text" name="vendedor" placeholder="Nombre del vendedor">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>2. Producto</h2>
+
+      <div class="field">
+        <label>Título del producto <span class="req">*</span></label>
+        <input type="text" name="item_titulo" placeholder="Ej: Logitech G PRO Wireless Gaming Mouse" required>
+      </div>
+
+      <div class="row3">
+        <div class="field">
+          <label>Item ID</label>
+          <input type="text" name="item_id" placeholder="Número del ítem">
+        </div>
+        <div class="field">
+          <label>Cantidad <span class="req">*</span></label>
+          <input type="number" name="item_cantidad" value="1" min="1" required>
+        </div>
+        <div class="field">
+          <label>Precio unitario (USD) <span class="req">*</span></label>
+          <input type="number" name="item_precio" step="0.01" placeholder="35.00" required>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>URL del producto</label>
+        <input type="url" name="item_url" placeholder="https://www.ebay.com/itm/...">
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>Envío (USD)</label>
+          <input type="number" name="envio" step="0.01" value="0" placeholder="6.83">
+        </div>
+        <div class="field">
+          <label>Total pagado (USD)</label>
+          <input type="number" name="total" step="0.01" placeholder="Se calcula solo si lo dejas vacío">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>3. Envío (opcional pero recomendado)</h2>
+
+      <div class="row">
+        <div class="field">
+          <label>Tracking number</label>
+          <input type="text" name="tracking" placeholder="Ej: 382182844859">
+        </div>
+        <div class="field">
+          <label>Carrier</label>
+          <select name="carrier">
+            <option value="">— Elegir —</option>
+            <option value="USPS">USPS</option>
+            <option value="FedEx">FedEx</option>
+            <option value="UPS">UPS</option>
+            <option value="DHL">DHL</option>
+            <option value="Otro">Otro</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Dirección destino (bodega Miami)</label>
+        <div class="row">
+          <input type="text" name="ship_name" placeholder="Nombre" value="Carlos Barrera miller express">
+          <input type="text" name="ship_city" placeholder="Ciudad" value="Doral">
+        </div>
+        <div class="row" style="margin-top:8px;">
+          <input type="text" name="ship_state" placeholder="Estado" value="FL">
+          <input type="text" name="ship_postal" placeholder="Código postal" value="33172-2856">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>4. Notas</h2>
+      <div class="field">
+        <label>Notas internas</label>
+        <textarea name="notas" placeholder="Cualquier observación sobre este pedido"></textarea>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="reset" class="btn btn-secondary">Limpiar</button>
+      <button type="submit" class="btn btn-primary">💾 Guardar pedido</button>
+    </div>
+
+  </form>
+
+</div>
+
+<script>
+const form = document.getElementById('form');
+const msg = document.getElementById('msg');
+
+function showMsg(text, ok) {
+  msg.className = 'msg ' + (ok ? 'ok' : 'err');
+  msg.textContent = text;
+  msg.classList.remove('hidden');
+  window.scrollTo({top:0, behavior:'smooth'});
+  if (ok) setTimeout(() => msg.classList.add('hidden'), 5000);
+}
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(form));
+
+  // Si el usuario puso fecha tipo YYYY-MM-DD, convertir a ISO
+  if (data.fecha_compra && data.fecha_compra.length === 10) {
+    data.fecha_compra = new Date(data.fecha_compra + 'T00:00:00').toISOString();
+  }
+
+  try {
+    const r = await fetch('/api/ebay/pedidos', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(data),
+    });
+    const j = await r.json();
+    if (j.ok) {
+      showMsg(`✅ Pedido ${j.order_id} guardado (total: ${j.total_pedidos} pedidos)`, true);
+      form.reset();
+    } else {
+      showMsg('❌ ' + (j.error || 'Error desconocido'), false);
+    }
+  } catch (err) {
+    showMsg('❌ Error de conexión: ' + err.message, false);
+  }
+});
+</script>
+</body>
+</html>
