@@ -1,0 +1,20 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "geek-by-carlos",
+  "compatibility_date": "2026-09-22",
+  "compatibility_flags": ["nodejs_compat"],
+  "pages_build_output_dir": "./dist",
+  "kv_namespaces": [
+    {
+      "binding": "PEDIDOS_KV",
+      "id": "b8171d9dd2a74d7a92bf125b88fccf9b"
+    },
+    {
+      "binding": "SESSION",
+      "id": "61a78ccb64a1491a942149e780daf412"
+    }
+  ],
+  "images": {
+    "binding": "IMAGES"
+  }
+}
