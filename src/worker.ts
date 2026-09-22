@@ -217,8 +217,10 @@ async function apiPedidoEdit(request: Request, env: Env): Promise<Response> {
     pedido.items[0].url = toStr(body.item_url);
   }
 
-  // Notas
-  if ('notas' in body) pedido.notas = toStr(body.notas);
+  // Meta (estado + fechas + notas)
+  for (const campo of ['notas', 'estado_personal', 'fecha_envio_colombia', 'fecha_recibido']) {
+    if (campo in body) pedido[campo] = toStr(body[campo]);
+  }
 
   await env.PEDIDOS_KV.put(key, JSON.stringify(pedido));
   return json({ ok: true, order_id: orderId });

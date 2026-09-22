@@ -1149,23 +1149,38 @@ body {
         }
         async function guardarMeta(orderId) {
             const root = document.querySelector(`[data-order="${orderId}"]`);
+            const tracking = root.querySelector('.f-tracking')?.value.trim() || '';
+            const carrier = root.querySelector('.f-carrier')?.value.trim() || '';
+            const imagen = root.querySelector('.f-imagen')?.value.trim() || '';
             const data = {
                 order_id: orderId,
                 estado_personal: root.querySelector('.f-estado').value,
                 fecha_envio_colombia: root.querySelector('.f-fecha-col').value,
                 fecha_recibido: root.querySelector('.f-fecha-rec').value,
                 notas: root.querySelector('.f-notas').value,
+                tracking, carrier, imagen,
             };
-            const r = await fetch('/api/ebay/meta/save', {
+            const r = await fetch('/api/ebay/pedidos/edit', {
                 method: 'POST', headers: {'Content-Type':'application/json'},
                 body: JSON.stringify(data),
             });
             const d = await r.json();
             if (d.ok) {
+                // Actualizar objeto en memoria con los nuevos valores
                 const p = pedidos.find(x => x.order_id === orderId);
-                if (p) Object.assign(p, data);
+                if (p) {
+                    p.estado_personal = data.estado_personal;
+                    p.fecha_envio_colombia = data.fecha_envio_colombia;
+                    p.fecha_recibido = data.fecha_recibido;
+                    p.notas = data.notas;
+                    if (tracking) p.trackings = [{numero: tracking, carrier, carrier_raw: carrier}];
+                    else if (data.tracking === '') p.trackings = [];
+                    if (!p.items) p.items = [{}];
+                    if (!p.items[0]) p.items[0] = {};
+                    if (imagen) p.items[0].imagen = imagen;
+                }
                 render();
-                document.querySelector(`[data-order="${orderId}"]`).classList.add('expanded');
+                document.querySelector(`[data-order="${orderId}"]`)?.classList.add('expanded');
             } else alert('Error: ' + (d.error || ''));
         }
 
@@ -1571,6 +1586,20 @@ body {
                                             <label>📅 Entregado a mí</label>
                                             <input type="date" class="f-fecha-rec" value="${(p.fecha_recibido||'').slice(0,10)}">
                                         </div>
+                                    </div>
+                                    <div class="meta-form-row">
+                                        <div class="field">
+                                            <label>📮 Tracking number</label>
+                                            <input type="text" class="f-tracking" placeholder="Ej: ESUS358838844" value="${escapeHtml((p.trackings && p.trackings[0] && p.trackings[0].numero) || '')}">
+                                        </div>
+                                        <div class="field">
+                                            <label>🚚 Carrier</label>
+                                            <input type="text" class="f-carrier" placeholder="eBay Standard / USPS / FedEx…" value="${escapeHtml((p.trackings && p.trackings[0] && p.trackings[0].carrier) || '')}">
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label>🖼️ URL imagen del producto</label>
+                                        <input type="url" class="f-imagen" placeholder="Clic derecho en la foto de eBay → Copy image address" value="${escapeHtml((p.items && p.items[0] && p.items[0].imagen) || '')}">
                                     </div>
                                     <div class="field">
                                         <label>📝 Notas / Observaciones</label>
