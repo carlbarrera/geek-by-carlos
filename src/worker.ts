@@ -178,6 +178,52 @@ async function apiPedidosPost(request: Request, env: Env, userName: string): Pro
   return json({ ok: true, order_id: orderId, total_pedidos: ids.length });
 }
 
+async function apiMetaSave(request: Request, env: Env): Promise<Response> {
+  let body: Record<string, unknown>;
+  try {
+    body = await request.json();
+  } catch {
+    return json({ error: 'Body no es JSON válido' }, 400);
+  }
+  const orderId = toStr(body.order_id);
+  if (!orderId) return json({ error: 'order_id requerido' }, 400);
+  const key = `pedido:${orderId}`;
+  const raw = await env.PEDIDOS_KV.get(key);
+  if (!raw) return json({ error: 'no encontrado' }, 404);
+  const pedido = JSON.parse(raw);
+  for (const campo of ['notas', 'estado_personal', 'fecha_envio_colombia', 'fecha_recibido']) {
+    if (campo in body) pedido[campo] = toStr(body[campo]);
+  }
+  await env.PEDIDOS_KV.put(key, JSON.stringify(pedido));
+  return json({ ok: true });
+}
+
+async function apiMetaBulkSave(request: Request, env: Env): Promise<Response> {
+  let body: Record<string, unknown>;
+  try {
+    body = await request.json();
+  } catch {
+    return json({ error: 'Body no es JSON válido' }, 400);
+  }
+  const items = body.items;
+  if (!Array.isArray(items)) return json({ error: 'items debe ser array' }, 400);
+  let actualizados = 0;
+  for (const it of items as Array<Record<string, unknown>>) {
+    const oid = toStr(it.order_id);
+    if (!oid) continue;
+    const key = `pedido:${oid}`;
+    const raw = await env.PEDIDOS_KV.get(key);
+    if (!raw) continue;
+    const pedido = JSON.parse(raw);
+    for (const campo of ['notas', 'estado_personal', 'fecha_envio_colombia', 'fecha_recibido']) {
+      if (campo in it) pedido[campo] = toStr(it[campo]);
+    }
+    await env.PEDIDOS_KV.put(key, JSON.stringify(pedido));
+    actualizados++;
+  }
+  return json({ ok: true, actualizados });
+}
+
 async function apiPedidosEstado(request: Request, env: Env): Promise<Response> {
   let body: Record<string, unknown>;
   try {
@@ -238,6 +284,33 @@ export default {
       // Cambiar estado personal de un pedido
       if (path === '/api/ebay/pedidos/estado' && request.method === 'POST') {
         return apiPedidosEstado(request, env);
+      }
+
+      // Compatibilidad con la UI local del dashboard
+      if (path === '/api/ebay/meta/save' && request.method === 'POST') {
+        return apiMetaSave(request, env);
+      }
+      if (path === '/api/ebay/meta/bulk-save' && request.method === 'POST') {
+        return apiMetaBulkSave(request, env);
+      }
+      if (path === '/api/ebay/status' && request.method === 'GET') {
+        return json({ ok: true, mode: 'manual', logged_in: true });
+      }
+      // Los siguientes son sync/scrape/tracking: en la nube no aplican, se responde OK vacío
+      if (path === '/api/ebay/sync' && request.method === 'POST') {
+        return json({ ok: true, mensaje: 'Sincronización no disponible en modo manual' });
+      }
+      if (path === '/api/ebay/refresh-now' && request.method === 'POST') {
+        return json({ ok: true });
+      }
+      if (path === '/api/ebay/fresh-status' && request.method === 'GET') {
+        return json({ ok: true, actualizado: new Date().toISOString() });
+      }
+      if ((path === '/api/ebay/check-tracking' || path === '/api/ebay/check-tracking-api')) {
+        return json({ ok: true, mensaje: 'Verificación de tracking no disponible en modo manual' });
+      }
+      if (path === '/api/ebay/scrape-mye') {
+        return json({ ok: true, mensaje: 'Scrape MyE no disponible en modo manual' });
       }
 
       // Otros /api/* → 404

@@ -1,274 +1,1663 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pedidos eBay — Geek By Carlos</title>
-<style>
-* { margin:0; padding:0; box-sizing:border-box; }
+    <style>
+/* --- tema-pokemon.css embebido --- */
+/* ============================================
+   TEMA POKEMON - Rayquaza | Shiny | Lugia
+   Paleta inspirada en los favoritos del usuario
+   ============================================ */
+
+:root {
+  /* Rayquaza (verde + dorado) */
+  --rayquaza-verde: #00a86b;
+  --rayquaza-verde-claro: #2dd4bf;
+  --rayquaza-dorado: #ffd700;
+  --rayquaza-dorado-oscuro: #d4af37;
+
+  /* Rayquaza Shiny (morado + negro) */
+  --shiny-morado: #7e22ce;
+  --shiny-morado-claro: #a855f7;
+  --shiny-negro: #0a0a14;
+  --shiny-violeta: #4c1d95;
+
+  /* Lugia (azul + plateado) */
+  --lugia-azul: #3b82f6;
+  --lugia-azul-claro: #60a5fa;
+  --lugia-plata: #cbd5e1;
+  --lugia-blanco: #f8fafc;
+
+  /* Estados */
+  --color-exito: var(--rayquaza-verde);
+  --color-advertencia: var(--rayquaza-dorado);
+  --color-error: #dc2626;
+  --color-info: var(--lugia-azul);
+
+  /* Fondos */
+  --bg-principal: #0a1024;
+  --bg-card: #131c3a;
+  --bg-elevado: #1c2647;
+  --bg-input: #0f1730;
+  --borde: #2a3a6e;
+  --borde-suave: #1f2a52;
+
+  /* Textos */
+  --texto-principal: #e2e8f0;
+  --texto-secundario: #94a3b8;
+  --texto-tenue: #64748b;
+}
+
+/* Body global */
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: linear-gradient(180deg, #0a1024 0%, #0d1330 100%);
-  color: #e2e8f0; min-height:100vh; padding:20px;
-}
-.container { max-width: 1400px; margin: 0 auto; }
-.header {
-  background: linear-gradient(135deg, #e53238 0%, #0064d2 33%, #f5af02 66%, #86b817 100%);
-  padding: 18px 24px; border-radius: 14px; margin-bottom: 18px;
-  display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;
-}
-.header h1 { color:white; font-size:20px; }
-.header a {
-  background:rgba(0,0,0,0.35); color:white; text-decoration:none;
-  padding:8px 16px; border-radius:20px; font-size:13px; font-weight:600;
-}
-.stats { display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:10px; margin-bottom:16px; }
-.stat { background:#131c3a; border:1px solid #2a3a6e; border-radius:10px; padding:12px 16px; text-align:center; }
-.stat .n { font-size:22px; font-weight:800; color:#f5af02; }
-.stat .l { font-size:10px; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px; margin-top:2px; }
-.stat.usd .n { color:#4ade80; }
-.filters {
-  background:#131c3a; border:1px solid #2a3a6e; border-radius:10px;
-  padding:12px; margin-bottom:14px;
-  display:flex; gap:8px; flex-wrap:wrap; align-items:center;
-}
-.chip {
-  padding:6px 14px; border-radius:16px; border:1px solid #2a3a6e;
-  background:#0f1730; color:#94a3b8; cursor:pointer; font-size:12px; font-weight:600;
-  transition:all 0.15s;
-}
-.chip:hover { border-color:#f5af02; color:#e2e8f0; }
-.chip.on { background:#f5af02; color:#0a1024; border-color:#f5af02; }
-.chip .count { opacity:0.65; margin-left:4px; }
-input.search {
-  flex:1; min-width:200px; background:#0f1730; border:1px solid #2a3a6e;
-  color:#e2e8f0; padding:8px 12px; border-radius:8px; font-size:13px;
+  background: linear-gradient(180deg, var(--bg-principal) 0%, #0d1330 100%);
+  color: var(--texto-principal);
+  min-height: 100vh;
 }
 
-table { width:100%; border-collapse:separate; border-spacing:0; background:#131c3a; border-radius:12px; overflow:hidden; }
-thead { background:#1a2548; position:sticky; top:0; }
-th { padding:10px 12px; text-align:left; font-size:10px; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px; font-weight:700; }
-th.right, td.right { text-align:right; }
-td { padding:10px 12px; font-size:12px; border-top:1px solid #2a3a6e; vertical-align:top; }
-tr:hover td { background:#1a2548; }
+/* Headers con gradient Rayquaza */
+.header-rayquaza {
+  background: linear-gradient(135deg, var(--rayquaza-verde) 0%, #006b3c 50%, var(--rayquaza-dorado-oscuro) 100%);
+  box-shadow: 0 4px 20px rgba(0, 168, 107, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+.header-rayquaza::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(circle at top right, rgba(255, 215, 0, 0.2), transparent 60%);
+  pointer-events: none;
+}
 
-.oid { font-family:monospace; color:#f5af02; font-size:11px; font-weight:600; }
-.fecha { color:#94a3b8; font-size:10px; margin-top:2px; }
-.titulo { color:#e2e8f0; font-weight:600; font-size:12px; line-height:1.3; max-width:420px; }
-.meta { color:#94a3b8; font-size:10px; margin-top:2px; }
-.tracking { color:#4ade80; font-family:monospace; font-size:11px; margin-top:2px; }
+/* Header Lugia (alternativo) */
+.header-lugia {
+  background: linear-gradient(135deg, var(--lugia-azul) 0%, var(--shiny-violeta) 50%, var(--lugia-azul-claro) 100%);
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+}
 
-.badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; }
-.b-none { background:rgba(148,163,184,0.2); color:#cbd5e1; }
-.b-usa { background:rgba(59,130,246,0.2); color:#93c5fd; }
-.b-camino { background:rgba(245,175,2,0.2); color:#fcd34d; }
-.b-recibido { background:rgba(74,222,128,0.2); color:#86efac; }
-.b-archivado { background:rgba(100,116,139,0.2); color:#94a3b8; }
+/* Header Shiny */
+.header-shiny {
+  background: linear-gradient(135deg, var(--shiny-morado) 0%, var(--shiny-negro) 50%, var(--shiny-morado-claro) 100%);
+  box-shadow: 0 4px 20px rgba(126, 34, 206, 0.4);
+}
 
-.est-select { background:#0f1730; border:1px solid #2a3a6e; color:#e2e8f0; padding:4px 8px; border-radius:6px; font-size:11px; }
+/* Tarjetas con borde dorado sutil */
+.card-pokemon {
+  background: var(--bg-card);
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  position: relative;
+}
+.card-pokemon::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--rayquaza-dorado), transparent);
+  border-radius: 12px 12px 0 0;
+  opacity: 0.6;
+}
 
-.actions { display:flex; gap:6px; }
-.btn-sm { background:#0f1730; color:#94a3b8; border:1px solid #2a3a6e; border-radius:6px; padding:4px 8px; font-size:10px; cursor:pointer; font-weight:600; }
-.btn-sm:hover { color:#e2e8f0; border-color:#f5af02; }
-.btn-sm.del { color:#f87171; border-color:#7f1d1d; }
-.btn-sm.del:hover { background:#7f1d1d; color:white; }
+/* Botones */
+.btn-rayquaza {
+  background: linear-gradient(135deg, var(--rayquaza-verde), #006b3c);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 168, 107, 0.3);
+}
+.btn-rayquaza:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 168, 107, 0.5);
+}
 
-.empty { padding:60px 30px; text-align:center; background:#131c3a; border-radius:12px; color:#64748b; font-size:15px; }
-.loading { padding:40px; text-align:center; color:#94a3b8; }
+.btn-shiny {
+  background: linear-gradient(135deg, var(--shiny-morado), var(--shiny-violeta));
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  box-shadow: 0 2px 8px rgba(126, 34, 206, 0.3);
+}
+
+.btn-lugia {
+  background: linear-gradient(135deg, var(--lugia-azul), #1e40af);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.btn-danger-pokemon {
+  background: linear-gradient(135deg, var(--color-error), #991b1b);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+/* Pestaña/Nav */
+.nav-tab-pokemon {
+  color: white;
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.15);
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.nav-tab-pokemon:hover, .nav-tab-pokemon.active {
+  background: rgba(0, 0, 0, 0.3);
+  border-color: var(--rayquaza-dorado);
+}
+
+/* Inputs */
+.input-pokemon {
+  background: var(--bg-input);
+  border: 1px solid var(--borde);
+  color: var(--texto-principal);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.input-pokemon:focus {
+  border-color: var(--rayquaza-verde);
+  box-shadow: 0 0 0 2px rgba(0, 168, 107, 0.2);
+}
+
+/* Badges/Tags */
+.tag-pokemon {
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: bold;
+  display: inline-block;
+}
+.tag-rayquaza { background: rgba(0, 168, 107, 0.2); color: var(--rayquaza-verde-claro); border: 1px solid var(--rayquaza-verde); }
+.tag-shiny { background: rgba(126, 34, 206, 0.2); color: var(--shiny-morado-claro); border: 1px solid var(--shiny-morado); }
+.tag-lugia { background: rgba(59, 130, 246, 0.2); color: var(--lugia-azul-claro); border: 1px solid var(--lugia-azul); }
+.tag-dorado { background: rgba(255, 215, 0, 0.15); color: var(--rayquaza-dorado); border: 1px solid var(--rayquaza-dorado-oscuro); }
+
+/* Animacion de brillo Shiny */
+@keyframes brillo-shiny {
+  0%, 100% { box-shadow: 0 0 5px rgba(168, 85, 247, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(168, 85, 247, 0.7), 0 0 30px rgba(255, 215, 0, 0.3); }
+}
+.brillo-shiny { animation: brillo-shiny 2s ease-in-out infinite; }
+
+/* Animacion para nuevos productos (Rayquaza viento) */
+@keyframes viento-rayquaza {
+  0%, 100% { box-shadow: 0 0 5px rgba(0, 168, 107, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(0, 168, 107, 0.7); }
+}
+.viento-rayquaza { animation: viento-rayquaza 2s ease-in-out infinite; }
+
+/* Scrollbar custom */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--bg-input); }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--rayquaza-verde), var(--shiny-morado));
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, var(--rayquaza-verde-claro), var(--shiny-morado-claro)); }
+
+/* ============================================
+   GLOBAL NAVBAR - Gengar | Lugia | Rayquaza Shiny
+   Header unificado y fijo para todos los dashboards
+   ============================================ */
+
+/* Variables específicas del navbar */
+:root {
+  --nav-gengar: #4c1d95;
+  --nav-gengar-mid: #7e22ce;
+  --nav-gengar-light: #c026d3;
+  --nav-lugia-blanco: #e0e7ff;
+  --nav-lugia-cyan: #06b6d4;
+  --nav-lugia-azul: #1e40af;
+  --nav-shiny-oro: #ffd700;
+  --nav-shiny-oro-claro: #fef3c7;
+  --nav-shiny-negro: #0a0a14;
+}
+
+.poke-nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: linear-gradient(
+    135deg,
+    #0a0a14 0%,
+    var(--nav-gengar) 25%,
+    var(--nav-gengar-mid) 50%,
+    var(--nav-lugia-azul) 75%,
+    #0a0a14 100%
+  );
+  background-size: 200% 200%;
+  animation: poke-nav-shift 18s ease infinite;
+  border-bottom: 2px solid var(--nav-shiny-oro);
+  box-shadow: 0 4px 20px rgba(126, 34, 206, 0.4),
+              0 0 1px rgba(255, 215, 0, 0.6) inset;
+  padding: 14px 20px;
+}
+@keyframes poke-nav-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+.poke-nav-inner {
+  max-width: 1500px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  position: relative;
+  flex-wrap: wrap;
+}
+.poke-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+  font-size: 16px;
+  color: var(--nav-lugia-blanco);
+  text-shadow: 0 0 10px rgba(192, 38, 211, 0.6);
+  letter-spacing: 0.5px;
+  margin-right: 8px;
+}
+.poke-nav-brand .pokeball {
+  width: 28px;
+  height: 28px;
+  background:
+    radial-gradient(circle at 50% 50%, #fff 0 6px, transparent 6.5px),
+    radial-gradient(circle at 50% 50%, #1a0f2e 0 9px, transparent 9.5px),
+    linear-gradient(180deg, #ef4444 0 50%, #fff 50% 100%);
+  border-radius: 50%;
+  border: 2px solid #0a0a14;
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.5),
+              inset 0 -3px 6px rgba(0,0,0,0.4);
+  position: relative;
+}
+.poke-nav-brand .pokeball::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; top: 50%;
+  height: 2px;
+  background: #0a0a14;
+  transform: translateY(-1px);
+}
+.poke-nav-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.poke-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  border-radius: 22px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--nav-lugia-blanco);
+  background: rgba(10, 10, 20, 0.5);
+  border: 1.5px solid rgba(255, 215, 0, 0.25);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+.poke-tab:hover {
+  background: rgba(192, 38, 211, 0.35);
+  border-color: var(--nav-shiny-oro);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(192, 38, 211, 0.5);
+  color: #fff;
+}
+.poke-tab.active {
+  background: linear-gradient(135deg, var(--nav-shiny-oro), #ff9100);
+  color: var(--nav-shiny-negro);
+  border-color: var(--nav-shiny-oro-claro);
+  box-shadow: 0 0 18px rgba(255, 215, 0, 0.6),
+              0 4px 10px rgba(0, 0, 0, 0.4);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+.poke-tab.home {
+  background: linear-gradient(135deg, var(--nav-lugia-cyan), var(--nav-lugia-azul));
+  border-color: var(--nav-lugia-blanco);
+  color: #fff;
+  font-weight: 800;
+}
+.poke-tab.home:hover {
+  background: linear-gradient(135deg, #22d3ee, var(--nav-lugia-cyan));
+  box-shadow: 0 0 15px rgba(6, 182, 212, 0.6);
+}
+.poke-tab.home.active {
+  background: linear-gradient(135deg, var(--nav-lugia-cyan), var(--nav-lugia-azul));
+  color: #fff;
+  text-shadow: 0 0 8px rgba(255,255,255,0.5);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .poke-nav-inner { gap: 8px; }
+  .poke-nav-brand { font-size: 14px; margin-right: 4px; }
+  .poke-tab { padding: 7px 12px; font-size: 12px; }
+}
+@media (max-width: 600px) {
+  .poke-nav-brand span:last-child { display: none; }
+  .poke-tab { padding: 6px 10px; font-size: 11px; }
+}
+
 </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eBay Pedidos - Order Tracker</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(180deg, #0a1024 0%, #0d1330 100%);
+            color: #e2e8f0; min-height: 100vh;
+        }
+        .header {
+            background: linear-gradient(135deg, #e53238 0%, #0064d2 33%, #f5af02 66%, #86b817 100%);
+            padding: 20px 30px;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 4px 20px rgba(0,100,210,0.4);
+        }
+        .header h1 { font-size: 22px; }
+        .nav-tabs { display: flex; gap: 10px; flex-wrap: wrap; }
+        .nav-tab {
+            color: white; text-decoration: none;
+            padding: 8px 16px; border-radius: 20px;
+            background: rgba(255,255,255,0.15); font-size: 13px; font-weight: 600;
+        }
+        .nav-tab.active { background: rgba(0,0,0,0.4); border: 1px solid #f5af02; }
+        .container { max-width: 1500px; margin: 0 auto; padding: 20px; }
+        .controls {
+            background: #131c3a; border: 1px solid #2a3a6e; border-radius: 10px;
+            padding: 15px; margin-bottom: 20px;
+            display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+        }
+        .btn {
+            padding: 10px 18px; border: none; border-radius: 8px;
+            cursor: pointer; font-weight: 700; font-size: 13px;
+        }
+        .btn:hover { transform: translateY(-1px); }
+        .btn-sync { background: linear-gradient(135deg, #0064d2, #00a86b); color: white; }
+        .btn-save { background: #00a86b; color: white; padding: 8px 14px; font-size: 12px; }
+        .filter-input {
+            background: #0f1730; border: 1px solid #2a3a6e;
+            color: #e2e8f0; padding: 10px 14px; border-radius: 8px;
+            font-size: 14px; width: 240px;
+        }
+        .stats-row {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px; margin-bottom: 20px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #131c3a, #1a2548);
+            border: 1px solid #2a3a6e; border-radius: 10px;
+            padding: 14px; text-align: center;
+        }
+        .stat-label { font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-value { font-size: 24px; font-weight: 800; margin-top: 4px; }
+        .stat-value.green { color: #2dd4bf; }
+        .stat-value.gold { color: #ffd700; }
+        .stat-value.blue { color: #60a5fa; }
+        .stat-value.red { color: #ef4444; }
+
+        .row {
+            background: #131c3a; border: 1px solid #2a3a6e;
+            border-radius: 10px; margin-bottom: 12px; overflow: hidden;
+        }
+        .row.cancelled { border-color: #ef4444; opacity: 0.75; }
+        .row.recibido { border-color: #00a86b; opacity: 0.75; }
+        .row.recibido .row-head { background: rgba(0,168,107,0.05); }
+        .row.cancelled .row-head { background: rgba(239,68,68,0.05); }
+        .row.en-colombia { border-color: #ffd700; }
+        .row.problema { border-color: #f97316; }
+
+        .row-head {
+            display: grid;
+            grid-template-columns: 28px 70px 1fr 200px 110px 100px 30px;
+            gap: 12px; padding: 12px; align-items: center;
+            cursor: pointer;
+        }
+        .row-check {
+            width: 18px; height: 18px;
+            cursor: pointer; accent-color: #f5af02;
+        }
+        .row.selected { border-color: #f5af02; background: rgba(245,175,2,0.05); }
+
+        .bulk-bar {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: linear-gradient(135deg, #131c3a, #1a2548);
+            border: 2px solid #f5af02;
+            border-radius: 12px; padding: 14px 18px;
+            display: none; gap: 10px; align-items: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6), 0 0 20px rgba(245,175,2,0.3);
+            z-index: 100; flex-wrap: wrap; max-width: 95vw;
+        }
+        .bulk-bar.visible { display: flex; }
+        .bulk-bar .count {
+            background: #f5af02; color: #0a1024;
+            padding: 6px 12px; border-radius: 20px;
+            font-weight: 800; font-size: 13px;
+        }
+        .bulk-bar select, .bulk-bar input {
+            background: #0f1730; border: 1px solid #2a3a6e;
+            color: #e2e8f0; padding: 8px 10px; border-radius: 6px;
+            font-size: 13px;
+        }
+        .bulk-bar .btn-apply { background: #00a86b; color: white; padding: 8px 14px; }
+        .bulk-bar .btn-cancel { background: #475569; color: white; padding: 8px 14px; }
+        .select-all-row {
+            background: #131c3a; border: 1px solid #2a3a6e;
+            border-radius: 8px; padding: 10px 14px;
+            margin-bottom: 10px; display: flex; align-items: center; gap: 12px;
+            font-size: 13px;
+        }
+        .select-all-row label { cursor: pointer; user-select: none; }
+        .row-head:hover { background: #1a2548; }
+        .row-img-stack {
+            position: relative;
+            width: 60px; height: 60px;
+        }
+        .row-img-stack .img-wrap {
+            width: 60px; height: 60px;
+            background: #fff; border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+        .row-img-stack .img-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .row-img-stack .multi-badge {
+            position: absolute; top: -6px; right: -6px;
+            background: #f5af02; color: #0a1024;
+            border-radius: 50%; width: 22px; height: 22px;
+            font-size: 11px; font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid #131c3a;
+        }
+        .row-img-stack.no-img .img-wrap { background: #2a3a6e; color: #64748b; font-size: 9px; }
+
+        .row-titles { font-size: 13px; }
+        .row-title-main {
+            font-weight: 600;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+        }
+        .row-title-extra { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+        .row-title-extra .seller { color: #60a5fa; }
+        .badges-line { margin-top: 4px; display: flex; gap: 4px; flex-wrap: wrap; }
+
+        .col-tracking { font-size: 11px; }
+        .col-tracking .carrier-name {
+            font-weight: 700; color: #c084fc; font-size: 12px;
+        }
+        .col-tracking .tnum {
+            color: #60a5fa; font-family: monospace; font-size: 11px;
+            display: block; word-break: break-all; margin-top: 2px;
+            text-decoration: none;
+        }
+        .col-tracking .tnum:hover { text-decoration: underline; color: #93c5fd; }
+        .col-tracking .multi-pkg { color: #f97316; font-size: 10px; }
+        .ship-status-pill {
+            display: inline-block;
+            padding: 2px 8px; border-radius: 10px;
+            font-size: 10px; font-weight: 700;
+            margin-top: 4px;
+        }
+        .ship-just { background: rgba(59,130,246,0.2); color: #93c5fd; }
+        .ship-transit { background: rgba(168,85,247,0.2); color: #c084fc; }
+        .ship-delivered { background: rgba(0,168,107,0.25); color: #6ee7b7; }
+        .ship-no-track { background: rgba(100,116,139,0.2); color: #94a3b8; }
+
+        .col-fecha { font-size: 11px; color: #94a3b8; }
+        .col-fecha strong { color: #e2e8f0; display: block; font-size: 13px; }
+
+        .col-price { color: #ffd700; font-weight: 700; font-size: 16px; text-align: right; }
+        .col-toggle { font-size: 18px; color: #64748b; text-align: center; transition: transform 0.2s; }
+        .row.expanded .col-toggle { transform: rotate(90deg); }
+
+        .badge {
+            display: inline-block; padding: 3px 8px; border-radius: 12px;
+            font-size: 9px; font-weight: 700; text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .b-completed { background: rgba(0,168,107,0.25); color: #2dd4bf; }
+        .b-active { background: rgba(96,165,250,0.25); color: #60a5fa; }
+        .b-cancel-pending { background: rgba(239,68,68,0.25); color: #ef4444; }
+        .b-cancelled { background: rgba(239,68,68,0.4); color: #fca5a5; }
+        .b-shipped { background: rgba(168,85,247,0.25); color: #c084fc; }
+        .b-personal { background: rgba(255,215,0,0.25); color: #ffd700; }
+        .b-personal-recibido { background: rgba(0,168,107,0.4); color: #6ee7b7; }
+        .b-personal-problema { background: rgba(249,115,22,0.3); color: #fb923c; }
+        .b-multi { background: rgba(245,175,2,0.25); color: #f5af02; }
+
+        .row-detail {
+            display: none; padding: 16px; border-top: 1px solid #2a3a6e;
+            background: #0f1730;
+        }
+        .row.expanded .row-detail { display: block; }
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .detail-section h4 {
+            font-size: 11px; color: #94a3b8; text-transform: uppercase;
+            letter-spacing: 1px; margin-bottom: 10px; padding-bottom: 6px;
+            border-bottom: 1px solid #2a3a6e;
+        }
+        .detail-line {
+            font-size: 13px; padding: 5px 0; display: flex; justify-content: space-between; gap: 10px;
+        }
+        .detail-line .k { color: #94a3b8; flex-shrink: 0; }
+        .detail-line .v { color: #e2e8f0; font-weight: 600; word-break: break-word; text-align: right; }
+        .detail-line .v a { color: #60a5fa; text-decoration: none; }
+        .detail-line .v a:hover { text-decoration: underline; }
+
+        .items-list { margin-top: 14px; padding-top: 14px; border-top: 1px solid #2a3a6e; }
+        .item-card {
+            display: grid; grid-template-columns: 50px 1fr 80px 70px;
+            gap: 12px; padding: 10px;
+            background: #131c3a; border-radius: 8px;
+            margin-bottom: 8px; align-items: center;
+        }
+        .item-card .img-cell {
+            width: 50px; height: 50px; background: #fff; border-radius: 4px;
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
+        }
+        .item-card .img-cell img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .item-card .item-title {
+            font-size: 12px; line-height: 1.3;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+        }
+        .item-card .item-seller { font-size: 10px; color: #60a5fa; margin-top: 3px; }
+        .item-card .item-price { color: #ffd700; font-weight: 700; font-size: 13px; text-align: right; }
+        .item-card .item-link {
+            background: #0064d2; color: white; padding: 5px 8px;
+            border-radius: 4px; font-size: 11px; text-decoration: none; text-align: center;
+        }
+
+        .meta-form { display: flex; flex-direction: column; gap: 12px; }
+        .meta-form .field { display: flex; flex-direction: column; gap: 4px; }
+        .meta-form label {
+            display: block; font-size: 11px; color: #94a3b8;
+            text-transform: uppercase; letter-spacing: 1px; font-weight: 600;
+        }
+        .meta-form select, .meta-form input, .meta-form textarea {
+            background: #131c3a; border: 1px solid #2a3a6e;
+            color: #e2e8f0; padding: 9px 11px; border-radius: 6px;
+            font-size: 13px; font-family: inherit; width: 100%;
+        }
+        .meta-form textarea { min-height: 80px; resize: vertical; }
+        .meta-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .pay-info {
+            display: inline-block; padding: 3px 8px;
+            background: rgba(0,168,107,0.2); color: #2dd4bf;
+            border-radius: 6px; font-size: 11px; font-weight: 600;
+        }
+        .empty { text-align: center; color: #64748b; padding: 60px 20px; }
+        .empty h3 { color: #f5af02; margin-bottom: 10px; }
+        .last-sync { font-size: 11px; color: #94a3b8; margin-left: auto; }
+
+        @media (max-width: 900px) {
+            .row-head { grid-template-columns: 60px 1fr 90px 30px; }
+            .row-head .col-tracking, .row-head .col-fecha { display: none; }
+            .detail-grid { grid-template-columns: 1fr; }
+            .item-card { grid-template-columns: 50px 1fr; }
+            .item-card .item-price, .item-card .item-link { display: none; }
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-  <div class="header">
-    <h1>📋 Pedidos eBay</h1>
-    <a href="/admin/ebay/cargar.html">➕ Cargar nuevo pedido</a>
-  </div>
+    <script src="/poke-nav.js" data-active="ebay"></script>
+    
 
-  <div class="stats">
-    <div class="stat"><div class="n" id="s-mostrados">0</div><div class="l">Mostrados</div></div>
-    <div class="stat"><div class="n" id="s-total">0</div><div class="l">Total registrados</div></div>
-    <div class="stat"><div class="n" id="s-pend">0</div><div class="l">Pendientes</div></div>
-    <div class="stat usd"><div class="n" id="s-usd">$0</div><div class="l">USD invertidos</div></div>
-  </div>
+    <div class="container">
+        <div class="controls">
+            <button class="btn btn-sync" onclick="sync()">&#128260; Sincronizar con eBay</button>
+            <button class="btn" onclick="checkTracking()" style="background:linear-gradient(135deg,#7e22ce,#c026d3);color:white" title="Estimación por días desde envío (rápido)">⏱️ Estimar por tiempo</button>
+            <button class="btn" onclick="checkTrackingReal()" style="background:linear-gradient(135deg,#ffd700,#ff9100);color:#0a1024;font-weight:800" title="TrackingMore API - estado real del paquete (tarda 10+ min para nuevos trackings)">📮 TrackingMore</button>
+            <button class="btn" onclick="scrapeEbayMye()" style="background:linear-gradient(135deg,#e53238,#0064d2);color:white;font-weight:800" title="Lee tu sesión de eBay desde Chrome y trae el estado real (Delivered/Shipped/etc)">🌐 eBay REAL</button>
+            <input type="text" class="filter-input" id="filter" placeholder="🔍 Buscar..." oninput="render()" style="width:200px">
+            <select class="filter-input" id="estadoFilter" onchange="render()" style="width:auto;">
+                <option value="activos-no-archivados">📂 Activos (no archivados)</option>
+                <option value="all">📋 Todos (incluye archivados)</option>
+                <option value="archivados">🗄️ Solo archivados</option>
+                <option value="active">✅ No cancelados</option>
+                <option value="completed">💰 Completados</option>
+                <option value="cancelled">❌ Cancelados</option>
+                <option value="en-usa">📦 En USA</option>
+                <option value="en-camino-col">✈️ A Colombia</option>
+                <option value="en-colombia">🇨🇴 En Colombia</option>
+                <option value="recibido">✓ Recibidos</option>
+                <option value="problema">⚠️ Problema</option>
+                <option value="sin-tracking">❓ Sin tracking</option>
+                <option value="probable-bodega">📮 Probable en bodega (auto)</option>
+                <option value="just-shipped">📦 Recién enviado (<3d)</option>
+                <option value="in-transit-estado">🚚 En tránsito</option>
+            </select>
+            <select class="filter-input" id="bodegaFilter" onchange="render()" style="width:auto;">
+                <option value="all">🏠 Todas las bodegas</option>
+            </select>
+            <select class="filter-input" id="carrierFilter" onchange="render()" style="width:auto;">
+                <option value="all">🚚 Todas transportadoras</option>
+            </select>
+            <select class="filter-input" id="fechaFilter" onchange="render()" style="width:auto;">
+                <option value="all">📅 Cualquier fecha</option>
+                <option value="7d">Últimos 7 días</option>
+                <option value="30d">Últimos 30 días</option>
+                <option value="60d">Últimos 60 días</option>
+                <option value="thismonth">Este mes</option>
+                <option value="lastmonth">Mes pasado</option>
+            </select>
+            <select class="filter-input" id="multiFilter" onchange="render()" style="width:auto;">
+                <option value="all">🛒 1+ items</option>
+                <option value="single">1 item</option>
+                <option value="multi">2+ items (combo)</option>
+            </select>
+            <button class="btn" onclick="filtroListos()" style="background:linear-gradient(135deg,#00a86b,#006b3c);color:white;font-weight:800" title="Filtra pedidos ya en bodega USA listos para enviar a Colombia">📦 Listos enviar</button>
+            <select class="filter-input" id="sort" onchange="render()" style="width:auto;">
+                <option value="fecha-desc">⬇ Más reciente</option>
+                <option value="fecha-asc">⬆ Más antiguo</option>
+                <option value="precio-desc">💵 $ mayor</option>
+                <option value="precio-asc">💵 $ menor</option>
+            </select>
+            <button class="btn" onclick="resetFilters()" style="background:#7e22ce;color:white">🔄 Limpiar</button>
+            <span class="last-sync" id="lastSync"></span>
+        </div>
 
-  <div class="filters">
-    <button class="chip on" data-est="pendientes">Pendientes<span class="count" id="c-pendientes">0</span></button>
-    <button class="chip" data-est="en-usa">En USA<span class="count" id="c-en-usa">0</span></button>
-    <button class="chip" data-est="">Sin estado<span class="count" id="c-sin"></span></button>
-    <button class="chip" data-est="recibido">Recibidos<span class="count" id="c-recibido">0</span></button>
-    <button class="chip" data-est="archivado">Archivados<span class="count" id="c-archivado">0</span></button>
-    <button class="chip" data-est="todos">Todos<span class="count" id="c-todos">0</span></button>
-    <input type="text" class="search" id="q" placeholder="🔍 Buscar (order id, título, tracking)...">
-  </div>
+        <div id="activeFilters" style="margin-bottom:12px;font-size:12px;color:#94a3b8"></div>
 
-  <div id="content" class="loading">Cargando…</div>
-</div>
+        <div class="stats-row" id="stats"></div>
 
-<script>
-let TODOS = [];
-let filtro = 'pendientes';
-let query = '';
+        <div class="select-all-row" id="selectAllRow" style="display:none">
+            <input type="checkbox" id="selectAll" class="row-check" onchange="toggleSelectAll(this.checked)">
+            <label for="selectAll">Seleccionar todos los visibles</label>
+            <span style="color:#94a3b8;margin-left:auto" id="selectedCount">0 seleccionados</span>
+        </div>
 
-const fmt = n => '$' + Number(n||0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
-const fmtInt = n => Number(n||0).toLocaleString('en-US');
+        <div id="lista">
+            <div class="empty"><h3>&#128229; Sin pedidos</h3><p>Click "Sincronizar con eBay"</p></div>
+        </div>
+    </div>
 
-const ESTADOS = [
-  {v:'', label:'Sin estado', clase:'b-none'},
-  {v:'en-usa', label:'En USA', clase:'b-usa'},
-  {v:'en-camino', label:'En camino', clase:'b-camino'},
-  {v:'recibido', label:'Recibido', clase:'b-recibido'},
-  {v:'archivado', label:'Archivado', clase:'b-archivado'},
-];
-function badge(estado) {
-  const e = ESTADOS.find(x => x.v === (estado||'')) || ESTADOS[0];
-  return `<span class="badge ${e.clase}">${e.label}</span>`;
-}
-function estadoSelect(orderId, actual) {
-  const opts = ESTADOS.map(e =>
-    `<option value="${e.v}" ${e.v===(actual||'')?'selected':''}>${e.label}</option>`
-  ).join('');
-  return `<select class="est-select" onchange="cambiarEstado('${orderId}', this.value)">${opts}</select>`;
-}
+    <div class="bulk-bar" id="bulkBar">
+        <span class="count" id="bulkCount">0</span>
+        <span style="color:#e2e8f0;font-weight:600">Aplicar a seleccionados:</span>
+        <select id="bulkEstado">
+            <option value="">— Estado —</option>
+            <option value="en-usa">📦 En bodega USA</option>
+            <option value="en-camino-col">✈️ En camino a Colombia</option>
+            <option value="en-colombia">🇨🇴 Llegó a Colombia</option>
+            <option value="recibido">✅ Entregado a mí (archiva)</option>
+            <option value="problema">⚠️ Con problema</option>
+            <option value="esperando-devolucion">⏳ Esperando reembolso</option>
+            <option value="archivado">🗄️ Archivar</option>
+        </select>
+        <input type="date" id="bulkFechaCol" title="Fecha envío a Colombia" placeholder="Envío CO">
+        <input type="date" id="bulkFechaRec" title="Fecha recibido" placeholder="Recibido">
+        <input type="text" id="bulkNotas" placeholder="Agregar nota..." style="width:200px">
+        <button class="btn" onclick="copiarBulkTrackings()" style="background:linear-gradient(135deg,#ffd700,#ff9100);color:#0a1024;font-weight:800" title="Copia tracking + carrier + estado de los seleccionados al portapapeles (TSV)">📋 Copiar TSV</button>
+        <button class="btn" onclick="generarImagenBodega()" style="background:linear-gradient(135deg,#c026d3,#7e22ce);color:white;font-weight:800" title="Genera una imagen PNG con la lista (auto-detecta la bodega) para enviar por WhatsApp">📷 Imagen lista</button>
+        <button class="btn" onclick="marcarBulkLlegaron()" style="background:linear-gradient(135deg,#00a86b,#006b3c);color:white;font-weight:700" title="Marca los seleccionados como llegados a bodega USA (en-usa)">✅ Llegaron a bodega</button>
+        <button class="btn btn-apply" onclick="applyBulk()">✓ Aplicar</button>
+        <button class="btn btn-cancel" onclick="clearSelection()">✕ Cancelar</button>
+    </div>
 
-async function cargar() {
-  try {
-    const r = await fetch('/api/ebay/pedidos');
-    const j = await r.json();
-    TODOS = j.pedidos || [];
-    render();
-  } catch (e) {
-    document.getElementById('content').innerHTML = '<div class="empty">Error cargando pedidos: ' + e.message + '</div>';
-  }
-}
+    <script>
+        let pedidos = [];
+        let selectedOrders = new Set();
+        let lastVisibleIds = [];
 
-function esPendiente(p) {
-  const e = p.estado_personal || '';
-  return e !== 'recibido' && e !== 'archivado';
-}
+        function toggleSelect(orderId, checked) {
+            if (checked) selectedOrders.add(orderId);
+            else selectedOrders.delete(orderId);
+            updateBulkBar();
+            const row = document.querySelector(`[data-order="${orderId}"]`);
+            if (row) row.classList.toggle('selected', checked);
+        }
 
-function filtrar() {
-  let list = TODOS;
-  if (filtro === 'pendientes') list = list.filter(esPendiente);
-  else if (filtro === 'todos') { /* nada */ }
-  else list = list.filter(p => (p.estado_personal || '') === filtro);
+        function toggleSelectAll(checked) {
+            for (const id of lastVisibleIds) {
+                if (checked) selectedOrders.add(id);
+                else selectedOrders.delete(id);
+            }
+            document.querySelectorAll('.row .row-check').forEach(cb => {
+                const oid = cb.closest('.row')?.dataset.order;
+                if (oid && lastVisibleIds.includes(oid)) {
+                    cb.checked = checked;
+                    cb.closest('.row').classList.toggle('selected', checked);
+                }
+            });
+            updateBulkBar();
+        }
 
-  if (query) {
-    const q = query.toLowerCase();
-    list = list.filter(p => {
-      const item = (p.items && p.items[0]) || {};
-      const t = (p.trackings && p.trackings[0]) || {};
-      return (p.order_id || '').toLowerCase().includes(q) ||
-             (item.titulo || '').toLowerCase().includes(q) ||
-             (t.numero || '').toLowerCase().includes(q) ||
-             (p.vendedor || '').toLowerCase().includes(q);
-    });
-  }
-  return list;
-}
+        function clearSelection() {
+            selectedOrders.clear();
+            document.querySelectorAll('.row.selected').forEach(r => r.classList.remove('selected'));
+            document.querySelectorAll('.row-check').forEach(cb => cb.checked = false);
+            const sa = document.getElementById('selectAll');
+            if (sa) sa.checked = false;
+            ['bulkEstado','bulkFechaCol','bulkFechaRec','bulkNotas'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            updateBulkBar();
+        }
 
-function render() {
-  // Stats
-  document.getElementById('s-total').textContent = TODOS.length;
-  document.getElementById('s-pend').textContent = TODOS.filter(esPendiente).length;
-  const usdTotal = TODOS.reduce((s,p) => s + Number(p.total||0), 0);
-  document.getElementById('s-usd').textContent = fmt(usdTotal);
+        function updateBulkBar() {
+            const n = selectedOrders.size;
+            const bar = document.getElementById('bulkBar');
+            bar.classList.toggle('visible', n > 0);
+            document.getElementById('bulkCount').textContent = n;
+            document.getElementById('selectedCount').textContent = `${n} seleccionado${n!==1?'s':''}`;
+        }
 
-  // Contadores de chips
-  document.getElementById('c-pendientes').textContent = TODOS.filter(esPendiente).length;
-  document.getElementById('c-en-usa').textContent = TODOS.filter(p => p.estado_personal === 'en-usa').length;
-  document.getElementById('c-sin').textContent = TODOS.filter(p => !p.estado_personal).length;
-  document.getElementById('c-recibido').textContent = TODOS.filter(p => p.estado_personal === 'recibido').length;
-  document.getElementById('c-archivado').textContent = TODOS.filter(p => p.estado_personal === 'archivado').length;
-  document.getElementById('c-todos').textContent = TODOS.length;
+        function copiarTexto(texto, btnEl, label) {
+            navigator.clipboard.writeText(texto).then(() => {
+                if (btnEl) {
+                    const orig = btnEl.innerHTML;
+                    btnEl.innerHTML = '✅';
+                    btnEl.style.background = 'rgba(0,168,107,0.3)';
+                    setTimeout(() => { btnEl.innerHTML = orig; btnEl.style.background = ''; }, 1200);
+                }
+                if (label) console.log('Copiado:', label);
+            }).catch(e => alert('No se pudo copiar: ' + e.message));
+        }
 
-  const list = filtrar();
-  document.getElementById('s-mostrados').textContent = list.length;
+        function statusBonito(s) {
+            const m = {
+                'delivered': 'ENTREGADO',
+                'in-transit': 'EN TRÁNSITO',
+                'out-for-delivery': 'EN REPARTO',
+                'just-shipped': 'RECIÉN ENVIADO',
+                'probably-delivered': 'PROBABLE ENTREGADO',
+                'pending': 'PROCESANDO',
+                'exception': 'EXCEPCIÓN',
+                'no-tracking': 'SIN TRACKING',
+            };
+            return m[s] || (s || 'SIN ESTADO').toUpperCase();
+        }
 
-  if (!list.length) {
-    document.getElementById('content').innerHTML =
-      '<div class="empty">Sin resultados para este filtro.</div>';
-    return;
-  }
+        function copiarTrackingRow(btn, numero, carrier, status, titulo) {
+            const texto = `${numero}\t${carrier}\t${statusBonito(status)}`;
+            copiarTexto(texto, btn, titulo);
+        }
 
-  const rows = list.map(p => {
-    const item = (p.items && p.items[0]) || {};
-    const tracking = (p.trackings && p.trackings[0]) || {};
-    const fecha = p.fecha_compra ? new Date(p.fecha_compra).toLocaleDateString('es-CO', {year:'2-digit', month:'short', day:'2-digit'}) : '—';
-    const oidSafe = p.order_id.replace(/'/g,"\\'");
-    return `
-      <tr>
-        <td>
-          <div class="oid">${p.order_id}</div>
-          <div class="fecha">${fecha}</div>
-        </td>
-        <td>
-          <div class="titulo">${(item.titulo || '').substring(0,110)}</div>
-          <div class="meta">Vendedor: ${p.vendedor || item.vendedor || '—'} · ${p.num_items || 1} und</div>
-          ${tracking.numero ? `<div class="tracking">📮 ${tracking.numero} · ${tracking.carrier || '—'}</div>` : '<div class="meta" style="color:#f87171;">⚠️ sin tracking</div>'}
-        </td>
-        <td>${badge(p.estado_personal)}</td>
-        <td>${estadoSelect(p.order_id, p.estado_personal)}</td>
-        <td class="right"><b>${fmt(p.total)}</b></td>
-        <td class="right"><button class="btn-sm del" onclick="borrar('${oidSafe}')">Borrar</button></td>
-      </tr>`;
-  }).join('');
+        function filtroListos() {
+            // Filtra los que están listos para enviar a Colombia (en-usa, cualquier bodega)
+            // No fija bodega: el usuario elige cuál con el dropdown si quiere
+            document.getElementById('estadoFilter').value = 'en-usa';
+            document.getElementById('filter').value = '';
+            render();
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
 
-  document.getElementById('content').innerHTML = `
-    <table>
-      <thead><tr>
-        <th>Order ID / Fecha</th>
-        <th>Producto</th>
-        <th>Estado</th>
-        <th>Cambiar</th>
-        <th class="right">Total</th>
-        <th class="right"></th>
-      </tr></thead>
-      <tbody>${rows}</tbody>
-    </table>`;
-}
+        async function generarImagenBodega() {
+            const ids = [...selectedOrders];
+            // Si no hay selección, usar los visibles filtrados
+            let pedidosUsar = [];
+            if (ids.length) {
+                pedidosUsar = pedidos.filter(p => ids.includes(p.order_id));
+            } else {
+                pedidosUsar = pedidos.filter(p => lastVisibleIds.includes(p.order_id));
+            }
+            // Filtrar:
+            //   1. con tracking real
+            //   2. solo "en camino a bodega" o "ya en bodega" (no incluir recibido/en-colombia/cancelados)
+            pedidosUsar = pedidosUsar.filter(p => {
+                if (!(p.trackings||[]).length || !p.trackings[0].numero) return false;
+                // Excluir estados que NO interesan al courier
+                if (p.estado_personal === 'recibido' || p.estado_personal === 'en-colombia' ||
+                    p.estado_personal === 'en-camino-col' || p.estado_personal === 'archivado') return false;
+                if (isCancelled(p)) return false;
+                return true;
+            });
+            if (!pedidosUsar.length) {
+                alert('No hay pedidos con tracking para generar imagen.\n\nLa imagen solo incluye:\n• Pedidos con tracking\n• Que estén EN BODEGA o EN CAMINO a bodega\n\n1) Click "📦 Listos enviar" para empezar\n2) Selecciona con checkboxes\n3) Click aquí de nuevo');
+                return;
+            }
+            // Detectar bodegas presentes en los pedidos seleccionados
+            const bodegasEnSeleccion = [...new Set(pedidosUsar.map(p => bodegaShortName(p)))];
+            const bodegaTitulo = bodegasEnSeleccion.length === 1 ? bodegasEnSeleccion[0] : `${bodegasEnSeleccion.length} bodegas`;
 
-async function cambiarEstado(order_id, estado) {
-  try {
-    const r = await fetch('/api/ebay/pedidos/estado', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ order_id, estado_personal: estado })
-    });
-    const j = await r.json();
-    if (j.ok) {
-      // Actualizar en memoria y re-render
-      const p = TODOS.find(x => x.order_id === order_id);
-      if (p) p.estado_personal = estado;
-      render();
-    } else {
-      alert('Error: ' + (j.error || 'no se pudo cambiar'));
-    }
-  } catch (e) {
-    alert('Error de red: ' + e.message);
-  }
-}
+            // Helper: solo 2 estados que importan al courier
+            function estadoTxt(p) {
+                // Ya en bodega
+                if (p.estado_personal === 'en-usa') return {txt:'✅ EN BODEGA', color:'#2dd4bf'};
+                if (p.mye_status === 'delivered') return {txt:'✅ EN BODEGA', color:'#2dd4bf'};
+                if (p.shipping_status === 'probably-delivered') return {txt:'✅ EN BODEGA', color:'#2dd4bf'};
+                // En camino a bodega
+                return {txt:'🚚 EN CAMINO', color:'#c084fc'};
+            }
 
-async function borrar(order_id) {
-  if (!confirm('¿Borrar el pedido ' + order_id + '?')) return;
-  const r = await fetch('/api/ebay/pedidos?order_id=' + encodeURIComponent(order_id), { method: 'DELETE' });
-  const j = await r.json();
-  if (j.ok) {
-    TODOS = TODOS.filter(x => x.order_id !== order_id);
-    render();
-  } else {
-    alert('Error: ' + (j.error || 'no se pudo borrar'));
-  }
-}
+            // Ordenar: primero EN BODEGA, luego EN CAMINO
+            pedidosUsar.sort((a, b) => {
+                const ea = estadoTxt(a).txt;
+                const eb = estadoTxt(b).txt;
+                if (ea.includes('BODEGA') && !eb.includes('BODEGA')) return -1;
+                if (!ea.includes('BODEGA') && eb.includes('BODEGA')) return 1;
+                return 0;
+            });
 
-document.querySelectorAll('.chip[data-est]').forEach(b => b.addEventListener('click', () => {
-  document.querySelectorAll('.chip[data-est]').forEach(x => x.classList.remove('on'));
-  b.classList.add('on');
-  filtro = b.dataset.est;
-  render();
-}));
-document.getElementById('q').addEventListener('input', e => { query = e.target.value; render(); });
+            // Stats para el subtítulo
+            const cntBodega = pedidosUsar.filter(p => estadoTxt(p).txt.includes('BODEGA')).length;
+            const cntCamino = pedidosUsar.filter(p => estadoTxt(p).txt.includes('CAMINO')).length;
 
-cargar();
-</script>
+            // Construir filas
+            const filas = pedidosUsar.map((p, i) => {
+                const trk = p.trackings[0];
+                const item = p.items?.[0] || {};
+                const titulo = (item.titulo || '').slice(0, 45);
+                const est = estadoTxt(p);
+                return {
+                    idx: i+1,
+                    tracking: trk.numero,
+                    carrier: trk.carrier || '-',
+                    titulo: titulo,
+                    estado: est.txt,
+                    estadoColor: est.color,
+                    total: p.total ? '$' + p.total.toFixed(2) : '',
+                };
+            });
+
+            // Crear canvas con tabla
+            const padding = 30;
+            const rowH = 40;
+            const headerH = 60;
+            const titleH = 60;
+            const colWidths = [35, 230, 100, 310, 150, 80];  // #, tracking, carrier, titulo, estado, $
+            const totalW = colWidths.reduce((a,b)=>a+b, 0) + padding*2;
+            const totalH = titleH + headerH + (rowH * filas.length) + padding + 30;
+
+            const canvas = document.createElement('canvas');
+            canvas.width = totalW; canvas.height = totalH;
+            const ctx = canvas.getContext('2d');
+
+            // Fondo
+            const grad = ctx.createLinearGradient(0, 0, 0, totalH);
+            grad.addColorStop(0, '#1a0f2e');
+            grad.addColorStop(1, '#0a1024');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, totalW, totalH);
+
+            // Título
+            ctx.fillStyle = '#ffd700';
+            ctx.font = 'bold 22px -apple-system, sans-serif';
+            ctx.fillText('📦 Paquetes listos para enviar a Colombia', padding, padding + 20);
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '13px -apple-system, sans-serif';
+            const hoy = new Date().toLocaleDateString('es-CO', {day:'2-digit',month:'long',year:'numeric'});
+            const subtitulo = `${filas.length} paquete(s) · ✅ ${cntBodega} en bodega · 🚚 ${cntCamino} en camino · ${hoy}`;
+            ctx.fillText(subtitulo, padding, padding + 42);
+
+            // Header
+            let y = titleH + padding;
+            ctx.fillStyle = 'rgba(255,215,0,0.15)';
+            ctx.fillRect(padding, y, totalW - padding*2, headerH - 20);
+            ctx.fillStyle = '#ffd700';
+            ctx.font = 'bold 13px -apple-system, sans-serif';
+            const headers = ['#', 'Tracking', 'Carrier', 'Producto', 'Estado', 'Total'];
+            let x = padding + 10;
+            headers.forEach((h, i) => {
+                ctx.fillText(h, x, y + 25);
+                x += colWidths[i];
+            });
+
+            // Filas
+            y += headerH - 20 + 5;
+            ctx.font = '13px -apple-system, sans-serif';
+            filas.forEach((f, i) => {
+                if (i % 2 === 0) {
+                    ctx.fillStyle = 'rgba(255,255,255,0.03)';
+                    ctx.fillRect(padding, y, totalW - padding*2, rowH);
+                }
+                x = padding + 10;
+                ctx.fillStyle = '#94a3b8'; ctx.font='12px -apple-system, sans-serif'; ctx.fillText(String(f.idx), x, y + 25); x += colWidths[0];
+                ctx.fillStyle = '#60a5fa'; ctx.font = '11px Menlo, monospace'; ctx.fillText(f.tracking, x, y + 25); x += colWidths[1];
+                ctx.fillStyle = '#c084fc'; ctx.font = 'bold 11px -apple-system, sans-serif'; ctx.fillText(f.carrier, x, y + 25); x += colWidths[2];
+                ctx.fillStyle = '#e2e8f0'; ctx.font = '12px -apple-system, sans-serif'; ctx.fillText(f.titulo, x, y + 25); x += colWidths[3];
+                ctx.fillStyle = f.estadoColor; ctx.font = 'bold 11px -apple-system, sans-serif'; ctx.fillText(f.estado, x, y + 25); x += colWidths[4];
+                ctx.fillStyle = '#ffd700'; ctx.font = 'bold 12px -apple-system, sans-serif'; ctx.fillText(f.total, x, y + 25);
+                y += rowH;
+            });
+
+            // Footer con bodega(s)
+            ctx.fillStyle = '#64748b';
+            ctx.font = '11px -apple-system, sans-serif';
+            const bodegaFooter = bodegasEnSeleccion.length === 1
+                ? `Bodega: ${bodegasEnSeleccion[0]}`
+                : `Bodegas: ${bodegasEnSeleccion.join(', ')}`;
+            ctx.fillText(bodegaFooter, padding, y + 20);
+
+            // Convertir a blob
+            const bodegaSlug = bodegasEnSeleccion.length === 1
+                ? bodegasEnSeleccion[0].toLowerCase().replace(/[^a-z0-9]/g,'-')
+                : 'envio';
+            canvas.toBlob(async (blob) => {
+                try {
+                    await navigator.clipboard.write([new ClipboardItem({'image/png': blob})]);
+                    alert(`📸 Imagen copiada al portapapeles!\n\n${pedidosUsar.length} paquete(s) de ${bodegaTitulo}.\nPégala con Cmd+V en WhatsApp/Email.`);
+                } catch(e) {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${bodegaSlug}-${new Date().toISOString().slice(0,10)}.png`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    alert('📸 Imagen descargada como PNG.');
+                }
+            }, 'image/png');
+        }
+
+        function copiarBulkTrackings() {
+            const ids = [...selectedOrders];
+            if (!ids.length) { alert('Selecciona al menos un pedido'); return; }
+            const lineas = [['Tracking', 'Carrier', 'Estado', 'Título', 'Order ID'].join('\t')];
+            let n = 0;
+            for (const id of ids) {
+                const p = pedidos.find(x => x.order_id === id);
+                if (!p) continue;
+                const trks = p.trackings || [];
+                if (!trks.length) {
+                    const titulo = (p.items?.[0]?.titulo || '').replace(/\t/g,' ');
+                    lineas.push(['(sin tracking)', '-', '-', titulo, p.order_id].join('\t'));
+                    n++;
+                    continue;
+                }
+                for (const t of trks) {
+                    const titulo = (p.items?.[0]?.titulo || '').replace(/\t/g,' ');
+                    const estado = p.real_shipping_status || p.shipping_status || '';
+                    lineas.push([t.numero || '', t.carrier || '', statusBonito(estado), titulo, p.order_id].join('\t'));
+                    n++;
+                }
+            }
+            const texto = lineas.join('\n');
+            navigator.clipboard.writeText(texto).then(() => {
+                alert(`📋 Copiados ${n} tracking(s) al portapapeles.\n\nFormato TSV (pegable en Excel/WhatsApp/Sheets):\nTracking | Carrier | Estado | Título | Order ID`);
+            }).catch(e => alert('No se pudo copiar: ' + e.message));
+        }
+
+        async function marcarBulkLlegaron() {
+            const ids = [...selectedOrders];
+            if (!ids.length) { alert('Selecciona al menos un pedido'); return; }
+            if (!confirm(`Marcar ${ids.length} pedido(s) como llegados a bodega USA?`)) return;
+            const r = await fetch('/api/ebay/meta/bulk-save', {
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({order_ids: ids, estado_personal: 'en-usa'}),
+            });
+            const d = await r.json();
+            if (d.ok) {
+                clearSelection();
+                await loadPedidos();
+            } else alert('Error: ' + (d.error || ''));
+        }
+
+        async function marcarLlegoBodega(orderId) {
+            const hoy = new Date().toISOString().slice(0,10);
+            const r = await fetch('/api/ebay/meta/save', {
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({
+                    order_id: orderId,
+                    estado_personal: 'en-usa',
+                    fecha_envio_colombia: '',
+                    fecha_recibido: '',
+                    notas: '',
+                }),
+            });
+            const d = await r.json();
+            if (d.ok) {
+                const p = pedidos.find(x => x.order_id === orderId);
+                if (p) { p.estado_personal = 'en-usa'; p.fecha_entrega_bodega = hoy; }
+                render();
+            } else alert('Error: ' + (d.error || ''));
+        }
+
+        async function applyBulk() {
+            const estado = document.getElementById('bulkEstado').value;
+            const fcol = document.getElementById('bulkFechaCol').value;
+            const frec = document.getElementById('bulkFechaRec').value;
+            const notas = document.getElementById('bulkNotas').value;
+            if (!estado && !fcol && !frec && !notas) {
+                alert('⚠️ Especifica al menos un cambio');
+                return;
+            }
+            const ids = [...selectedOrders];
+            if (!confirm(`Aplicar cambios a ${ids.length} pedido${ids.length>1?'s':''}?`)) return;
+            const body = { order_ids: ids };
+            if (estado) body.estado_personal = estado;
+            if (fcol) body.fecha_envio_colombia = fcol;
+            if (frec) body.fecha_recibido = frec;
+            if (notas) body.notas_append = notas;
+            const r = await fetch('/api/ebay/meta/bulk-save', {
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body: JSON.stringify(body),
+            });
+            const d = await r.json();
+            if (d.ok) {
+                clearSelection();
+                await loadPedidos();
+            } else alert('Error: ' + (d.error || ''));
+        }
+
+        async function loadStatus() {
+            const r = await fetch('/api/ebay/status');
+            const s = await r.json();
+            if (s.ultima_sync) {
+                const d = new Date(s.ultima_sync);
+                document.getElementById('lastSync').textContent =
+                    'Última sync: ' + d.toLocaleString('es-CO');
+            }
+        }
+        async function loadPedidos() {
+            const r = await fetch('/api/ebay/pedidos');
+            const d = await r.json();
+            pedidos = d.pedidos || [];
+            render();
+        }
+        async function checkTracking() {
+            const btn = event.target;
+            btn.disabled = true; btn.textContent = '⏳...';
+            try {
+                const r = await fetch('/api/ebay/check-tracking');
+                const d = await r.json();
+                if (d.ok) {
+                    alert(`⏱️ Estimación por tiempo:\n` +
+                          `✅ ${d.probably_delivered} probablemente en bodega (auto-marcados ${d.auto_marked})\n` +
+                          `🚚 ${d.in_transit} en tránsito\n` +
+                          `📦 ${d.just_shipped} recién enviados\n` +
+                          `❓ ${d.no_tracking} sin tracking`);
+                    await loadPedidos();
+                } else alert('❌ ' + (d.error || ''));
+            } catch(e) { alert('Error: ' + e.message); }
+            btn.disabled = false; btn.innerHTML = '⏱️ Estimar por tiempo';
+        }
+
+        async function scrapeEbayMye() {
+            const btn = event.target;
+            btn.disabled = true; btn.textContent = '⏳ Leyendo eBay...';
+            try {
+                const r = await fetch('/api/ebay/scrape-mye');
+                const d = await r.json();
+                if (d.ok) {
+                    let msg = `🌐 eBay MyeBay (estado real desde tu sesión Chrome):\n\n`;
+                    msg += `📦 Pedidos encontrados con estado: ${d.encontrados_en_ebay}\n`;
+                    msg += `✅ Actualizados: ${d.actualizados_en_dashboard}\n`;
+                    msg += `🇺🇸 Auto-marcados En USA: ${d.auto_marcados_en_usa}\n\n`;
+                    msg += `Estados:\n` + Object.entries(d.estados_eBay).map(([k,v])=>`  ${k}: ${v}`).join('\n');
+                    alert(msg);
+                    await loadPedidos();
+                } else {
+                    alert('❌ Error: ' + (d.error||'') + '\n\nAsegúrate de tener Chrome abierto y logueado en eBay.');
+                }
+            } catch(e) { alert('Error: ' + e.message); }
+            btn.disabled = false; btn.innerHTML = '🌐 eBay REAL';
+        }
+
+        async function checkTrackingReal() {
+            const btn = event.target;
+            btn.disabled = true; btn.textContent = '⏳ Consultando TrackingMore...';
+            try {
+                const r = await fetch('/api/ebay/check-tracking-api');
+                const d = await r.json();
+                if (d.ok) {
+                    let msg = `📮 TrackingMore (API real):\n`;
+                    msg += `✅ Verificados: ${d.checked}\n`;
+                    msg += `📦 Entregados (auto-marcados): ${d.delivered} (${d.auto_marked})\n`;
+                    msg += `🚚 En tránsito: ${d.in_transit}\n`;
+                    if (d.errors) msg += `⚠️ Errores: ${d.errors}\n`;
+                    if (d.skipped) msg += `⏩ Saltados (eBay internal): ${d.skipped}\n`;
+                    msg += `\n💡 Para trackings nuevos TrackingMore puede tardar 10+ min en obtener datos USPS. Vuelve a darle click después.`;
+                    alert(msg);
+                    await loadPedidos();
+                } else {
+                    alert('❌ ' + (d.error || '') + '\n\n' + (d.instrucciones || ''));
+                }
+            } catch(e) { alert('Error: ' + e.message); }
+            btn.disabled = false; btn.innerHTML = '📮 Verificar REAL';
+        }
+
+        async function sync() {
+            const btn = document.querySelector('.btn-sync');
+            btn.disabled = true; btn.textContent = '⏳ Sincronizando...';
+            try {
+                const r = await fetch('/api/ebay/sync');
+                const d = await r.json();
+                if (d.ok) { await loadPedidos(); await loadStatus(); }
+                else alert('❌ ' + (d.error || '') + '\n' + JSON.stringify(d.detail || '').slice(0,500));
+            } catch(e) { alert('Error: ' + e.message); }
+            btn.disabled = false; btn.innerHTML = '&#128260; Sincronizar con eBay';
+        }
+        async function guardarMeta(orderId) {
+            const root = document.querySelector(`[data-order="${orderId}"]`);
+            const data = {
+                order_id: orderId,
+                estado_personal: root.querySelector('.f-estado').value,
+                fecha_envio_colombia: root.querySelector('.f-fecha-col').value,
+                fecha_recibido: root.querySelector('.f-fecha-rec').value,
+                notas: root.querySelector('.f-notas').value,
+            };
+            const r = await fetch('/api/ebay/meta/save', {
+                method: 'POST', headers: {'Content-Type':'application/json'},
+                body: JSON.stringify(data),
+            });
+            const d = await r.json();
+            if (d.ok) {
+                const p = pedidos.find(x => x.order_id === orderId);
+                if (p) Object.assign(p, data);
+                render();
+                document.querySelector(`[data-order="${orderId}"]`).classList.add('expanded');
+            } else alert('Error: ' + (d.error || ''));
+        }
+
+        function fmtUSD(n) { return new Intl.NumberFormat('en-US', {style:'currency', currency:'USD'}).format(n||0); }
+        function fmtCOP(n) { return new Intl.NumberFormat('es-CO', {style:'currency', currency:'COP', maximumFractionDigits:0}).format((n||0)*4000); }
+        function fmtFecha(iso) {
+            if (!iso) return '-';
+            try { return new Date(iso).toLocaleDateString('es-CO', {year:'numeric',month:'2-digit',day:'2-digit'}); }
+            catch(e) { return iso; }
+        }
+        function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t || ''; return d.innerHTML; }
+
+        function trackingURL(carrier, num) {
+            if (!num) return null;
+            const c = (carrier || '').toUpperCase();
+            const n = (num || '').toUpperCase();
+            // ESUS / EBAY / EZUS internos: ir a tu MyeBay donde sí los ves logueado
+            if (n.startsWith('ESUS') || n.startsWith('EBAY') || n.startsWith('EZUS')) {
+                return `https://www.ebay.com/mye/myebay/v2/purchase?searchKeyword=${encodeURIComponent(num)}`;
+            }
+            // USPS / eBay Standard con número 9... → USPS lo reconoce
+            if (c.includes('USPS') || c.includes('STANDARD') || c.includes('EBAY')) {
+                return `https://tools.usps.com/go/TrackConfirmAction?tLabels=${num}`;
+            }
+            if (c.includes('UPS')) return `https://www.ups.com/track?tracknum=${num}`;
+            if (c.includes('FEDEX')) return `https://www.fedex.com/fedextrack/?tracknumbers=${num}`;
+            if (c.includes('DHL')) return `https://www.dhl.com/en/express/tracking.html?AWB=${num}`;
+            if (c.includes('CAINIAO')) return `https://global.cainiao.com/detail.htm?mailNoList=${num}`;
+            return `https://www.google.com/search?q=tracking+${num}`;
+        }
+
+        function isCancelled(p) {
+            const cs = p.cancel_status;
+            return cs === 'CancelClosedForCommitment' || cs === 'CancelComplete' || (cs && cs !== 'NotApplicable');
+        }
+
+        function statusBadges(p) {
+            const out = [];
+            const cs = p.cancel_status;
+            if (cs === 'CancelClosedForCommitment' || cs === 'CancelComplete') out.push('<span class="badge b-cancelled">CANCELADO</span>');
+            else if (cs && cs !== 'NotApplicable') out.push(`<span class="badge b-cancel-pending">CANCELACIÓN</span>`);
+            else if (p.order_status === 'Completed') out.push('<span class="badge b-completed">PAGADO</span>');
+            else if (p.order_status === 'Active') out.push('<span class="badge b-active">ACTIVO</span>');
+            if (p.fecha_envio && !isCancelled(p)) out.push('<span class="badge b-shipped">ENVIADO USA</span>');
+            if (p.num_items > 1) out.push(`<span class="badge b-multi">${p.num_items} ITEMS</span>`);
+            if (p.estado_personal === 'en-usa') out.push('<span class="badge b-personal-recibido">📦 EN BODEGA USA</span>');
+            if (p.estado_personal === 'en-camino-col') out.push('<span class="badge b-personal">✈️ A COLOMBIA</span>');
+            if (p.estado_personal === 'en-colombia') out.push('<span class="badge b-personal">🇨🇴 EN COLOMBIA</span>');
+            if (p.estado_personal === 'recibido') out.push('<span class="badge b-personal-recibido">✓ RECIBIDO</span>');
+            if (p.estado_personal === 'problema') out.push('<span class="badge b-personal-problema">⚠️ PROBLEMA</span>');
+            if (p.estado_personal === 'esperando-devolucion') out.push('<span class="badge b-personal-problema">⏳ ESPERANDO REEMBOLSO</span>');
+            if (p.estado_personal === 'archivado') out.push('<span class="badge b-personal">🗄️ ARCHIVADO</span>');
+            return out.join(' ');
+        }
+
+        function rowClass(p) {
+            if (isCancelled(p)) return 'cancelled';
+            if (p.estado_personal === 'recibido') return 'recibido';
+            if (p.estado_personal === 'problema') return 'problema';
+            if (p.estado_personal === 'en-colombia' || p.estado_personal === 'en-camino-col') return 'en-colombia';
+            return '';
+        }
+
+        function bodegaShortName(p) {
+            const a = p.ship_address || {};
+            const name = (a.name || '').toLowerCase();
+            if (name.includes('miller')) return 'Miller Express';
+            if (name.includes('jimmy')) return 'Jimmy Pérez';
+            if (name.includes('mys') || name.includes('serrano') || name.includes('ulises')) return 'Mys (Hialeah)';
+            return a.name || 'Sin bodega';
+        }
+        function bodegaCity(p) {
+            const a = p.ship_address || {};
+            return `${a.city || ''}, ${a.state || ''}`;
+        }
+
+        function populateDynamicFilters() {
+            const bodegasSet = new Set();
+            const carriersSet = new Set();
+            for (const p of pedidos) {
+                bodegasSet.add(bodegaShortName(p));
+                for (const t of (p.trackings || [])) {
+                    if (t.carrier) carriersSet.add(t.carrier);
+                }
+            }
+            const bSel = document.getElementById('bodegaFilter');
+            const cSel = document.getElementById('carrierFilter');
+            const curB = bSel.value, curC = cSel.value;
+            bSel.innerHTML = '<option value="all">🏠 Todas las bodegas</option>' +
+                [...bodegasSet].sort().map(b => `<option value="${b}">${b}</option>`).join('');
+            cSel.innerHTML = '<option value="all">🚚 Todas transportadoras</option>' +
+                [...carriersSet].sort().map(c => `<option value="${c}">${c}</option>`).join('');
+            bSel.value = curB; cSel.value = curC;
+        }
+
+        function dateInRange(iso, range) {
+            if (range === 'all') return true;
+            if (!iso) return false;
+            const d = new Date(iso); const now = new Date();
+            if (range === '7d') return (now - d) <= 7*86400000;
+            if (range === '30d') return (now - d) <= 30*86400000;
+            if (range === '60d') return (now - d) <= 60*86400000;
+            if (range === 'thismonth') return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
+            if (range === 'lastmonth') {
+                const ref = new Date(now.getFullYear(), now.getMonth()-1, 1);
+                return d.getMonth()===ref.getMonth() && d.getFullYear()===ref.getFullYear();
+            }
+            return true;
+        }
+
+        function resetFilters() {
+            ['filter','estadoFilter','bodegaFilter','carrierFilter','fechaFilter','multiFilter'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el.tagName === 'SELECT') el.value = el.querySelector('option').value;
+                else el.value = '';
+            });
+            document.getElementById('sort').value = 'fecha-desc';
+            render();
+        }
+
+        function render() {
+            populateDynamicFilters();
+            const filter = (document.getElementById('filter').value || '').toLowerCase();
+            const estadoF = document.getElementById('estadoFilter').value;
+            const bodegaF = document.getElementById('bodegaFilter').value;
+            const carrierF = document.getElementById('carrierFilter').value;
+            const fechaF = document.getElementById('fechaFilter').value;
+            const multiF = document.getElementById('multiFilter').value;
+            const sortBy = document.getElementById('sort').value;
+            const cont = document.getElementById('lista');
+
+            let lista = [...pedidos];
+            if (filter) {
+                lista = lista.filter(p =>
+                    p.items.some(it =>
+                        (it.titulo || '').toLowerCase().includes(filter) ||
+                        (it.vendedor || '').toLowerCase().includes(filter)
+                    ) ||
+                    (p.trackings || []).some(t => (t.numero || '').toLowerCase().includes(filter)) ||
+                    (p.notas || '').toLowerCase().includes(filter) ||
+                    (p.order_id || '').toLowerCase().includes(filter)
+                );
+            }
+            // Un pedido se archiva SOLO cuando yo lo marco (recibido o archivado manualmente)
+            // Los cancelados siguen activos hasta que confirme la devolución/reembolso
+            const isArchived = (p) => p.estado_personal === 'recibido' || p.estado_personal === 'archivado';
+
+            if (estadoF === 'activos-no-archivados') {
+                lista = lista.filter(p => !isArchived(p));
+            } else if (estadoF === 'archivados') {
+                lista = lista.filter(p => isArchived(p));
+            } else if (estadoF !== 'all') {
+                lista = lista.filter(p => {
+                    if (estadoF === 'cancelled') return isCancelled(p);
+                    if (estadoF === 'active') return !isCancelled(p);
+                    if (estadoF === 'completed') return p.order_status === 'Completed' && !isCancelled(p);
+                    if (estadoF === 'en-usa') return !isCancelled(p) && (!p.estado_personal || p.estado_personal === 'en-usa');
+                    if (estadoF === 'sin-tracking') return !(p.trackings && p.trackings.length);
+                    if (estadoF === 'probable-bodega') return p.shipping_status === 'probably-delivered';
+                    if (estadoF === 'just-shipped') return p.shipping_status === 'just-shipped';
+                    if (estadoF === 'in-transit-estado') return p.shipping_status === 'in-transit';
+                    return p.estado_personal === estadoF;
+                });
+            }
+            if (bodegaF !== 'all') lista = lista.filter(p => bodegaShortName(p) === bodegaF);
+            if (carrierF !== 'all') lista = lista.filter(p => (p.trackings||[]).some(t => t.carrier === carrierF));
+            if (fechaF !== 'all') lista = lista.filter(p => dateInRange(p.fecha_compra, fechaF));
+            if (multiF === 'single') lista = lista.filter(p => p.num_items === 1);
+            if (multiF === 'multi') lista = lista.filter(p => p.num_items > 1);
+
+            // Update active filters indicator
+            const activos = [];
+            if (filter) activos.push(`🔍 "${filter}"`);
+            if (estadoF !== 'all') activos.push(`Estado: ${document.getElementById('estadoFilter').selectedOptions[0].text}`);
+            if (bodegaF !== 'all') activos.push(`🏠 ${bodegaF}`);
+            if (carrierF !== 'all') activos.push(`🚚 ${carrierF}`);
+            if (fechaF !== 'all') activos.push(`📅 ${document.getElementById('fechaFilter').selectedOptions[0].text}`);
+            if (multiF !== 'all') activos.push(`🛒 ${document.getElementById('multiFilter').selectedOptions[0].text}`);
+            document.getElementById('activeFilters').innerHTML = activos.length
+                ? `<strong>${lista.length}</strong> de ${pedidos.length} pedidos · Filtros: ${activos.join(' · ')}`
+                : `<strong>${pedidos.length}</strong> pedidos en total`;
+
+            lista.sort((a,b) => {
+                if (sortBy === 'fecha-desc') return (b.fecha_compra||'').localeCompare(a.fecha_compra||'');
+                if (sortBy === 'fecha-asc') return (a.fecha_compra||'').localeCompare(b.fecha_compra||'');
+                if (sortBy === 'precio-desc') return (b.total||0)-(a.total||0);
+                if (sortBy === 'precio-asc') return (a.total||0)-(b.total||0);
+                return 0;
+            });
+
+            // Stats
+            const total = pedidos.length;
+            const totalUSD = pedidos.reduce((s,p)=>s+(p.total||0),0);
+            const cancelados = pedidos.filter(isCancelled).length;
+            const recibidos = pedidos.filter(p => p.estado_personal === 'recibido').length;
+            const archivados = pedidos.filter(isArchived).length;
+            const activosCount = total - archivados;
+            const activosUSD = pedidos.filter(p => !isArchived(p)).reduce((s,p)=>s+(p.total||0),0);
+            const enColombia = pedidos.filter(p => p.estado_personal === 'en-colombia' || p.estado_personal === 'en-camino-col').length;
+            const conTracking = pedidos.filter(p => (p.trackings||[]).length).length;
+
+            document.getElementById('stats').innerHTML = `
+                <div class="stat-card" style="cursor:pointer" onclick="document.getElementById('estadoFilter').value='activos-no-archivados';render()">
+                    <div class="stat-label">📂 Activos</div><div class="stat-value blue">${activosCount}</div>
+                    <div style="font-size:10px;color:#94a3b8;margin-top:2px">${fmtUSD(activosUSD)}</div>
+                </div>
+                <div class="stat-card" style="cursor:pointer" onclick="document.getElementById('estadoFilter').value='archivados';render()">
+                    <div class="stat-label">🗄️ Archivados</div><div class="stat-value green">${archivados}</div>
+                </div>
+                <div class="stat-card"><div class="stat-label">Total Pedidos</div><div class="stat-value blue">${total}</div></div>
+                <div class="stat-card"><div class="stat-label">Gasto USD Total</div><div class="stat-value gold">${fmtUSD(totalUSD)}</div></div>
+                <div class="stat-card"><div class="stat-label">≈ COP</div><div class="stat-value green">${fmtCOP(totalUSD)}</div></div>
+                <div class="stat-card" style="cursor:pointer" onclick="document.getElementById('estadoFilter').value='en-colombia';render()">
+                    <div class="stat-label">🇨🇴 En/A Colombia</div><div class="stat-value gold">${enColombia}</div>
+                </div>
+                <div class="stat-card" style="cursor:pointer" onclick="document.getElementById('estadoFilter').value='recibido';render()">
+                    <div class="stat-label">✓ Recibidos</div><div class="stat-value green">${recibidos}</div>
+                </div>
+                <div class="stat-card" style="cursor:pointer" onclick="document.getElementById('estadoFilter').value='cancelled';render()">
+                    <div class="stat-label">❌ Cancelados</div><div class="stat-value red">${cancelados}</div>
+                </div>
+            `;
+
+            // Guardar IDs visibles para "seleccionar todos"
+            lastVisibleIds = lista.map(p => p.order_id);
+            document.getElementById('selectAllRow').style.display = lista.length > 0 ? 'flex' : 'none';
+            // Sincronizar checkbox "select all"
+            const sa = document.getElementById('selectAll');
+            if (sa) sa.checked = lista.length > 0 && lista.every(p => selectedOrders.has(p.order_id));
+
+            if (lista.length === 0) {
+                cont.innerHTML = `<div class="empty"><h3>Sin pedidos</h3><p>${filter || estadoF !== 'all' ? 'No coinciden con los filtros' : 'Sincroniza con eBay'}</p></div>`;
+                updateBulkBar();
+                return;
+            }
+
+            cont.innerHTML = lista.map(p => {
+                const firstItem = p.items[0] || {};
+                const img = firstItem.imagen
+                    ? `<img src="${firstItem.imagen.replace('s-l64','s-l400')}" onerror="this.onerror=null;this.src='${firstItem.imagen}'">`
+                    : 'No img';
+                const multiBadge = p.num_items > 1 ? `<div class="multi-badge">+${p.num_items-1}</div>` : '';
+                const titleMain = p.num_items > 1
+                    ? `<strong>📦 ${p.num_items} productos</strong> — ${escapeHtml(firstItem.titulo)}`
+                    : escapeHtml(firstItem.titulo);
+                const sellers = [...new Set(p.items.map(it => it.vendedor).filter(v=>v))];
+                const sellerLine = sellers.length === 1
+                    ? `<span class="seller">@${escapeHtml(sellers[0])}</span>`
+                    : sellers.length > 1
+                        ? `<span class="seller">${sellers.length} vendedores</span>`
+                        : '';
+                const bodega = bodegaShortName(p);
+                const bodegaIcon = bodega.includes('Miller') ? '🏢' : bodega.includes('Jimmy') ? '🎰' : bodega.includes('Mys') ? '🏬' : '🏠';
+                const bodegaHTML = `<span style="color:#f5af02;font-size:11px;margin-left:8px">${bodegaIcon} ${escapeHtml(bodega)}</span>`;
+
+                // Tracking column
+                let trackHTML = '<span style="color:#64748b">Sin tracking</span>';
+                if (p.trackings && p.trackings.length > 0) {
+                    const t = p.trackings[0];
+                    const moreCount = p.trackings.length - 1;
+                    const tUrl = trackingURL(t.carrier_raw, t.numero);
+                    // Pill de estado de envío
+                    let shipPill = '';
+                    const ss = p.shipping_status;
+                    const dias = p.dias_desde_envio;
+                    if (ss === 'probably-delivered') shipPill = `<span class="ship-status-pill ship-delivered">✓ Probable en bodega (${dias}d)</span>`;
+                    else if (ss === 'in-transit') shipPill = `<span class="ship-status-pill ship-transit">🚚 En tránsito (${dias}d)</span>`;
+                    else if (ss === 'just-shipped') shipPill = `<span class="ship-status-pill ship-just">📦 Recién enviado (${dias}d)</span>`;
+                    else if (ss === 'no-tracking') shipPill = `<span class="ship-status-pill ship-no-track">Sin tracking</span>`;
+                    else if (dias !== null && dias !== undefined) shipPill = `<span class="ship-status-pill ship-no-track">${dias}d desde envío</span>`;
+
+                    // Estado MyeBay (lo más confiable - viene directo de eBay con tu sesión)
+                    let myePill = '';
+                    if (p.mye_status === 'delivered') myePill = `<span class="ship-status-pill ship-delivered" style="background:linear-gradient(135deg,#e53238,#0064d2);color:white;font-weight:800;" title="eBay confirma: ${escapeHtml(p.mye_status_raw||'')}">🌐 eBay: ENTREGADO</span>`;
+                    else if (p.mye_status === 'in-transit') myePill = `<span class="ship-status-pill ship-transit" style="background:#0064d2;color:white;font-weight:800;">🌐 eBay: En tránsito</span>`;
+                    else if (p.mye_status === 'shipped') myePill = `<span class="ship-status-pill ship-transit" style="background:#0064d2;color:white;font-weight:800;">🌐 eBay: Enviado</span>`;
+                    else if (p.mye_status === 'out-for-delivery') myePill = `<span class="ship-status-pill" style="background:#f5af02;color:#0a1024;font-weight:800;">🌐 eBay: En reparto</span>`;
+                    else if (p.mye_status === 'refunded') myePill = `<span class="ship-status-pill" style="background:rgba(239,68,68,0.4);color:#fca5a5;font-weight:800;">🌐 eBay: REEMBOLSADO</span>`;
+                    else if (p.mye_status === 'cancelled') myePill = `<span class="ship-status-pill b-cancelled">🌐 eBay: Cancelado</span>`;
+
+                    // Estado real (TrackingMore) si existe — NUNCA mostrar "Procesando" (es ruido)
+                    const realStatus = p.real_shipping_status;
+                    let realPill = '';
+                    if (realStatus === 'delivered') realPill = `<span class="ship-status-pill ship-delivered" title="${escapeHtml(p.real_status_text||'')}">✅ REAL: Entregado</span>`;
+                    else if (realStatus === 'in-transit') realPill = `<span class="ship-status-pill ship-transit">🚚 REAL: En tránsito</span>`;
+                    else if (realStatus === 'out-for-delivery') realPill = `<span class="ship-status-pill ship-transit">🚛 REAL: En reparto</span>`;
+                    else if (realStatus === 'exception') realPill = `<span class="ship-status-pill" style="background:rgba(239,68,68,0.25);color:#fca5a5;">⚠️ Excepción</span>`;
+                    // pending/unknown/check-failed → ocultar (no informa nada)
+
+                    // ETA de eBay (fecha estimada de entrega)
+                    let etaPill = '';
+                    const etaMin = (p.eta_native_min || p.eta_min || '').slice(0,10);
+                    const etaMax = (p.eta_native_max || p.eta_max || '').slice(0,10);
+                    if (etaMax) {
+                        const hoy = new Date(); hoy.setHours(0,0,0,0);
+                        const etaMaxD = new Date(etaMax);
+                        const diasHastaMax = Math.floor((etaMaxD - hoy) / 86400000);
+                        if (diasHastaMax < 0) {
+                            etaPill = `<span class="ship-status-pill" style="background:rgba(0,168,107,0.2);color:#6ee7b7;" title="eBay estimó entrega ${etaMin}~${etaMax}">📅 ETA pasada (hace ${-diasHastaMax}d)</span>`;
+                        } else if (diasHastaMax === 0) {
+                            etaPill = `<span class="ship-status-pill" style="background:rgba(255,215,0,0.3);color:#ffd700;font-weight:bold;" title="eBay estimó entrega ${etaMin}~${etaMax}">📅 LLEGA HOY</span>`;
+                        } else if (diasHastaMax <= 3) {
+                            etaPill = `<span class="ship-status-pill" style="background:rgba(255,215,0,0.2);color:#ffd700;" title="eBay estimó entrega ${etaMin}~${etaMax}">📅 Llega en ${diasHastaMax}d</span>`;
+                        } else {
+                            etaPill = `<span class="ship-status-pill ship-no-track" title="eBay estimó entrega ${etaMin}~${etaMax}">📅 ETA ${etaMax}</span>`;
+                        }
+                    }
+
+                    const yaEnUsa = p.estado_personal === 'en-usa' || p.estado_personal === 'recibido';
+                    // Prioridad: eBay MyeBay > estado_personal=en-usa > demás
+                    // Si ya tenemos confirmación fuerte, suprimir pills ruidosos (Procesando, etc)
+                    const tieneEbayDelivered = p.mye_status === 'delivered' || p.mye_status === 'refunded' || p.mye_status === 'cancelled';
+                    const yaConfirmadoEnUsa = p.estado_personal === 'en-usa' || p.estado_personal === 'recibido' || p.estado_personal === 'en-camino-col' || p.estado_personal === 'en-colombia';
+                    // Si está marcado en-usa por tiempo (>10d), suprimir Procesando y ETA pasada
+                    const ocultarRuido = tieneEbayDelivered || yaConfirmadoEnUsa;
+                    const finalShipPill = ocultarRuido ? '' : shipPill;
+                    const finalEtaPill = ocultarRuido ? '' : etaPill;
+                    // realPill solo se muestra si NO es pending/unknown ruidoso
+                    const realNoise = (realStatus === 'pending' || realStatus === 'unknown' || realStatus === 'check-failed');
+                    const finalRealPill = (ocultarRuido && realNoise) ? '' : realPill;
+                    trackHTML = `
+                        <span class="carrier-name">${escapeHtml(t.carrier)}</span>
+                        ${t.numero ? `<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
+                          <a href="${tUrl}" target="_blank" class="tnum" onclick="event.stopPropagation()">${escapeHtml(t.numero)}</a>
+                          <button onclick="event.stopPropagation();copiarTrackingRow(this,'${escapeHtml(t.numero)}','${escapeHtml(t.carrier)}','${escapeHtml(p.mye_status||realStatus||ss||'')}','${escapeHtml(p.titulo||p.items?.[0]?.titulo||'').replace(/'/g,'')}')" title="Copiar tracking + carrier + estado" style="background:rgba(255,215,0,0.15);border:1px solid #ffd700;color:#ffd700;border-radius:4px;padding:1px 6px;cursor:pointer;font-size:10px;font-weight:bold;">📋</button>
+                          ${!yaEnUsa ? `<button onclick="event.stopPropagation();marcarLlegoBodega('${p.order_id}')" title="Marcar como llegado a bodega USA hoy" style="background:rgba(0,168,107,0.2);border:1px solid #00a86b;color:#2dd4bf;border-radius:4px;padding:1px 6px;cursor:pointer;font-size:10px;font-weight:bold;">✅ Llegó</button>` : ''}
+                        </div>` : ''}
+                        ${moreCount > 0 ? `<span class="multi-pkg">+${moreCount} paquete${moreCount>1?'s':''}</span>` : ''}
+                        ${myePill}
+                        ${finalShipPill}
+                        ${finalEtaPill}
+                        ${finalRealPill}
+                    `;
+                }
+
+                return `
+                <div class="row ${rowClass(p)} ${selectedOrders.has(p.order_id)?'selected':''}" data-order="${p.order_id}">
+                    <div class="row-head" onclick="if(event.target.classList.contains('row-check'))return;this.parentElement.classList.toggle('expanded')">
+                        <input type="checkbox" class="row-check" ${selectedOrders.has(p.order_id)?'checked':''} onclick="event.stopPropagation();toggleSelect('${p.order_id}', this.checked)">
+                        <div class="row-img-stack ${firstItem.imagen?'':'no-img'}">
+                            <div class="img-wrap">${img}</div>
+                            ${multiBadge}
+                        </div>
+                        <div class="row-titles">
+                            <div class="row-title-main">${titleMain}</div>
+                            <div class="row-title-extra">${sellerLine}${bodegaHTML}</div>
+                            <div class="badges-line">${statusBadges(p)}</div>
+                        </div>
+                        <div class="col-tracking">${trackHTML}</div>
+                        <div class="col-fecha"><strong>${fmtFecha(p.fecha_compra)}</strong>compra</div>
+                        <div class="col-price">${fmtUSD(p.total)}</div>
+                        <div class="col-toggle">▶</div>
+                    </div>
+                    <div class="row-detail">
+                        <div class="detail-grid">
+                            <div class="detail-section">
+                                <h4>📦 Información de eBay</h4>
+                                <div class="detail-line"><span class="k">Order ID</span><span class="v">${escapeHtml(p.order_id)}</span></div>
+                                <div class="detail-line"><span class="k">Productos</span><span class="v">${p.num_items}</span></div>
+                                <div class="detail-line"><span class="k">Subtotal</span><span class="v">${fmtUSD(p.subtotal)}</span></div>
+                                <div class="detail-line"><span class="k">Envío</span><span class="v">${fmtUSD(p.envio)}</span></div>
+                                <div class="detail-line"><span class="k">Total</span><span class="v" style="color:#ffd700">${fmtUSD(p.total)} (≈ ${fmtCOP(p.total)})</span></div>
+                                <div class="detail-line"><span class="k">Fecha compra</span><span class="v">${fmtFecha(p.fecha_compra)}</span></div>
+                                <div class="detail-line"><span class="k">Fecha pago</span><span class="v">${fmtFecha(p.fecha_pago)}</span></div>
+                                <div class="detail-line"><span class="k">Estado pago</span><span class="v">${p.payment_status==='Succeeded' ? '<span class="pay-info">✓ '+escapeHtml(p.payment_status)+'</span>' : escapeHtml(p.payment_status||'-')}</span></div>
+                                ${p.payment_methods && p.payment_methods.length ? `<div class="detail-line"><span class="k">Método pago</span><span class="v">${p.payment_methods.map(escapeHtml).join(', ')}</span></div>` : `<div class="detail-line"><span class="k">Método pago</span><span class="v">eBay Managed Payments</span></div>`}
+                                <div class="detail-line"><span class="k">Fecha envío USA</span><span class="v">${fmtFecha(p.fecha_envio)}</span></div>
+                                <div class="detail-line"><span class="k">Servicio</span><span class="v" style="font-size:11px">${escapeHtml(p.shipping_service||'-')}</span></div>
+                                <div class="detail-line"><span class="k">Estado eBay</span><span class="v">${escapeHtml(p.order_status)}</span></div>
+                                ${p.cancel_status && p.cancel_status !== 'NotApplicable' ? `<div class="detail-line"><span class="k">Cancelación</span><span class="v" style="color:#ef4444">${escapeHtml(p.cancel_status)}${p.cancel_reason?' - '+escapeHtml(p.cancel_reason):''}</span></div>` : ''}
+                                <div class="detail-line"><span class="k">Bodega USA</span><span class="v">${escapeHtml(p.ship_address?.name||'')}<br>${escapeHtml(p.ship_address?.city||'')}, ${escapeHtml(p.ship_address?.state||'')}</span></div>
+
+                                <h4 style="margin-top:14px">📮 Tracking${p.trackings && p.trackings.length>1?'s ('+p.trackings.length+' paquetes)':''}</h4>
+                                ${p.trackings && p.trackings.length ? p.trackings.map(t => `
+                                    <div class="detail-line">
+                                        <span class="k">${escapeHtml(t.carrier)}</span>
+                                        <span class="v">${t.numero ? `<a href="${trackingURL(t.carrier_raw, t.numero)}" target="_blank">${escapeHtml(t.numero)}</a>` : '-'}</span>
+                                    </div>
+                                `).join('') : '<div style="color:#64748b;font-size:12px">Sin tracking aún</div>'}
+                            </div>
+                            <div class="detail-section">
+                                <h4>📝 Mi seguimiento</h4>
+                                <div class="meta-form">
+                                    <div class="field">
+                                        <label>Estado del paquete</label>
+                                        <select class="f-estado">
+                                            <option value="" ${!p.estado_personal?'selected':''}>(sin definir)</option>
+                                            <option value="en-usa" ${p.estado_personal==='en-usa'?'selected':''}>📦 En bodega USA</option>
+                                            <option value="en-camino-col" ${p.estado_personal==='en-camino-col'?'selected':''}>✈️ En camino a Colombia</option>
+                                            <option value="en-colombia" ${p.estado_personal==='en-colombia'?'selected':''}>🇨🇴 Llegó a Colombia</option>
+                                            <option value="recibido" ${p.estado_personal==='recibido'?'selected':''}>✅ Entregado a mí (archiva)</option>
+                                            <option value="problema" ${p.estado_personal==='problema'?'selected':''}>⚠️ Con problema</option>
+                                            <option value="esperando-devolucion" ${p.estado_personal==='esperando-devolucion'?'selected':''}>⏳ Esperando devolución/reembolso</option>
+                                            <option value="archivado" ${p.estado_personal==='archivado'?'selected':''}>🗄️ Archivar (cerrado, no me llegó)</option>
+                                        </select>
+                                    </div>
+                                    <div class="meta-form-row">
+                                        <div class="field">
+                                            <label>📅 Envío a Colombia</label>
+                                            <input type="date" class="f-fecha-col" value="${(p.fecha_envio_colombia||'').slice(0,10)}">
+                                        </div>
+                                        <div class="field">
+                                            <label>📅 Entregado a mí</label>
+                                            <input type="date" class="f-fecha-rec" value="${(p.fecha_recibido||'').slice(0,10)}">
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label>📝 Notas / Observaciones</label>
+                                        <textarea class="f-notas" placeholder="Ej: vendedor avisó retraso, devolverlo, etc.">${escapeHtml(p.notas||'')}</textarea>
+                                    </div>
+                                    <button class="btn btn-save" onclick="event.stopPropagation();guardarMeta('${p.order_id}')">💾 Guardar seguimiento</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="items-list">
+                            <h4>🛒 Productos en este pedido (${p.num_items})</h4>
+                            ${p.items.map(it => `
+                                <div class="item-card">
+                                    <div class="img-cell">${it.imagen ? `<img src="${it.imagen.replace('s-l64','s-l200')}" onerror="this.onerror=null;this.src='${it.imagen}'">` : ''}</div>
+                                    <div>
+                                        <div class="item-title">${escapeHtml(it.titulo)}</div>
+                                        <div class="item-seller">@${escapeHtml(it.vendedor||'')} • Cant: ${it.cantidad}</div>
+                                    </div>
+                                    <div class="item-price">${fmtUSD(it.subtotal)}</div>
+                                    ${it.url ? `<a class="item-link" href="${it.url}" target="_blank">Ver eBay</a>` : '<span></span>'}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        // Refresh inteligente al cargar: dispara sync en background sin bloquear UI
+        async function refreshOnLoad() {
+            try {
+                await fetch('/api/ebay/refresh-now');
+            } catch(e) {}
+        }
+        // Indicador de frescura visible
+        async function updateFreshness() {
+            try {
+                const r = await fetch('/api/ebay/fresh-status');
+                const d = await r.json();
+                const el = document.getElementById('lastSync');
+                if (!el) return;
+                const ages = [];
+                if (d.ebay_sync_age_seconds !== null && d.ebay_sync_age_seconds !== undefined) ages.push(d.ebay_sync_age_seconds);
+                if (d.mye_age_seconds !== null && d.mye_age_seconds !== undefined) ages.push(d.mye_age_seconds);
+                const minAge = ages.length ? Math.min(...ages) : null;
+                if (minAge === null) { el.textContent = 'Sin sync aún'; return; }
+                const fmt = (sec) => {
+                    if (sec < 60) return Math.round(sec) + 's';
+                    if (sec < 3600) return Math.round(sec/60) + ' min';
+                    return Math.round(sec/3600) + 'h';
+                };
+                const color = minAge < 300 ? '#2dd4bf' : (minAge < 1800 ? '#ffd700' : '#ef4444');
+                const icon = minAge < 300 ? '🟢' : (minAge < 1800 ? '🟡' : '🔴');
+                el.style.color = color;
+                el.textContent = `${icon} Actualizado hace ${fmt(minAge)}`;
+                if (d.usps_age_seconds !== null && d.usps_age_seconds !== undefined) {
+                    el.title = `eBay sync: ${fmt(d.ebay_sync_age_seconds||0)} · MyeBay: ${d.mye_age_seconds?fmt(d.mye_age_seconds):'-'} · USPS: ${fmt(d.usps_age_seconds)}`;
+                }
+            } catch(e) {}
+        }
+
+        // Init
+        refreshOnLoad().then(() => {
+            // Esperar 3s y recargar datos (el refresh corre en background)
+            setTimeout(async () => {
+                await loadStatus();
+                await loadPedidos();
+                await updateFreshness();
+            }, 3000);
+        });
+        // Mientras tanto cargar lo que ya hay (instantáneo)
+        loadStatus();
+        loadPedidos();
+        updateFreshness();
+        // Auto-refresh cada 60s sin pestaña activa: actualiza freshness y reload pedidos
+        setInterval(async () => {
+            await loadPedidos();
+            await updateFreshness();
+        }, 60000);
+        // Cuando vuelves a la pestaña, refresh inmediato
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                refreshOnLoad();
+                setTimeout(() => { loadPedidos(); updateFreshness(); }, 2000);
+            }
+        });
+    </script>
 </body>
 </html>
