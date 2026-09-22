@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pedidos cargados — eBay</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: linear-gradient(180deg, #0a1024 0%, #0d1330 100%);
+  color: #e2e8f0; min-height:100vh; padding:20px;
+}
+.container { max-width: 1100px; margin:0 auto; }
+.header {
+  background: linear-gradient(135deg, #e53238 0%, #0064d2 33%, #f5af02 66%, #86b817 100%);
+  padding: 20px 24px; border-radius: 14px; margin-bottom:20px;
+  display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;
+}
+.header h1 { color:white; font-size:20px; }
+.header a {
+  background:rgba(0,0,0,0.35); color:white; text-decoration:none;
+  padding:8px 16px; border-radius:20px; font-size:13px; font-weight:600;
+}
+.stats { display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap; }
+.stat {
+  background:#131c3a; border:1px solid #2a3a6e;
+  border-radius:12px; padding:14px 22px; flex:1; min-width:140px; text-align:center;
+}
+.stat .n { font-size:24px; color:#f5af02; font-weight:800; }
+.stat .l { font-size:11px; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px; margin-top:4px; }
+
+table {
+  width:100%; border-collapse:separate; border-spacing:0;
+  background:#131c3a; border-radius:12px; overflow:hidden;
+}
+thead { background:#1a2548; }
+th { padding:12px 14px; text-align:left; font-size:11px; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px; }
+th.right, td.right { text-align:right; }
+td { padding:12px 14px; font-size:13px; border-top:1px solid #2a3a6e; vertical-align:top; }
+tr:hover td { background:#1a2548; }
+.oid { font-family:monospace; color:#f5af02; font-size:12px; }
+.titulo { color:#e2e8f0; font-weight:600; }
+.meta { color:#94a3b8; font-size:11px; margin-top:2px; }
+.tracking { color:#4ade80; font-family:monospace; font-size:11px; }
+.del {
+  background:#e53238; color:white; border:none;
+  padding:6px 12px; border-radius:6px; font-size:11px; cursor:pointer; font-weight:600;
+}
+.del:hover { opacity:0.8; }
+.empty {
+  padding:60px 30px; text-align:center; background:#131c3a;
+  border-radius:12px; color:#64748b; font-size:15px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>📋 Pedidos cargados</h1>
+    <a href="/admin/ebay/cargar.html">➕ Cargar nuevo pedido</a>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="n" id="s-total">0</div><div class="l">Pedidos</div></div>
+    <div class="stat"><div class="n" id="s-items">0</div><div class="l">Unidades</div></div>
+    <div class="stat"><div class="n" id="s-monto">$0</div><div class="l">Total gastado</div></div>
+  </div>
+
+  <div id="content"></div>
+</div>
+
+<script>
+const fmt = n => '$' + Number(n).toFixed(2);
+
+async function cargar() {
+  const r = await fetch('/api/ebay/pedidos');
+  const j = await r.json();
+  const pedidos = j.pedidos || [];
+  const total = pedidos.reduce((s,p) => s + Number(p.total||0), 0);
+  const items = pedidos.reduce((s,p) => s + Number(p.num_items||0), 0);
+  document.getElementById('s-total').textContent = pedidos.length;
+  document.getElementById('s-items').textContent = items;
+  document.getElementById('s-monto').textContent = fmt(total);
+
+  if (!pedidos.length) {
+    document.getElementById('content').innerHTML =
+      '<div class="empty">Todavía no hay pedidos cargados.<br><br><a href="/admin/ebay/cargar.html" style="color:#f5af02;font-weight:600;">Cargar el primero →</a></div>';
+    return;
+  }
+
+  const rows = pedidos.map(p => {
+    const item = (p.items && p.items[0]) || {};
+    const tracking = (p.trackings && p.trackings[0]) || {};
+    const fecha = p.fecha_compra ? new Date(p.fecha_compra).toLocaleDateString('es-CO') : '—';
+    return `
+      <tr>
+        <td>
+          <div class="oid">${p.order_id}</div>
+          <div class="meta">${fecha}</div>
+        </td>
+        <td>
+          <div class="titulo">${(item.titulo || '').substring(0,80)}</div>
+          <div class="meta">Vendedor: ${p.vendedor || item.vendedor || '—'}</div>
+          ${tracking.numero ? `<div class="tracking">📮 ${tracking.numero} · ${tracking.carrier || ''}</div>` : ''}
+        </td>
+        <td class="right">${p.num_items}</td>
+        <td class="right">${fmt(p.total)}</td>
+        <td class="right"><button class="del" onclick="borrar('${p.order_id}')">Borrar</button></td>
+      </tr>`;
+  }).join('');
+
+  document.getElementById('content').innerHTML = `
+    <table>
+      <thead><tr>
+        <th>Order ID</th><th>Producto</th>
+        <th class="right">Und</th><th class="right">Total</th><th class="right"></th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+async function borrar(order_id) {
+  if (!confirm('¿Borrar el pedido ' + order_id + '?')) return;
+  const r = await fetch('/api/ebay/pedidos?order_id=' + encodeURIComponent(order_id), { method: 'DELETE' });
+  const j = await r.json();
+  if (j.ok) cargar();
+  else alert('Error: ' + (j.error || 'no se pudo borrar'));
+}
+
+cargar();
+</script>
+</body>
+</html>
