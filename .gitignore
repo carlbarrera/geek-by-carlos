@@ -26,3 +26,5 @@ pnpm-debug.log*
 # Datos privados del negocio - NO commitear
 _negocio_desde_downloads_*/
 catalogo_images/
+.wrangler/
+dist
