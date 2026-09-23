@@ -1151,14 +1151,14 @@ body {
             const root = document.querySelector(`[data-order="${orderId}"]`);
             const tracking = root.querySelector('.f-tracking')?.value.trim() || '';
             const carrier = root.querySelector('.f-carrier')?.value.trim() || '';
-            const imagen = root.querySelector('.f-imagen')?.value.trim() || '';
+            const imagenes = [...root.querySelectorAll('.f-item-imagen')].map(i => i.value.trim());
             const data = {
                 order_id: orderId,
                 estado_personal: root.querySelector('.f-estado').value,
                 fecha_envio_colombia: root.querySelector('.f-fecha-col').value,
                 fecha_recibido: root.querySelector('.f-fecha-rec').value,
                 notas: root.querySelector('.f-notas').value,
-                tracking, carrier, imagen,
+                tracking, carrier, imagenes,
             };
             const r = await fetch('/api/ebay/pedidos/edit', {
                 method: 'POST', headers: {'Content-Type':'application/json'},
@@ -1175,9 +1175,7 @@ body {
                     p.notas = data.notas;
                     if (tracking) p.trackings = [{numero: tracking, carrier, carrier_raw: carrier}];
                     else if (data.tracking === '') p.trackings = [];
-                    if (!p.items) p.items = [{}];
-                    if (!p.items[0]) p.items[0] = {};
-                    if (imagen) p.items[0].imagen = imagen;
+                    (p.items || []).forEach((it, i) => { if (i < imagenes.length) it.imagen = imagenes[i]; });
                 }
                 render();
                 document.querySelector(`[data-order="${orderId}"]`)?.classList.add('expanded');
@@ -1605,10 +1603,6 @@ body {
                                         </div>
                                     </div>
                                     <div class="field">
-                                        <label>🖼️ URL imagen del producto</label>
-                                        <input type="url" class="f-imagen" placeholder="Clic derecho en la foto de eBay → Copy image address" value="${escapeHtml((p.items && p.items[0] && p.items[0].imagen) || '')}">
-                                    </div>
-                                    <div class="field">
                                         <label>📝 Notas / Observaciones</label>
                                         <textarea class="f-notas" placeholder="Ej: vendedor avisó retraso, devolverlo, etc.">${escapeHtml(p.notas||'')}</textarea>
                                     </div>
@@ -1625,6 +1619,7 @@ body {
                                     <div>
                                         <div class="item-title">${escapeHtml(it.titulo)}</div>
                                         <div class="item-seller">@${escapeHtml(it.vendedor||'')} • Cant: ${it.cantidad}</div>
+                                        <input type="url" class="f-item-imagen" onclick="event.stopPropagation()" placeholder="🖼️ URL imagen (clic derecho en la foto de eBay → Copy image address)" value="${escapeHtml(it.imagen||'')}" style="margin-top:6px;width:100%;background:#0f1730;border:1px solid #2a3a6e;color:#e2e8f0;padding:6px 10px;border-radius:6px;font-size:11px;">
                                     </div>
                                     <div class="item-price">${fmtUSD(it.subtotal)}</div>
                                     ${it.url ? `<a class="item-link" href="${it.url}" target="_blank">Ver eBay</a>` : '<span></span>'}

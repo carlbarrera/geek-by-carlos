@@ -203,7 +203,14 @@ async function apiPedidoEdit(request: Request, env: Env): Promise<Response> {
     }
   }
 
-  // Imagen del primer item
+  // Imágenes por producto (índice = posición en items)
+  if (Array.isArray(body.imagenes) && Array.isArray(pedido.items)) {
+    (body.imagenes as unknown[]).forEach((url, i) => {
+      if (pedido.items[i]) pedido.items[i].imagen = toStr(url);
+    });
+  }
+
+  // Imagen del primer item (compatibilidad con editar.html)
   if ('imagen' in body) {
     if (!pedido.items) pedido.items = [{}];
     if (!pedido.items[0]) pedido.items[0] = {};
