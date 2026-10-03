@@ -14,6 +14,28 @@ interface Env {
   EBAY_PASS_CARLOS?: string;
   EBAY_USER_SOBRINO?: string;
   EBAY_PASS_SOBRINO?: string;
+  EBAY_VERIFICATION_TOKEN?: string;
+}
+
+const EBAY_DELETION_PATH = '/ebay-notifications/account-deletion';
+
+// Endpoint público exigido por eBay (Marketplace Account Deletion).
+// GET con challenge_code → sha256(challengeCode + verificationToken + endpoint) en hex.
+// POST con la notificación → basta con responder 200; no guardamos datos de terceros.
+async function ebayAccountDeletion(request: Request, url: URL, env: Env): Promise<Response> {
+  if (request.method === 'GET') {
+    const challenge = url.searchParams.get('challenge_code');
+    const token = env.EBAY_VERIFICATION_TOKEN;
+    if (!challenge || !token) return json({ error: 'challenge_code o token faltante' }, 400);
+    const endpoint = `${url.origin}${EBAY_DELETION_PATH}`;
+    const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(challenge + token + endpoint));
+    const hex = [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
+    return json({ challengeResponse: hex });
+  }
+  if (request.method === 'POST') {
+    return new Response(null, { status: 200 });
+  }
+  return json({ error: 'Método no soportado' }, 405);
 }
 
 const REALM = 'Panel Geek By Carlos';
@@ -321,6 +343,10 @@ export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
     const path = url.pathname;
+
+    if (path === EBAY_DELETION_PATH) {
+      return ebayAccountDeletion(request, url, env);
+    }
 
     // Rutas protegidas: /admin/* y /api/*
     if (path.startsWith('/admin') || path.startsWith('/api')) {
