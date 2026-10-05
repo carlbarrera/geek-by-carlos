@@ -5,6 +5,7 @@
 
 export interface CatalogoEnv {
   CATALOGO_DB: D1Database;
+  POKEMONTCG_API_KEY?: string;
 }
 
 interface Card {
@@ -109,6 +110,10 @@ async function mutate<T>(env: CatalogoEnv, name: string, fn: (cards: Card[]) => 
 class Budget {
   used = 0;
   diag: string[] = [];
+  constructor(public apiKey?: string) {}
+  ptcgHeaders(): Record<string, string> {
+    return this.apiKey ? { ...UA, 'X-Api-Key': this.apiKey } : UA;
+  }
   take(): boolean {
     if (this.used >= SUBREQUEST_BUDGET) return false;
     this.used++;
@@ -222,7 +227,7 @@ async function apiSearch(query: string, budget: Budget) {
   for (let attempt = 0; attempt < 3; attempt++) {
     if (!budget.take()) return null;
     try {
-      const r = await fetch(url, { headers: UA });
+      const r = await fetch(url, { headers: budget.ptcgHeaders() });
       budget.diag.push(`pokemontcg:${r.status}`);
       if (r.status === 200) return (await r.json()) as { data: Array<Record<string, any>> };
     } catch (e) {
@@ -255,10 +260,10 @@ async function enrichCards(cards: Array<Record<string, any>>, budget: Budget) {
   );
 }
 
-async function handleSearch(q: string) {
+async function handleSearch(q: string, apiKey?: string) {
   q = q.trim();
   if (!q) return json({ data: [] });
-  const budget = new Budget();
+  const budget = new Budget(apiKey);
   const isDigit = /^\d+$/.test(q);
   const isPromo = !q.includes(' ') && !q.includes('/') && /\d/.test(q) && !isDigit;
   let query: string;
@@ -314,7 +319,7 @@ async function handleSearch(q: string) {
 
 async function fetchCardPrices(cardId: string, budget: Budget) {
   if (!budget.take()) return null;
-  const r = await fetch(`${API_BASE}/cards/${cardId}`, { headers: UA });
+  const r = await fetch(`${API_BASE}/cards/${cardId}`, { headers: budget.ptcgHeaders() });
   if (r.status !== 200) return null;
   const data = ((await r.json()) as { data?: Record<string, any> }).data ?? {};
   const tcg = data.tcgplayer ?? {};
@@ -447,7 +452,7 @@ async function handleUpdate(env: CatalogoEnv, cat: string, body: Record<string, 
 async function handleRefreshOne(env: CatalogoEnv, cat: string, body: Record<string, any>) {
   const id = String(body.id || '');
   const variant = String(body.variant || 'normal');
-  const tcg = await fetchCardPrices(id, new Budget());
+  const tcg = await fetchCardPrices(id, new Budget(env.POKEMONTCG_API_KEY));
   const market = tcg?.prices?.[variant]?.market;
   if (!market) return json({ ok: true, updated: false });
   await mutate(env, cat, (cards) => {
@@ -548,7 +553,7 @@ export async function handleCatalogoApi(request: Request, url: URL, env: Catalog
           .all<{ entry: string }>();
         return json(results.map((r) => JSON.parse(r.entry)));
       }
-      if (route === '/search') return await handleSearch(url.searchParams.get('q') || '');
+      if (route === '/search') return await handleSearch(url.searchParams.get('q') || '', env.POKEMONTCG_API_KEY);
       return json({ error: 'not found' }, 404);
     }
 

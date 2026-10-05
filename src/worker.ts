@@ -10,6 +10,7 @@ import { handleCatalogoApi } from './catalogo';
 interface Env {
   ASSETS: Fetcher;
   CATALOGO_DB: D1Database;
+  POKEMONTCG_API_KEY?: string;
   PEDIDOS_KV: KVNamespace;
   SESSION?: KVNamespace;
   IMAGES?: unknown;
