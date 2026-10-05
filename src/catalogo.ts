@@ -108,6 +108,7 @@ async function mutate<T>(env: CatalogoEnv, name: string, fn: (cards: Card[]) => 
 
 class Budget {
   used = 0;
+  diag: string[] = [];
   take(): boolean {
     if (this.used >= SUBREQUEST_BUDGET) return false;
     this.used++;
@@ -165,6 +166,7 @@ async function tcgplayerSearch(query: string, budget: Budget, termFilters?: Reco
       `https://mp-search-api.tcgplayer.com/v1/search/request?q=${encodeURIComponent(query)}&isList=false`,
       { method: 'POST', headers: { ...UA, 'Content-Type': 'application/json' }, body: JSON.stringify(body) },
     );
+    budget.diag.push(`tcgsearch:${r.status}`);
     if (r.status !== 200) return [];
     const data = (await r.json()) as { results?: Array<{ results?: Array<Record<string, unknown>> }> };
     return data.results?.[0]?.results ?? [];
@@ -221,9 +223,10 @@ async function apiSearch(query: string, budget: Budget) {
     if (!budget.take()) return null;
     try {
       const r = await fetch(url, { headers: UA });
+      budget.diag.push(`pokemontcg:${r.status}`);
       if (r.status === 200) return (await r.json()) as { data: Array<Record<string, any>> };
-    } catch {
-      /* reintento */
+    } catch (e) {
+      budget.diag.push(`pokemontcg:err:${(e as Error).message}`);
     }
     if (attempt < 2) await new Promise((res) => setTimeout(res, 1000));
   }
@@ -306,7 +309,7 @@ async function handleSearch(q: string) {
     pushNew(await tcgplayerItemsToCards(items, q, null, budget));
   }
   await enrichCards(cards, budget);
-  return json({ data: cards, subrequests: budget.used });
+  return json({ data: cards, subrequests: budget.used, diag: budget.diag });
 }
 
 async function fetchCardPrices(cardId: string, budget: Budget) {
