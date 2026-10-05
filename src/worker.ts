@@ -5,8 +5,11 @@
  * - Expone la API de pedidos eBay sobre KV.
  */
 
+import { handleCatalogoApi } from './catalogo';
+
 interface Env {
   ASSETS: Fetcher;
+  CATALOGO_DB: D1Database;
   PEDIDOS_KV: KVNamespace;
   SESSION?: KVNamespace;
   IMAGES?: unknown;
@@ -352,6 +355,10 @@ export default {
     if (path.startsWith('/admin') || path.startsWith('/api')) {
       const auth = authenticate(request, env);
       if (!auth) return unauthorized();
+
+      if (path.startsWith('/api/catalogo/')) {
+        return handleCatalogoApi(request, url, env, auth.userName);
+      }
 
       // API de pedidos eBay
       if (path === '/api/ebay/pedidos') {

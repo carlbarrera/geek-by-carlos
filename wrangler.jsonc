@@ -20,6 +20,14 @@
       "id": "61a78ccb64a1491a942149e780daf412"
     }
   ],
+  "d1_databases": [
+    {
+      "binding": "CATALOGO_DB",
+      "database_name": "geek-catalogo",
+      "database_id": "f93f7295-168a-434c-a1ae-7aa4bf3305e1",
+      "migrations_dir": "migrations"
+    }
+  ],
   "images": {
     "binding": "IMAGES"
   }

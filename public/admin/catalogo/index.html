@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Geek Catalogador</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background:#0a0f1e; color:#e0e0e0; min-height:100vh; }
+
+.header { background:#0f3460; padding:16px 24px; display:flex; align-items:center; gap:16px; position:sticky; top:0; z-index:100; }
+.header h1 { font-size:20px; color:#fff; }
+.header .subtitle { color:#9ca3af; font-size:13px; }
+.header .stats { margin-left:auto; color:#4ade80; font-size:14px; font-weight:600; }
+.catalog-selector { display:flex; align-items:center; gap:6px; margin-left:16px; }
+.catalog-selector select { padding:6px 10px; border:1px solid #1e3a5f; border-radius:6px; background:#0e1428; color:#4ade80; font-size:13px; font-weight:600; cursor:pointer; outline:none; }
+.catalog-selector select:focus { border-color:#4ade80; }
+.btn-new-cat { padding:4px 10px; border:1px solid #1e3a5f; border-radius:6px; background:transparent; color:#9ca3af; font-size:16px; cursor:pointer; line-height:1; }
+.btn-new-cat:hover { border-color:#4ade80; color:#4ade80; }
+
+.container { max-width:1400px; margin:0 auto; padding:20px; }
+
+.search-box { display:flex; gap:10px; margin-bottom:20px; }
+.search-box input { flex:1; padding:12px 16px; border:2px solid #1e3a5f; border-radius:8px; background:#0e1428; color:#fff; font-size:16px; outline:none; }
+.search-box input:focus { border-color:#4ade80; }
+.search-box input::placeholder { color:#6b7280; }
+.search-box button { padding:12px 24px; border:none; border-radius:8px; cursor:pointer; font-size:14px; font-weight:600; }
+.btn-search { background:#4ade80; color:#0a0f1e; }
+.btn-search:hover { background:#22c55e; }
+.btn-search:disabled { background:#374151; color:#6b7280; cursor:wait; }
+
+.tabs { display:flex; gap:4px; margin-bottom:16px; }
+.tab { padding:8px 20px; border:none; border-radius:8px 8px 0 0; cursor:pointer; font-size:14px; font-weight:600; background:#12182c; color:#9ca3af; }
+.tab.active { background:#1a2340; color:#4ade80; }
+
+.panel { display:none; }
+.panel.active { display:block; }
+
+/* Search Results */
+.results-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:16px; }
+.card-result { background:#12182c; border:2px solid #1e3a5f; border-radius:12px; padding:12px; cursor:pointer; transition:all .2s; }
+.card-result:hover { border-color:#4ade80; transform:translateY(-2px); }
+.card-result img { width:100%; border-radius:8px; margin-bottom:8px; }
+.card-result .name { font-weight:700; color:#fff; font-size:15px; }
+.card-result .set { color:#9ca3af; font-size:12px; margin-bottom:6px; }
+.card-result .prices { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+.card-result .price-tag { padding:4px 8px; border-radius:6px; font-size:11px; font-weight:600; }
+.price-tag.market { background:#065f46; color:#4ade80; border:none; }
+.price-tag.add-btn { cursor:pointer; transition:all .2s; }
+.price-tag.add-btn:hover { background:#047857; transform:scale(1.05); }
+.price-tag.variant { background:#1e3a5f; color:#93c5fd; }
+.no-price { color:#ef4444; font-size:12px; }
+.lang-select { margin-top:8px; padding:4px 8px; border:1px solid #1e3a5f; border-radius:6px; background:#0e1428; color:#93c5fd; font-size:12px; cursor:pointer; outline:none; }
+.lang-select:focus { border-color:#4ade80; }
+
+.loading { text-align:center; padding:40px; color:#9ca3af; }
+.empty { text-align:center; padding:60px 20px; color:#6b7280; font-size:15px; }
+
+/* Add Modal */
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:200; justify-content:center; align-items:center; }
+.modal-overlay.show { display:flex; }
+.modal { background:#12182c; border:2px solid #1e3a5f; border-radius:16px; padding:24px; max-width:500px; width:90%; max-height:90vh; overflow-y:auto; }
+.modal h2 { color:#fff; margin-bottom:16px; font-size:18px; }
+.modal img { width:200px; border-radius:8px; margin:0 auto 16px; display:block; }
+.modal .info { margin-bottom:16px; }
+.modal .info div { margin-bottom:6px; color:#9ca3af; font-size:13px; }
+.modal .info span { color:#fff; font-weight:600; }
+.modal .variants { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+.variant-btn { padding:8px 14px; border:2px solid #1e3a5f; border-radius:8px; background:transparent; color:#9ca3af; cursor:pointer; font-size:13px; }
+.variant-btn.selected { border-color:#4ade80; color:#4ade80; background:#065f46; }
+.variant-btn .vp { display:block; font-size:11px; color:#6b7280; margin-top:2px; }
+.variant-btn.selected .vp { color:#4ade80; }
+.modal .price-display { background:#0a0f1e; border-radius:8px; padding:16px; margin-bottom:16px; text-align:center; }
+.modal .price-usd { font-size:20px; color:#93c5fd; font-weight:700; }
+.modal .price-cop { font-size:28px; color:#4ade80; font-weight:700; margin-top:4px; }
+.modal .form-row { display:flex; gap:10px; margin-bottom:12px; }
+.modal select, .modal input[type=number] { padding:8px 12px; border:2px solid #1e3a5f; border-radius:8px; background:#0a0f1e; color:#fff; font-size:14px; flex:1; }
+.modal .actions { display:flex; gap:10px; margin-top:16px; }
+.modal .actions button { flex:1; padding:12px; border:none; border-radius:8px; font-weight:700; font-size:14px; cursor:pointer; }
+.btn-add { background:#4ade80; color:#0a0f1e; }
+.btn-add:hover { background:#22c55e; }
+.btn-cancel { background:#374151; color:#e0e0e0; }
+.btn-cancel:hover { background:#4b5563; }
+
+/* Catalog Table */
+.catalog-controls { display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; align-items:center; }
+.btn-refresh { padding:8px 16px; border:none; border-radius:8px; background:#0f3460; color:#93c5fd; font-weight:600; font-size:13px; cursor:pointer; }
+.btn-refresh:hover { background:#1e3a5f; }
+.btn-refresh:disabled { opacity:.5; cursor:wait; }
+.catalog-count { color:#9ca3af; font-size:13px; margin-left:auto; }
+.catalog-table { width:100%; border-collapse:collapse; font-size:13px; }
+.catalog-table th { background:#0e1428; color:#4ade80; padding:10px 12px; text-align:left; position:sticky; top:60px; font-size:12px; text-transform:uppercase; letter-spacing:.5px; }
+.catalog-table th.right { text-align:right; }
+.catalog-table td { padding:10px 12px; border-bottom:1px solid #1a2340; }
+.catalog-table tr:nth-child(even) { background:#0e1428; }
+.catalog-table tr:hover { background:#1a2340; }
+.catalog-table .img-cell img { width:40px; border-radius:4px; }
+.catalog-table .name-cell { font-weight:600; color:#fff; }
+.catalog-table .set-cell { color:#9ca3af; }
+.catalog-table .price-cell { text-align:right; font-weight:600; }
+.catalog-table .usd { color:#93c5fd; }
+.catalog-table .cop { color:#4ade80; }
+.catalog-table .lang { color:#fbbf24; font-size:11px; font-weight:700; }
+.catalog-table .date-cell { color:#6b7280; font-size:11px; }
+.catalog-table .actions-cell { text-align:center; }
+.btn-icon { position:relative; background:none; border:none; cursor:pointer; font-size:14px; padding:4px 8px; border-radius:6px; font-weight:600; }
+.btn-icon:hover { background:#1e3a5f; }
+.btn-icon.save { color:#4ade80; font-size:16px; background:#065f46; }
+.btn-icon.save:hover { background:#047857; }
+.btn-icon.refresh { color:#93c5fd; background:#0f3460; }
+.btn-icon.refresh:hover { background:#1e3a5f; }
+.btn-icon.add-lang { color:#fbbf24; background:#78350f; }
+.btn-icon.add-lang:hover { background:#92400e; }
+.btn-icon.delete { color:#f87171; background:#7f1d1d44; }
+.btn-icon.delete:hover { background:#7f1d1d; }
+.btn-icon .tip { display:none; position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%); background:#1e293b; color:#e2e8f0; font-size:11px; font-weight:400; padding:4px 8px; border-radius:6px; white-space:nowrap; pointer-events:none; border:1px solid #334155; z-index:10; }
+.btn-icon .tip::after { content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%); border:5px solid transparent; border-top-color:#334155; }
+.btn-icon:hover .tip { display:block; }
+.lang-edit { padding:2px 4px; border:1px solid #1e3a5f; border-radius:4px; background:#0a0f1e; color:#fbbf24; font-size:11px; font-weight:700; cursor:pointer; outline:none; }
+.lang-edit:focus { border-color:#4ade80; }
+.qty-edit { width:50px; padding:2px 4px; border:1px solid #1e3a5f; border-radius:4px; background:#0a0f1e; color:#fff; font-size:13px; text-align:center; outline:none; }
+.qty-edit:focus { border-color:#4ade80; }
+.cop-edit { width:80px; padding:2px 4px; border:1px solid #1e3a5f; border-radius:4px; background:#0a0f1e; color:#4ade80; font-size:13px; font-weight:600; text-align:right; outline:none; }
+.cop-edit:focus { border-color:#4ade80; }
+.btn-export { padding:8px 16px; border:none; border-radius:8px; background:#065f46; color:#4ade80; font-weight:600; font-size:13px; cursor:pointer; }
+.btn-export:hover { background:#047857; }
+
+.pdf-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.85); z-index:250; justify-content:center; align-items:flex-start; overflow-y:auto; padding:20px; }
+.pdf-overlay.show { display:flex; }
+.pdf-preview { background:#fff; color:#1a1a1a; border-radius:12px; max-width:900px; width:100%; padding:30px 36px; position:relative; }
+.pdf-header { text-align:center; margin-bottom:16px; padding-bottom:14px; border-bottom:3px solid #0f3460; }
+.pdf-header img { width:60px; height:60px; border-radius:50%; object-fit:cover; margin-bottom:8px; }
+.pdf-header h1 { font-size:22px; color:#0f3460; margin:0; }
+.pdf-header .pdf-sub { color:#6b7280; font-size:12px; margin-top:2px; }
+.pdf-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; }
+.pdf-card { border:1px solid #d1d5db; border-radius:8px; padding:8px; text-align:center; break-inside:avoid; background:linear-gradient(135deg, #f9fafb 0%, #fff 100%); }
+.pdf-card img { width:100%; max-width:150px; border-radius:6px; margin-bottom:4px; box-shadow:0 2px 6px rgba(0,0,0,.12); }
+.pdf-card-name { font-weight:700; font-size:11px; color:#1a1a1a; margin-bottom:1px; line-height:1.2; }
+.pdf-card-detail { font-size:9px; color:#6b7280; line-height:1.3; }
+.pdf-card-price { font-size:14px; font-weight:700; color:#065f46; margin-top:4px; }
+.pdf-preview .pdf-actions { display:flex; gap:10px; margin-top:20px; justify-content:flex-end; }
+.pdf-preview .pdf-actions button { padding:10px 20px; border:none; border-radius:8px; font-weight:600; font-size:13px; cursor:pointer; }
+.pdf-btn-print { background:#0f3460; color:#fff; }
+.pdf-btn-print:hover { background:#1e3a5f; }
+.pdf-btn-close { background:#e5e7eb; color:#374151; }
+.pdf-btn-close:hover { background:#d1d5db; }
+@media print {
+  @page { margin:8mm; size:letter; }
+  body > *:not(.pdf-overlay) { display:none !important; }
+  .pdf-overlay { position:static; background:none; padding:0; display:block !important; }
+  .pdf-preview { box-shadow:none; border-radius:0; max-width:100%; padding:0; }
+  .pdf-preview .pdf-actions { display:none !important; }
+  .pdf-grid { gap:6px; }
+  .pdf-card { padding:5px; border-color:#ccc; }
+  .pdf-card img { max-width:130px; }
+  .pdf-card-name { font-size:10px; }
+  .pdf-card-price { font-size:12px; }
+}
+
+.btn-icon.sell { color:#c4b5fd; background:#4c1d9544; }
+.btn-icon.sell:hover { background:#4c1d95; }
+.cart-bar { display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#1a2340; border:2px solid #7c3aed; border-radius:12px; padding:10px 16px; z-index:150; align-items:center; gap:12px; box-shadow:0 8px 30px rgba(0,0,0,.5); }
+.cart-bar.show { display:flex; }
+.cart-bar .cart-info { color:#e0e0e0; font-size:14px; font-weight:600; }
+.cart-bar button { padding:8px 14px; border:none; border-radius:8px; font-weight:700; font-size:13px; cursor:pointer; }
+.btn-sale { background:#7c3aed; color:#fff; }
+.btn-sale:hover { background:#6d28d9; }
+.sale-line { display:grid; grid-template-columns:40px 1fr 70px 90px 28px; gap:8px; align-items:center; padding:6px 0; border-bottom:1px solid #1a2340; font-size:13px; }
+.sale-line img { width:40px; border-radius:4px; }
+.sale-line .sl-name { color:#fff; font-weight:600; }
+.sale-line .sl-sub { color:#9ca3af; font-size:11px; }
+.sale-line input { width:100%; padding:4px; border:1px solid #1e3a5f; border-radius:4px; background:#0a0f1e; color:#fff; text-align:center; }
+.sale-line .sl-price { text-align:right; color:#4ade80; font-weight:600; }
+.sale-line .sl-del { background:none; border:none; color:#f87171; cursor:pointer; font-size:14px; }
+.modal label.fl { display:block; color:#9ca3af; font-size:12px; margin:10px 0 4px; }
+.modal input[type=text], .modal textarea { width:100%; padding:8px 12px; border:2px solid #1e3a5f; border-radius:8px; background:#0a0f1e; color:#fff; font-size:14px; font-family:inherit; }
+.sale-total { display:flex; justify-content:space-between; align-items:center; margin-top:12px; padding:12px; background:#0a0f1e; border-radius:8px; }
+.sale-total .lbl { color:#9ca3af; font-size:13px; }
+.sale-total input { width:150px; padding:6px 10px; border:2px solid #1e3a5f; border-radius:8px; background:#0e1428; color:#4ade80; font-size:20px; font-weight:700; text-align:right; }
+.hist-item { background:#12182c; border:1px solid #1e3a5f; border-left:4px solid #1e3a5f; border-radius:8px; padding:10px 14px; margin-bottom:8px; font-size:13px; }
+.hist-item.sale { border-left-color:#7c3aed; }
+.hist-item.addition { border-left-color:#4ade80; }
+.hist-item.update { border-left-color:#93c5fd; }
+.hist-item.removal { border-left-color:#f87171; }
+.hist-head { display:flex; justify-content:space-between; gap:10px; color:#fff; font-weight:600; }
+.hist-date { color:#6b7280; font-size:11px; font-weight:400; white-space:nowrap; }
+.hist-body { color:#9ca3af; margin-top:4px; line-height:1.5; }
+.toast { position:fixed; bottom:20px; right:20px; background:#065f46; color:#4ade80; padding:12px 20px; border-radius:8px; font-weight:600; z-index:300; display:none; }
+.toast.error { background:#7f1d1d; color:#fca5a5; }
+.toast.show { display:block; animation:fadeIn .3s; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Geek Catalogador</h1>
+  <span class="subtitle">Pokemon TCG</span>
+  <div class="catalog-selector">
+    <select id="catalogSelect" onchange="switchCatalog(this.value)"></select>
+    <button class="btn-new-cat" onclick="createCatalog()" title="Crear nuevo catalogo">+</button>
+  </div>
+  <span class="stats" id="headerStats">0 cartas</span>
+</div>
+
+<div class="container">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Numero (135/132) o nombre (Ralts)" autofocus>
+    <button class="btn-search" id="searchBtn" onclick="doSearch()">Buscar</button>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="results" onclick="switchTab('results')">Resultados</button>
+    <button class="tab" data-tab="catalog" onclick="switchTab('catalog')">Catalogo</button>
+    <button class="tab" data-tab="history" onclick="switchTab('history')">Historial</button>
+  </div>
+
+  <div id="resultsPanel" class="panel active">
+    <div class="empty" id="resultsEmpty">Busca una carta por numero o nombre</div>
+    <div class="loading" id="resultsLoading" style="display:none">Buscando...</div>
+    <div class="results-grid" id="resultsGrid"></div>
+  </div>
+
+  <div id="catalogPanel" class="panel">
+    <div class="catalog-controls">
+      <button class="btn-export" onclick="showPdfPreview()">Exportar PDF</button>
+      <span id="pdfStatus" style="color:#9ca3af;font-size:11px;margin-left:8px;display:none"></span>
+      <span class="catalog-count" id="catalogCount"></span>
+    </div>
+    <div id="catalogEmpty" class="empty">No hay cartas en el catalogo</div>
+    <table class="catalog-table" id="catalogTable" style="display:none">
+      <thead>
+        <tr>
+          <th></th>
+          <th>#</th>
+          <th>Carta</th>
+          <th>Set</th>
+          <th>Variante</th>
+          <th>Idioma</th>
+          <th>Cant.</th>
+          <th class="right">USD</th>
+          <th class="right">COP</th>
+          <th>Actualizado</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="catalogBody"></tbody>
+    </table>
+  </div>
+
+  <div id="historyPanel" class="panel">
+    <div class="empty" id="historyEmpty">Sin movimientos</div>
+    <div id="historyList"></div>
+  </div>
+</div>
+
+<div class="cart-bar" id="cartBar">
+  <span class="cart-info" id="cartInfo"></span>
+  <button class="btn-cancel" onclick="clearSale()">Vaciar</button>
+  <button class="btn-sale" onclick="openSaleModal()">Registrar venta</button>
+</div>
+
+<div class="modal-overlay" id="saleModal">
+  <div class="modal" style="max-width:620px">
+    <h2>Registrar venta</h2>
+    <div id="saleLines"></div>
+    <label class="fl">Cliente *</label>
+    <input type="text" id="saleCustomer" placeholder="Nombre del cliente">
+    <label class="fl">Medio de pago</label>
+    <select id="salePayment" style="width:100%">
+      <option value="">—</option>
+      <option value="transferencia">Transferencia</option>
+      <option value="nequi">Nequi</option>
+      <option value="daviplata">Daviplata</option>
+      <option value="efectivo">Efectivo</option>
+      <option value="otro">Otro</option>
+    </select>
+    <label class="fl">Notas</label>
+    <textarea id="saleNotes" rows="2" placeholder="Opcional"></textarea>
+    <div class="sale-total">
+      <span class="lbl">Total cobrado (sugerido: <b id="saleSuggested">$0</b>)</span>
+      <input type="number" id="saleTotal" step="1000" min="0">
+    </div>
+    <div class="actions">
+      <button class="btn-cancel" onclick="closeSaleModal()">Cancelar</button>
+      <button class="btn-add" id="saleConfirmBtn" onclick="confirmSale()">Confirmar venta</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h2 id="modalTitle"></h2>
+    <img id="modalImg" src="" alt="">
+    <div class="info" id="modalInfo"></div>
+    <p style="color:#9ca3af;font-size:13px;margin-bottom:8px">Selecciona la variante:</p>
+    <div class="variants" id="modalVariants"></div>
+    <div class="price-display" id="modalPriceDisplay" style="display:none">
+      <div class="price-usd" id="modalPriceUsd"></div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px">
+        <span style="color:#9ca3af;font-size:14px">COP:</span>
+        <input type="number" id="modalCopInput" style="width:140px;padding:8px 12px;border:2px solid #1e3a5f;border-radius:8px;background:#0a0f1e;color:#4ade80;font-size:22px;font-weight:700;text-align:center" step="1000" min="0">
+      </div>
+    </div>
+    <div id="modalLangNote" style="display:none;background:#1e3a5f;border-radius:8px;padding:10px 14px;margin-bottom:12px;color:#fbbf24;font-size:13px"></div>
+    <div class="form-row">
+      <select id="modalLang" onchange="onModalLangChange()">
+        <option value="EN">Ingles</option>
+        <option value="ES">Espanol</option>
+        <option value="JP">Japones</option>
+        <option value="KR">Coreano</option>
+        <option value="FR">Frances</option>
+        <option value="DE">Aleman</option>
+        <option value="IT">Italiano</option>
+        <option value="PT">Portugues</option>
+        <option value="CN">Chino</option>
+      </select>
+      <input type="number" id="modalQty" value="1" min="1" max="99" style="max-width:80px">
+    </div>
+    <div class="actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-add" id="modalAddBtn" onclick="addToCatalog()">Agregar al catalogo</button>
+    </div>
+  </div>
+</div>
+
+<div class="pdf-overlay" id="pdfOverlay">
+  <div class="pdf-preview" id="pdfPreview"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const RATE = 3200;
+let currentCard = null;
+let selectedVariant = null;
+let catalog = { cards: [] };
+let lastResults = [];
+let currentCatalogName = 'fullart';
+let catalogsList = [];
+
+function cop(usd) {
+  if (!usd || usd <= 0) return 0;
+  return Math.ceil(usd * RATE / 1000) * 1000;
+}
+
+function fmt(n) { return '$' + n.toLocaleString('es-CO'); }
+
+function toast(msg, error) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (error ? ' error' : '');
+  setTimeout(() => t.className = 'toast', 3000);
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  document.getElementById('resultsPanel').classList.toggle('active', tab === 'results');
+  document.getElementById('catalogPanel').classList.toggle('active', tab === 'catalog');
+  document.getElementById('historyPanel').classList.toggle('active', tab === 'history');
+  if (tab === 'catalog') loadCatalog();
+  if (tab === 'history') loadHistory();
+}
+
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+
+// ---------- Venta ----------
+let saleCart = [];
+let shownCards = [];
+
+function addToSale(rowIdx) {
+  const c = shownCards[rowIdx];
+  if (!c) return;
+  const key = c.id + '|' + c.variant + '|' + (c.language || 'EN');
+  const line = saleCart.find(l => l.key === key);
+  if (line) {
+    if (line.qty >= (c.quantity || 0)) { toast('No hay más stock de ' + c.name, true); return; }
+    line.qty++;
+  } else {
+    saleCart.push({ key, id: c.id, variant: c.variant, language: c.language || 'EN', name: c.name, number: c.number, image: c.image, cop: c.cop || 0, max: c.quantity || 0, qty: 1 });
+  }
+  renderCartBar();
+  toast(c.name + ' agregada a la venta');
+}
+
+function renderCartBar() {
+  const units = saleCart.reduce((s, l) => s + l.qty, 0);
+  const total = saleCart.reduce((s, l) => s + l.qty * l.cop, 0);
+  document.getElementById('cartBar').classList.toggle('show', saleCart.length > 0);
+  document.getElementById('cartInfo').textContent = '🛒 ' + units + ' carta' + (units === 1 ? '' : 's') + ' · ' + fmt(total);
+}
+
+function clearSale() {
+  saleCart = [];
+  renderCartBar();
+  closeSaleModal();
+}
+
+function openSaleModal() {
+  if (!saleCart.length) return;
+  renderSaleLines();
+  document.getElementById('saleCustomer').value = '';
+  document.getElementById('salePayment').value = '';
+  document.getElementById('saleNotes').value = '';
+  document.getElementById('saleModal').classList.add('show');
+}
+
+function closeSaleModal() {
+  document.getElementById('saleModal').classList.remove('show');
+}
+
+function renderSaleLines() {
+  document.getElementById('saleLines').innerHTML = saleCart.map((l, i) => `<div class="sale-line">
+    <img src="${esc(l.image)}" alt="">
+    <div><div class="sl-name">${esc(l.name)} - ${esc(l.number)}</div><div class="sl-sub">${esc(l.variant)} · ${esc(l.language)} · stock ${l.max} · ${fmt(l.cop)} c/u</div></div>
+    <input type="number" min="1" max="${l.max}" value="${l.qty}" onchange="setSaleQty(${i}, this.value)">
+    <div class="sl-price">${fmt(l.qty * l.cop)}</div>
+    <button class="sl-del" onclick="removeSaleLine(${i})" title="Quitar">&#x2715;</button>
+  </div>`).join('');
+  const suggested = saleCart.reduce((s, l) => s + l.qty * l.cop, 0);
+  document.getElementById('saleSuggested').textContent = fmt(suggested);
+  document.getElementById('saleTotal').value = suggested;
+}
+
+function setSaleQty(i, v) {
+  const l = saleCart[i];
+  const q = Math.max(1, Math.min(l.max, parseInt(v) || 1));
+  l.qty = q;
+  renderSaleLines();
+  renderCartBar();
+}
+
+function removeSaleLine(i) {
+  saleCart.splice(i, 1);
+  renderCartBar();
+  if (!saleCart.length) { closeSaleModal(); return; }
+  renderSaleLines();
+}
+
+async function confirmSale() {
+  const customer = document.getElementById('saleCustomer').value.trim();
+  if (!customer) { toast('Escribe el nombre del cliente', true); return; }
+  const total = parseInt(document.getElementById('saleTotal').value) || 0;
+  const resumen = saleCart.map(l => '• ' + l.name + ' ' + l.number + ' x' + l.qty).join('\n');
+  if (!confirm('Venta a ' + customer + ' por ' + fmt(total) + '\n\n' + resumen + '\n\nSe descontará del stock. ¿Confirmas?')) return;
+  const btn = document.getElementById('saleConfirmBtn');
+  btn.disabled = true;
+  try {
+    const resp = await fetch('/api/catalogo/sale', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+      catalog: currentCatalogName,
+      customer,
+      payment_method: document.getElementById('salePayment').value,
+      notes: document.getElementById('saleNotes').value,
+      total_cop: total,
+      items: saleCart.map(l => ({ id: l.id, variant: l.variant, language: l.language, qty: l.qty }))
+    }) });
+    const data = await resp.json();
+    if (data.ok) {
+      toast('Venta registrada: ' + customer + ' · ' + fmt(data.total_cop));
+      clearSale();
+      await loadCatalog();
+    } else {
+      toast(data.error || 'Error registrando la venta', true);
+    }
+  } catch (e) {
+    toast('Error: ' + e.message, true);
+  }
+  btn.disabled = false;
+}
+
+// ---------- Historial ----------
+async function loadHistory() {
+  const list = document.getElementById('historyList');
+  const empty = document.getElementById('historyEmpty');
+  list.innerHTML = '<div class="loading">Cargando...</div>';
+  try {
+    const resp = await fetch('/api/catalogo/log?catalog=' + encodeURIComponent(currentCatalogName) + '&limit=500');
+    const entries = await resp.json();
+    empty.style.display = entries.length ? 'none' : 'block';
+    list.innerHTML = entries.map(renderHistItem).join('');
+  } catch (e) {
+    list.innerHTML = '';
+    toast('Error cargando historial: ' + e.message, true);
+  }
+}
+
+function renderHistItem(e) {
+  const type = e.type || e.action || 'otro';
+  const when = e.timestamp || e.date || '';
+  const names = { sale: 'Venta', addition: 'Agregada', update: 'Editada', removal: 'Eliminada', trade: 'Intercambio', qty_update: 'Cantidad' };
+  let title = names[type] || type;
+  let body = '';
+  if (type === 'sale') {
+    title += ' · ' + esc(e.customer || '') + (e.total_cop != null ? ' · ' + fmt(e.total_cop) : '');
+    const cards = e.cards || (e.card_name ? [e.card_name + ' ' + (e.number || '') + ' x' + (e.quantity_sold || 1)] : []);
+    body = cards.map(esc).join('<br>');
+    if (e.payment_method) body += '<br>Pago: ' + esc(e.payment_method);
+    if (e.notes) body += '<br>' + esc(e.notes);
+    if (e.registered_by) body += '<br>Registró: ' + esc(e.registered_by);
+  } else if (type === 'update') {
+    title += ' · ' + esc(e.card_name || '') + ' ' + esc(e.number || '');
+    body = Object.entries(e.changes || {}).map(([k, v]) => esc(k) + ': ' + esc(v.old) + ' → ' + esc(v.new)).join(' · ');
+  } else if (type === 'addition') {
+    title += ' · ' + esc(e.card_name || e.card || '') + ' ' + esc(e.number || '');
+    body = [e.variant, e.quantity != null ? 'x' + e.quantity : '', e.cop ? fmt(e.cop) : '', e.notes].filter(Boolean).map(esc).join(' · ');
+  } else if (type === 'removal') {
+    title += ' · ' + esc(e.card_name || '') + ' ' + esc(e.number || '');
+    body = ['x' + (e.quantity_removed ?? 1), e.cop ? fmt(e.cop) : '', e.customer].filter(Boolean).map(esc).join(' · ');
+  } else if (type === 'trade') {
+    title += ' · ' + esc(e.customer || '');
+    body = 'Recibió: ' + esc(e.received || '') + '<br>Entregó: ' + (e.given || []).map(esc).join(', ') + (e.notes ? '<br>' + esc(e.notes) : '');
+  } else {
+    body = esc(e.card || e.card_name || '') + (e.reason ? ' · ' + esc(e.reason) : '') + (e.old_qty != null ? ' · ' + e.old_qty + ' → ' + e.new_qty : '');
+  }
+  return `<div class="hist-item ${esc(type)}"><div class="hist-head"><span>${title}</span><span class="hist-date">${esc(when)}</span></div>${body ? '<div class="hist-body">' + body + '</div>' : ''}</div>`;
+}
+
+document.getElementById('searchInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doSearch();
+});
+document.getElementById('searchInput').addEventListener('input', () => {
+  if (document.getElementById('catalogPanel').classList.contains('active')) filterCatalog();
+});
+
+async function doSearch() {
+  const q = document.getElementById('searchInput').value.trim();
+  if (!q) return;
+  const btn = document.getElementById('searchBtn');
+  btn.disabled = true;
+  btn.textContent = 'Buscando...';
+  document.getElementById('resultsEmpty').style.display = 'none';
+  document.getElementById('resultsLoading').style.display = 'block';
+  document.getElementById('resultsGrid').innerHTML = '';
+  try {
+    const resp = await fetch('/api/catalogo/search?q=' + encodeURIComponent(q));
+    const data = await resp.json();
+    renderResults(data.data || []);
+  } catch (e) {
+    toast('Error buscando: ' + e.message, true);
+  }
+  btn.disabled = false;
+  btn.textContent = 'Buscar';
+  document.getElementById('resultsLoading').style.display = 'none';
+}
+
+function renderResults(cards) {
+  lastResults = cards;
+  const grid = document.getElementById('resultsGrid');
+  if (!cards.length) {
+    document.getElementById('resultsEmpty').style.display = 'block';
+    document.getElementById('resultsEmpty').textContent = 'No se encontraron cartas';
+    return;
+  }
+  grid.innerHTML = cards.map((c, idx) => {
+    const prices = c.tcgplayer?.prices || {};
+    const variants = Object.entries(prices);
+    const cJson = JSON.stringify(c).replace(/'/g, "&#39;").replace(/"/g, '&quot;');
+    let priceHtml = '';
+    if (variants.length) {
+      priceHtml = variants.map(([v, p]) => {
+        const m = p.market;
+        if (!m) return `<span class="price-tag variant">${v}: sin precio</span>`;
+        return `<button class="price-tag market add-btn" onclick="event.stopPropagation(); quickAdd(${idx}, '${v}', ${m})" title="Agregar ${v} al catalogo">${v}: $${m.toFixed(2)} · $${cop(m).toLocaleString('es-CO')} +</button>`;
+      }).join('');
+    } else {
+      const existingCard = catalog.cards.find(cc => cc.id === c.id);
+      if (existingCard) {
+        const exVariant = existingCard.variant || 'holofoil';
+        priceHtml = `<button class="price-tag market add-btn" onclick="event.stopPropagation(); quickAddExisting(${idx}, '${exVariant}')" title="Actualizar cantidad">${exVariant}: ${fmt(existingCard.cop || 0)} (catálogo)</button>`;
+      } else {
+        priceHtml = '<span class="no-price">Sin precios disponibles</span>';
+      }
+    }
+    const inCatalog = catalog.cards.some(cc => cc.id === c.id);
+    return `<div class="card-result${inCatalog ? ' in-catalog' : ''}" data-idx="${idx}">
+      <img src="${c.images?.small || ''}" alt="${c.name}" loading="lazy" onclick='openModal(${cJson})'>
+      <div class="name">${c.name} - ${c.number}</div>
+      <div class="set">${c.set?.name || ''} | ${c.rarity || ''}</div>
+      <div class="prices">${priceHtml}</div>
+      <select class="lang-select" onclick="event.stopPropagation()" data-card-id="${c.id}">
+        <option value="EN">Ingles</option><option value="ES">Espanol</option><option value="JP">Japones</option>
+        <option value="KR">Coreano</option><option value="FR">Frances</option><option value="DE">Aleman</option>
+        <option value="IT">Italiano</option><option value="PT">Portugues</option><option value="CN">Chino</option>
+      </select>
+      ${inCatalog ? '<div style="color:#fbbf24;font-size:11px;margin-top:4px;font-weight:700">YA EN CATALOGO</div>' : ''}
+    </div>`;
+  }).join('');
+}
+
+function openModal(card) {
+  currentCard = card;
+  selectedVariant = null;
+  const langEl = document.querySelector(`.lang-select[data-card-id="${card.id}"]`);
+  const preselectedLang = langEl ? langEl.value : 'EN';
+  document.getElementById('modalTitle').textContent = card.name + ' - ' + card.number;
+  document.getElementById('modalImg').src = card.images?.large || card.images?.small || '';
+  document.getElementById('modalInfo').innerHTML = `
+    <div>Set: <span>${card.set?.name || 'N/A'}</span></div>
+    <div>Rareza: <span>${card.rarity || 'N/A'}</span></div>
+    <div>Numero: <span>${card.number}</span></div>
+  `;
+  const prices = card.tcgplayer?.prices || {};
+  const variants = Object.entries(prices);
+  const container = document.getElementById('modalVariants');
+  if (variants.length) {
+    container.innerHTML = variants.map(([v, p]) => {
+      const m = p.market;
+      return `<button class="variant-btn" onclick="selectVariant('${v}', ${m || 0})">
+        ${v}
+        <span class="vp">${m ? '$' + m.toFixed(2) : 'sin precio'}</span>
+      </button>`;
+    }).join('');
+  } else {
+    const existingCard = catalog.cards.find(cc => cc.id === card.id);
+    if (existingCard) {
+      const exVariant = existingCard.variant || 'holofoil';
+      container.innerHTML = `<button class="variant-btn selected" onclick="selectVariant('${exVariant}', 0)">${exVariant}<span class="vp">en catálogo</span></button>`;
+    } else {
+      container.innerHTML = '<div style="color:#ef4444;font-size:13px">Esta carta no tiene precios en TCGPlayer</div>';
+    }
+  }
+  document.getElementById('modalPriceDisplay').style.display = 'none';
+  document.getElementById('modalAddBtn').disabled = true;
+  document.getElementById('modalQty').value = 1;
+  document.getElementById('modalLang').value = preselectedLang;
+  document.getElementById('modal').classList.add('show');
+  const existingAuto = catalog.cards.find(cc => cc.id === card.id);
+  const withPrice = variants.filter(([v, p]) => p.market > 0);
+  if (withPrice.length === 1) {
+    selectVariant(withPrice[0][0], withPrice[0][1].market);
+  } else if (!variants.length && existingAuto) {
+    selectVariant(existingAuto.variant || 'holofoil', 0);
+  }
+}
+
+function quickAddExisting(idx, variant) {
+  const c = lastResults[idx];
+  if (!c) return;
+  const langEl = document.querySelector(`.lang-select[data-card-id="${c.id}"]`);
+  const preselectedLang = langEl ? langEl.value : 'EN';
+  openModal(c);
+  document.getElementById('modalLang').value = preselectedLang;
+}
+
+function selectVariant(variant, market) {
+  selectedVariant = { name: variant, market };
+  document.querySelectorAll('.variant-btn').forEach(b => {
+    b.classList.toggle('selected', b.textContent.trim().startsWith(variant));
+  });
+  const selLang = document.getElementById('modalLang').value;
+  const existing = catalog.cards.find(c => c.id === currentCard.id && (c.variant === variant || !c.variant) && (c.language || 'EN') === selLang);
+  const otherLangs = catalog.cards.filter(c => c.id === currentCard.id && (c.variant === variant || !c.variant) && (c.language || 'EN') !== selLang);
+  const addBtn = document.getElementById('modalAddBtn');
+  const langNote = document.getElementById('modalLangNote');
+  if (existing) {
+    document.getElementById('modalQty').value = existing.quantity || 1;
+    addBtn.textContent = 'Actualizar cantidad (' + (existing.quantity || 1) + ' en catálogo)';
+    addBtn.dataset.mode = 'update';
+    document.getElementById('modalPriceUsd').textContent = 'Precio en catálogo: ' + fmt(existing.cop || 0) + ' (Market: $' + market.toFixed(2) + ' USD)';
+    document.getElementById('modalCopInput').value = existing.cop || 0;
+    document.getElementById('modalPriceDisplay').style.display = 'block';
+    addBtn.disabled = false;
+    if (langNote) langNote.style.display = 'none';
+  } else {
+    document.getElementById('modalQty').value = 1;
+    addBtn.textContent = 'Agregar al catálogo';
+    addBtn.dataset.mode = 'add';
+    if (otherLangs.length && langNote) {
+      const ll = otherLangs.map(c => c.language || 'EN').join(', ');
+      langNote.innerHTML = 'Ya en catálogo en <b>' + ll + '</b> — se agregará como nueva en <b>' + selLang + '</b>';
+      langNote.style.display = 'block';
+    } else if (langNote) {
+      langNote.style.display = 'none';
+    }
+    if (market > 0) {
+      const copVal = cop(market);
+      document.getElementById('modalPriceUsd').textContent = 'Market Price: $' + market.toFixed(2) + ' USD';
+      document.getElementById('modalCopInput').value = copVal;
+      document.getElementById('modalPriceDisplay').style.display = 'block';
+      addBtn.disabled = false;
+    } else if (otherLangs.length) {
+      const refCard = otherLangs[0];
+      document.getElementById('modalPriceUsd').textContent = 'Precio ref. (' + (refCard.language || 'EN') + '): ' + fmt(refCard.cop || 0);
+      document.getElementById('modalCopInput').value = refCard.cop || 0;
+      document.getElementById('modalPriceDisplay').style.display = 'block';
+      addBtn.disabled = false;
+    } else {
+      document.getElementById('modalPriceDisplay').style.display = 'none';
+      addBtn.disabled = true;
+    }
+  }
+}
+
+function onModalLangChange() {
+  if (selectedVariant) {
+    const userCop = document.getElementById('modalCopInput').value;
+    selectVariant(selectedVariant.name, selectedVariant.market);
+    const selLang = document.getElementById('modalLang').value;
+    const existing = catalog.cards.find(c => c.id === currentCard.id && (c.variant === selectedVariant.name || !c.variant) && (c.language || 'EN') === selLang);
+    if (!existing) {
+      document.getElementById('modalCopInput').value = userCop;
+    }
+  }
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('show');
+  currentCard = null;
+  selectedVariant = null;
+}
+
+function quickAdd(idx, variant, market) {
+  const c = lastResults[idx];
+  if (!c) return;
+  const langEl = document.querySelector(`.lang-select[data-card-id="${c.id}"]`);
+  const preselectedLang = langEl ? langEl.value : 'EN';
+  openModal(c);
+  document.getElementById('modalLang').value = preselectedLang;
+  selectedVariant = { name: variant, market };
+  const btns = document.querySelectorAll('#modalVariants .variant-btn');
+  btns.forEach(b => {
+    if (b.textContent.trim().startsWith(variant)) b.classList.add('selected');
+  });
+  if (market > 0) {
+    document.getElementById('modalPriceUsd').textContent = 'Market Price: $' + market.toFixed(2) + ' USD';
+    document.getElementById('modalCopInput').value = cop(market);
+    document.getElementById('modalPriceDisplay').style.display = 'block';
+    document.getElementById('modalAddBtn').disabled = false;
+  }
+}
+
+async function addToCatalog() {
+  if (!currentCard || !selectedVariant) return;
+  const addBtn = document.getElementById('modalAddBtn');
+  const isUpdate = addBtn.dataset.mode === 'update';
+  const newQty = parseInt(document.getElementById('modalQty').value) || 1;
+  if (isUpdate) {
+    try {
+      const ubody = { id: currentCard.id, variant: selectedVariant.name, quantity: newQty, catalog: currentCatalogName };
+      const resp = await fetch('/api/catalogo/update', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(ubody) });
+      const data = await resp.json();
+      if (data.ok) {
+        toast(currentCard.name + ' actualizada a ' + newQty + ' unidades');
+        closeModal();
+        await loadCatalog();
+      } else {
+        toast(data.error || 'Error', true);
+      }
+    } catch (e) {
+      toast('Error: ' + e.message, true);
+    }
+    return;
+  }
+  const customCop = parseInt(document.getElementById('modalCopInput').value) || 0;
+  const body = {
+    id: currentCard.id,
+    name: currentCard.name,
+    number: currentCard.number,
+    set_name: currentCard.set?.name || '',
+    set_id: currentCard.set?.id || '',
+    rarity: currentCard.rarity || '',
+    image: currentCard.images?.small || '',
+    variant: selectedVariant.name,
+    market_price_usd: selectedVariant.market,
+    cop: customCop,
+    language: document.getElementById('modalLang').value,
+    quantity: newQty,
+    catalog: currentCatalogName
+  };
+  try {
+    const resp = await fetch('/api/catalogo/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const data = await resp.json();
+    if (data.ok) {
+      toast(currentCard.name + ' agregada al catálogo');
+      closeModal();
+      await loadCatalog();
+    } else if (resp.status === 409) {
+      await loadCatalog();
+      const ex = catalog.cards.find(c => c.id === currentCard.id);
+      const curQty = ex ? (ex.quantity || 1) : 1;
+      const addMore = confirm(currentCard.name + ' ya está en el catálogo con ' + curQty + ' unidad(es).\n¿Quieres aumentar la cantidad?');
+      if (addMore) {
+        const newQty = parseInt(prompt('¿Cuántas unidades en total?', curQty + 1));
+        if (newQty && newQty > 0) {
+          const ubody = { id: currentCard.id, variant: selectedVariant.name, quantity: newQty, catalog: currentCatalogName };
+          await fetch('/api/catalogo/update', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(ubody) });
+          toast(currentCard.name + ' actualizada a ' + newQty + ' unidades');
+          closeModal();
+          await loadCatalog();
+        }
+      }
+    } else {
+      toast(data.error || 'Error', true);
+    }
+  } catch (e) {
+    toast('Error: ' + e.message, true);
+  }
+}
+
+async function loadCatalogs() {
+  try {
+    const resp = await fetch('/api/catalogo/catalogs');
+    catalogsList = await resp.json();
+    const sel = document.getElementById('catalogSelect');
+    sel.innerHTML = catalogsList.map(c => `<option value="${c.name}"${c.name === currentCatalogName ? ' selected' : ''}>${c.label} (${c.count})</option>`).join('');
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+function switchCatalog(name) {
+  if (saleCart.length && !confirm('Tienes una venta sin registrar en este catálogo. Si cambias, se vacía. ¿Continuar?')) {
+    document.getElementById('catalogSelect').value = currentCatalogName;
+    return;
+  }
+  saleCart = [];
+  renderCartBar();
+  currentCatalogName = name;
+  loadCatalog();
+  if (document.getElementById('historyPanel').classList.contains('active')) loadHistory();
+}
+
+async function createCatalog() {
+  const label = prompt('Nombre del nuevo catalogo (ej: ex, Promos, V/VMAX):');
+  if (!label) return;
+  try {
+    const resp = await fetch('/api/catalogo/catalogs/create', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: label, label }) });
+    const data = await resp.json();
+    if (data.ok) {
+      toast('Catalogo "' + label + '" creado');
+      currentCatalogName = data.name;
+      await loadCatalogs();
+      await loadCatalog();
+    } else {
+      toast(data.error || 'Error', true);
+    }
+  } catch (e) {
+    toast('Error: ' + e.message, true);
+  }
+}
+
+async function loadCatalog() {
+  try {
+    const resp = await fetch('/api/catalogo/catalog?catalog=' + encodeURIComponent(currentCatalogName));
+    catalog = await resp.json();
+    const q = document.getElementById('searchInput').value.trim().toLowerCase();
+    const isCatalogActive = document.getElementById('catalogPanel').classList.contains('active');
+    renderCatalog(isCatalogActive ? q : '');
+    updateStats();
+    await loadCatalogs();
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+function filterCatalog() {
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  renderCatalog(q);
+}
+
+function renderCatalog(filter) {
+  const body = document.getElementById('catalogBody');
+  const table = document.getElementById('catalogTable');
+  const empty = document.getElementById('catalogEmpty');
+  if (!catalog.cards.length) {
+    table.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+  let filtered = catalog.cards.filter(c => (c.quantity || 0) > 0);
+  if (filter) {
+    filtered = filtered.filter(c =>
+      c.name.toLowerCase().includes(filter) ||
+      c.number.toLowerCase().includes(filter) ||
+      c.set_name.toLowerCase().includes(filter) ||
+      c.variant.toLowerCase().includes(filter) ||
+      (c.language || '').toLowerCase().includes(filter)
+    );
+  }
+  if (!filtered.length) {
+    table.style.display = 'none';
+    empty.style.display = 'block';
+    empty.textContent = 'No hay cartas que coincidan con "' + filter + '"';
+    return;
+  }
+  table.style.display = 'table';
+  empty.style.display = 'none';
+  const langOpts = [['EN','EN'],['ES','ES'],['JP','JP'],['KR','KR'],['FR','FR'],['DE','DE'],['IT','IT'],['PT','PT'],['CN','CN']];
+  body.innerHTML = filtered.map((c, i) => `<tr>
+    <td class="img-cell"><img src="${c.image}" alt="" loading="lazy"></td>
+    <td>${i + 1}</td>
+    <td class="name-cell">${c.name} - ${c.number}</td>
+    <td class="set-cell">${c.set_name}</td>
+    <td style="font-size:11px;color:#93c5fd">${c.variant}</td>
+    <td><select class="lang-edit" data-row="${i}">${langOpts.map(([v,l])=>`<option value="${v}"${c.language===v?' selected':''}>${l}</option>`).join('')}</select></td>
+    <td style="text-align:center"><input type="number" class="qty-edit" data-row="${i}" value="${c.quantity}" min="0" max="99"></td>
+    <td class="price-cell usd">$${(c.market_price_usd || 0).toFixed(2)}</td>
+    <td class="price-cell cop"><input type="number" class="cop-edit" data-row="${i}" value="${c.cop || 0}" min="0" step="1000"></td>
+    <td class="date-cell">${c.last_price_update || ''}</td>
+    <td class="actions-cell" style="white-space:nowrap">
+      <button class="btn-icon sell" onclick="addToSale(${i})">&#x1F6D2;<span class="tip">Agregar a venta</span></button>
+      <button class="btn-icon save" onclick="saveRow('${c.id}','${c.variant}','${c.language||'EN'}',${i})">&#x2713;<span class="tip">Guardar</span></button>
+      <button class="btn-icon add-lang" onclick="addOtherLang(${i})">+<span class="tip">Agregar en otro idioma</span></button>
+      <button class="btn-icon delete" onclick="removeCard('${c.id}','${c.variant}','${c.language||'EN'}')">&#x2715;<span class="tip">Eliminar</span></button>
+    </td>
+  </tr>`).join('');
+  shownCards = filtered;
+  const availableCards = catalog.cards.filter(c => (c.quantity || 0) > 0);
+  document.getElementById('catalogCount').textContent = (filter ? shownCards.length + '/' : '') + availableCards.length + ' cartas | ' + fmt(shownCards.reduce((s, c) => s + (c.cop || 0) * (c.quantity || 1), 0)) + ' COP total';
+}
+
+function updateStats() {
+  const available = catalog.cards.filter(c => (c.quantity || 0) > 0).length;
+  document.getElementById('headerStats').textContent = available + ' cartas en catalogo';
+}
+
+
+async function refreshOne(id, variant, lang) {
+  try {
+    const body = { id, variant, catalog: currentCatalogName };
+    if (lang) body.lang = lang;
+    const resp = await fetch('/api/catalogo/refresh-one', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const data = await resp.json();
+    if (data.ok) {
+      toast('Precio actualizado');
+      await loadCatalog();
+    }
+  } catch (e) {
+    toast('Error: ' + e.message, true);
+  }
+}
+
+async function removeCard(id, variant, lang) {
+  if (!confirm('Eliminar esta carta del catalogo?')) return;
+  try {
+    const body = { id, variant, catalog: currentCatalogName };
+    if (lang) body.lang = lang;
+    const resp = await fetch('/api/catalogo/remove', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    toast('Carta eliminada');
+    await loadCatalog();
+  } catch (e) {
+    toast('Error: ' + e.message, true);
+  }
+}
+
+function addOtherLang(rowIdx) {
+  const c = shownCards[rowIdx];
+  if (!c) return;
+  const fakeCard = {
+    id: c.id, name: c.name, number: c.number,
+    images: { small: c.image, large: c.image },
+    set: { name: c.set_name, id: c.set_id },
+    rarity: c.rarity,
+    tcgplayer: { prices: {} }
+  };
+  fakeCard.tcgplayer.prices[c.variant || 'holofoil'] = { market: c.market_price_usd || 0 };
+  const otherLang = (c.language || 'EN') === 'EN' ? 'ES' : 'EN';
+  openModal(fakeCard);
+  document.getElementById('modalLang').value = otherLang;
+  const variant = c.variant || 'holofoil';
+  selectVariant(variant, c.market_price_usd || 0);
+}
+
+async function saveRow(id, variant, lang, rowIdx) {
+  const row = document.querySelectorAll('#catalogBody tr')[rowIdx];
+  if (!row) return;
+  const qtyVal = parseInt(row.querySelector('.qty-edit').value);
+  const newQty = Number.isNaN(qtyVal) ? 1 : Math.max(0, qtyVal);
+  const newCop = parseInt(row.querySelector('.cop-edit').value) || 0;
+  const newLang = row.querySelector('.lang-edit').value;
+  try {
+    const ubody = { id, variant, catalog: currentCatalogName, quantity: newQty, cop: newCop, language: newLang };
+    if (lang) ubody.lang = lang;
+    await fetch('/api/catalogo/update', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(ubody) });
+    toast('Carta actualizada');
+    await loadCatalog();
+  } catch (e) {
+    toast('Error: ' + e.message, true);
+  }
+}
+
+async function updateCard(id, variant, field, value, lang) {
+  try {
+    const ubody = { id, variant, catalog: currentCatalogName };
+    if (lang) ubody.lang = lang;
+    ubody[field] = value;
+    await fetch('/api/catalogo/update', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(ubody) });
+    await loadCatalog();
+  } catch (e) {
+    toast('Error: ' + e.message, true);
+  }
+}
+
+function showPdfPreview() {
+  const availableCards = catalog.cards.filter(c => (c.quantity || 0) > 0);
+  if (!availableCards.length) { toast('No hay cartas disponibles en el catalogo', true); return; }
+  const langNames = {EN:'Inglés',ES:'Español',JP:'Japonés',KR:'Coreano',FR:'Francés',DE:'Alemán',IT:'Italiano',PT:'Portugués',CN:'Chino'};
+  const today = new Date().toLocaleDateString('es-CO', {year:'numeric',month:'long',day:'numeric'});
+  const totalQty = availableCards.reduce((s,c) => s + (c.quantity||1), 0);
+  let sorted = [...availableCards].sort((a,b) => (b.cop||0) - (a.cop||0));
+  let cards = sorted.map(c => `<div class="pdf-card">
+    <img src="${c.image}" alt="">
+    <div class="pdf-card-name">${c.name}</div>
+    <div class="pdf-card-detail">${c.number} · ${c.set_name}</div>
+    <div class="pdf-card-detail">${langNames[c.language] || c.language}${c.quantity > 1 ? ' · x' + c.quantity : ''}</div>
+    <div class="pdf-card-price">${fmt(c.cop||0)}</div>
+  </div>`).join('');
+  document.getElementById('pdfPreview').innerHTML = `
+    <div class="pdf-header">
+      <img src="/logo.jpeg" alt="Geek By Carlos">
+      <h1>Geek By Carlos</h1>
+      <div class="pdf-sub">Catálogo Pokemon TCG — ${catalog.label || currentCatalogName} · ${today} · ${availableCards.length} cartas · ${totalQty} unidades</div>
+      <div class="pdf-sub">Bogotá, zona norte · Envío corre por cuenta del comprador</div>
+    </div>
+    <div class="pdf-grid">${cards}</div>
+    <div class="pdf-actions">
+      <button class="pdf-btn-close" onclick="closePdfPreview()">Cerrar</button>
+      <button class="pdf-btn-print" onclick="window.print()">Imprimir / Guardar PDF</button>
+    </div>`;
+  document.getElementById('pdfOverlay').classList.add('show');
+}
+
+function closePdfPreview() {
+  document.getElementById('pdfOverlay').classList.remove('show');
+}
+
+loadCatalogs().then(() => loadCatalog());
+</script>
+</body>
+</html>
