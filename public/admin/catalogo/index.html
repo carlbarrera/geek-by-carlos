@@ -346,6 +346,17 @@ function cop(usd) {
 
 function fmt(n) { return '$' + n.toLocaleString('es-CO'); }
 
+// Una misma carta puede venir con id de la API oficial (me1-135) o de TCGPlayer (tcgp-654474).
+// Se considera la misma si coincide el id, o el nombre + número (sin ceros a la izquierda).
+function normNum(n) {
+  return String(n || '').split('/').map(p => p.trim().replace(/^0+(?=.)/, '')).join('/').toLowerCase();
+}
+function sameCard(catCard, result) {
+  if (catCard.id === result.id) return true;
+  return (catCard.name || '').trim().toLowerCase() === (result.name || '').trim().toLowerCase()
+    && normNum(catCard.number) !== '' && normNum(catCard.number) === normNum(result.number);
+}
+
 function toast(msg, error) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -565,7 +576,7 @@ function renderResults(cards) {
         return `<button class="price-tag market add-btn" onclick="event.stopPropagation(); quickAdd(${idx}, '${v}', ${m})" title="Agregar ${v} al catalogo">${v}: $${m.toFixed(2)} · $${cop(m).toLocaleString('es-CO')} +</button>`;
       }).join('');
     } else {
-      const existingCard = catalog.cards.find(cc => cc.id === c.id);
+      const existingCard = catalog.cards.find(cc => sameCard(cc, c));
       if (existingCard) {
         const exVariant = existingCard.variant || 'holofoil';
         priceHtml = `<button class="price-tag market add-btn" onclick="event.stopPropagation(); quickAddExisting(${idx}, '${exVariant}')" title="Actualizar cantidad">${exVariant}: ${fmt(existingCard.cop || 0)} (catálogo)</button>`;
@@ -573,7 +584,7 @@ function renderResults(cards) {
         priceHtml = '<span class="no-price">Sin precios disponibles</span>';
       }
     }
-    const inCatalog = catalog.cards.some(cc => cc.id === c.id);
+    const inCatalog = catalog.cards.some(cc => (cc.quantity || 0) > 0 && sameCard(cc, c));
     return `<div class="card-result${inCatalog ? ' in-catalog' : ''}" data-idx="${idx}">
       <img src="${c.images?.small || ''}" alt="${c.name}" loading="lazy" onclick='openModal(${cJson})'>
       <div class="name">${c.name} - ${c.number}</div>
@@ -613,7 +624,7 @@ function openModal(card) {
       </button>`;
     }).join('');
   } else {
-    const existingCard = catalog.cards.find(cc => cc.id === card.id);
+    const existingCard = catalog.cards.find(cc => sameCard(cc, card));
     if (existingCard) {
       const exVariant = existingCard.variant || 'holofoil';
       container.innerHTML = `<button class="variant-btn selected" onclick="selectVariant('${exVariant}', 0)">${exVariant}<span class="vp">en catálogo</span></button>`;
@@ -626,7 +637,7 @@ function openModal(card) {
   document.getElementById('modalQty').value = 1;
   document.getElementById('modalLang').value = preselectedLang;
   document.getElementById('modal').classList.add('show');
-  const existingAuto = catalog.cards.find(cc => cc.id === card.id);
+  const existingAuto = catalog.cards.find(cc => sameCard(cc, card));
   const withPrice = variants.filter(([v, p]) => p.market > 0);
   if (withPrice.length === 1) {
     selectVariant(withPrice[0][0], withPrice[0][1].market);
@@ -650,14 +661,17 @@ function selectVariant(variant, market) {
     b.classList.toggle('selected', b.textContent.trim().startsWith(variant));
   });
   const selLang = document.getElementById('modalLang').value;
-  const existing = catalog.cards.find(c => c.id === currentCard.id && (c.variant === variant || !c.variant) && (c.language || 'EN') === selLang);
-  const otherLangs = catalog.cards.filter(c => c.id === currentCard.id && (c.variant === variant || !c.variant) && (c.language || 'EN') !== selLang);
+  const existing = catalog.cards.find(c => sameCard(c, currentCard) && (c.variant === variant || !c.variant) && (c.language || 'EN') === selLang);
+  const otherLangs = catalog.cards.filter(c => sameCard(c, currentCard) && (c.variant === variant || !c.variant) && (c.language || 'EN') !== selLang);
   const addBtn = document.getElementById('modalAddBtn');
   const langNote = document.getElementById('modalLangNote');
   if (existing) {
     document.getElementById('modalQty').value = existing.quantity || 1;
     addBtn.textContent = 'Actualizar cantidad (' + (existing.quantity || 1) + ' en catálogo)';
     addBtn.dataset.mode = 'update';
+    addBtn.dataset.existingId = existing.id;
+    addBtn.dataset.existingVariant = existing.variant || variant;
+    addBtn.dataset.existingLang = existing.language || 'EN';
     document.getElementById('modalPriceUsd').textContent = 'Precio en catálogo: ' + fmt(existing.cop || 0) + ' (Market: $' + market.toFixed(2) + ' USD)';
     document.getElementById('modalCopInput').value = existing.cop || 0;
     document.getElementById('modalPriceDisplay').style.display = 'block';
@@ -698,7 +712,7 @@ function onModalLangChange() {
     const userCop = document.getElementById('modalCopInput').value;
     selectVariant(selectedVariant.name, selectedVariant.market);
     const selLang = document.getElementById('modalLang').value;
-    const existing = catalog.cards.find(c => c.id === currentCard.id && (c.variant === selectedVariant.name || !c.variant) && (c.language || 'EN') === selLang);
+    const existing = catalog.cards.find(c => sameCard(c, currentCard) && (c.variant === selectedVariant.name || !c.variant) && (c.language || 'EN') === selLang);
     if (!existing) {
       document.getElementById('modalCopInput').value = userCop;
     }
@@ -738,7 +752,7 @@ async function addToCatalog() {
   const newQty = parseInt(document.getElementById('modalQty').value) || 1;
   if (isUpdate) {
     try {
-      const ubody = { id: currentCard.id, variant: selectedVariant.name, quantity: newQty, catalog: currentCatalogName };
+      const ubody = { id: addBtn.dataset.existingId || currentCard.id, variant: addBtn.dataset.existingVariant || selectedVariant.name, lang: addBtn.dataset.existingLang, quantity: newQty, catalog: currentCatalogName };
       const resp = await fetch('/api/catalogo/update', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(ubody) });
       const data = await resp.json();
       if (data.ok) {
@@ -778,13 +792,13 @@ async function addToCatalog() {
       await loadCatalog();
     } else if (resp.status === 409) {
       await loadCatalog();
-      const ex = catalog.cards.find(c => c.id === currentCard.id);
+      const ex = catalog.cards.find(c => c.id === currentCard.id && c.variant === selectedVariant.name && (c.language || 'EN') === body.language);
       const curQty = ex ? (ex.quantity || 1) : 1;
       const addMore = confirm(currentCard.name + ' ya está en el catálogo con ' + curQty + ' unidad(es).\n¿Quieres aumentar la cantidad?');
       if (addMore) {
         const newQty = parseInt(prompt('¿Cuántas unidades en total?', curQty + 1));
         if (newQty && newQty > 0) {
-          const ubody = { id: currentCard.id, variant: selectedVariant.name, quantity: newQty, catalog: currentCatalogName };
+          const ubody = { id: currentCard.id, variant: selectedVariant.name, lang: body.language, quantity: newQty, catalog: currentCatalogName };
           await fetch('/api/catalogo/update', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(ubody) });
           toast(currentCard.name + ' actualizada a ' + newQty + ' unidades');
           closeModal();
