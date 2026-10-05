@@ -222,18 +222,17 @@ async function searchTcgplayer(cardName: string, number: string, budget: Budget)
   return tcgplayerItemsToCards(all, cardName, number, budget);
 }
 
+// La API oficial falla seguido desde Cloudflare (429/5xx sin API key). Carlos trabaja con
+// TCGPlayer, así que se intenta una sola vez con timeout corto y no se bloquea la búsqueda.
 async function apiSearch(query: string, budget: Budget) {
   const url = `${API_BASE}/cards?q=${encodeURIComponent(query)}&orderBy=-set.releaseDate&pageSize=50`;
-  for (let attempt = 0; attempt < 3; attempt++) {
-    if (!budget.take()) return null;
-    try {
-      const r = await fetch(url, { headers: budget.ptcgHeaders() });
-      budget.diag.push(`pokemontcg:${r.status}`);
-      if (r.status === 200) return (await r.json()) as { data: Array<Record<string, any>> };
-    } catch (e) {
-      budget.diag.push(`pokemontcg:err:${(e as Error).message}`);
-    }
-    if (attempt < 2) await new Promise((res) => setTimeout(res, 1000));
+  if (!budget.take()) return null;
+  try {
+    const r = await fetch(url, { headers: budget.ptcgHeaders(), signal: AbortSignal.timeout(4000) });
+    budget.diag.push(`pokemontcg:${r.status}`);
+    if (r.status === 200) return (await r.json()) as { data: Array<Record<string, any>> };
+  } catch (e) {
+    budget.diag.push(`pokemontcg:err:${(e as Error).name}`);
   }
   return null;
 }
