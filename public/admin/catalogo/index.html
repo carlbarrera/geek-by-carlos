@@ -372,14 +372,24 @@ function cop(usd) {
 function fmt(n) { return '$' + n.toLocaleString('es-CO'); }
 
 // Una misma carta puede venir con id de la API oficial (me1-135) o de TCGPlayer (tcgp-654474).
-// Se considera la misma si coincide el id, o el nombre + número (sin ceros a la izquierda).
+// Se considera la misma si coincide el id, o (solo entre id oficial y de TCGPlayer) el nombre +
+// número + expansión. Dos ids de TCGPlayer distintos son productos distintos (ej. la normal y la
+// de liga "Prize Pack Series Cards" comparten nombre y número).
 function normNum(n) {
   return String(n || '').split('/').map(p => p.trim().replace(/^0+(?=.)/, '')).join('/').toLowerCase();
 }
+// "ME01: Mega Evolution" (TCGPlayer) y "Mega Evolution" (oficial) → "mega evolution"
+function normSet(s) {
+  return String(s || '').replace(/^[^:]*:\s*/, '').trim().toLowerCase();
+}
 function sameCard(catCard, result) {
   if (catCard.id === result.id) return true;
+  if (String(catCard.id).startsWith('tcgp-') && String(result.id).startsWith('tcgp-')) return false;
+  const catSet = normSet(catCard.set_name ?? catCard.set?.name);
+  const resSet = normSet(result.set_name ?? result.set?.name);
   return (catCard.name || '').trim().toLowerCase() === (result.name || '').trim().toLowerCase()
-    && normNum(catCard.number) !== '' && normNum(catCard.number) === normNum(result.number);
+    && normNum(catCard.number) !== '' && normNum(catCard.number) === normNum(result.number)
+    && catSet !== '' && catSet === resSet;
 }
 
 function toast(msg, error) {
