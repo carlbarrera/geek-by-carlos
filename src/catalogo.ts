@@ -518,6 +518,70 @@ async function handleSale(env: CatalogoEnv, cat: string, body: Record<string, an
   return json({ ok: true, items: sold, total_cop: total });
 }
 
+// ---------- Fotos propias ----------
+
+const MAX_IMG_BYTES = 1_500_000;
+const IMG_MIMES = ['image/jpeg', 'image/png', 'image/webp'];
+
+/** Cambia la foto de una carta: por foto subida (data_url) o por enlace (url). */
+async function handleImage(env: CatalogoEnv, cat: string, body: Record<string, any>) {
+  const id = String(body.id || '');
+  const variant = String(body.variant || '');
+  const lang = body.lang as string | undefined;
+  let image: string;
+
+  if (body.data_url) {
+    const m = String(body.data_url).match(/^data:(image\/[a-z]+);base64,(.+)$/);
+    if (!m || !IMG_MIMES.includes(m[1])) return json({ error: 'formato de imagen no soportado (usa JPG, PNG o WEBP)' }, 400);
+    const bytes = Uint8Array.from(atob(m[2]), (ch) => ch.charCodeAt(0));
+    if (bytes.byteLength > MAX_IMG_BYTES) return json({ error: 'la imagen pesa demasiado' }, 400);
+    const digest = await crypto.subtle.digest('SHA-256', bytes);
+    const key = [...new Uint8Array(digest)].slice(0, 16).map((b) => b.toString(16).padStart(2, '0')).join('');
+    await env.CATALOGO_DB.prepare(
+      'INSERT OR IGNORE INTO catalogo_imagenes (key, mime, data, created_at) VALUES (?, ?, ?, ?)',
+    )
+      .bind(key, m[1], bytes, nowStamp())
+      .run();
+    image = `/api/catalogo/img/${key}`;
+  } else if (body.url) {
+    const url = String(body.url).trim();
+    if (!/^https:\/\/\S+$/i.test(url)) return json({ error: 'el enlace debe empezar por https://' }, 400);
+    image = url;
+  } else {
+    return json({ error: 'falta la foto o el enlace' }, 400);
+  }
+
+  const result = await mutate(env, cat, (cards) => {
+    const c = cards.find((x) => matches(x, id, variant, lang));
+    if (!c) throw new HttpError(404, 'carta no encontrada');
+    const old = c.image;
+    c.image = image;
+    return { card: c, old };
+  });
+  await logAction(env, cat, {
+    type: 'update',
+    card_id: id,
+    card_name: result.card.name,
+    number: result.card.number,
+    variant,
+    changes: { image: { old: result.old, new: image } },
+    source: 'web',
+  });
+  return json({ ok: true, image });
+}
+
+async function serveImage(env: CatalogoEnv, key: string) {
+  if (!/^[0-9a-f]{32}$/.test(key)) return json({ error: 'not found' }, 404);
+  const row = await env.CATALOGO_DB.prepare('SELECT mime, data FROM catalogo_imagenes WHERE key = ?')
+    .bind(key)
+    .first<{ mime: string; data: ArrayBuffer | number[] }>();
+  if (!row) return json({ error: 'not found' }, 404);
+  const data = row.data instanceof ArrayBuffer ? new Uint8Array(row.data) : new Uint8Array(row.data);
+  return new Response(data, {
+    headers: { 'Content-Type': row.mime, 'Cache-Control': 'private, max-age=31536000, immutable' },
+  });
+}
+
 // ---------- Router ----------
 
 export async function handleCatalogoApi(request: Request, url: URL, env: CatalogoEnv, userName: string): Promise<Response> {
@@ -552,6 +616,7 @@ export async function handleCatalogoApi(request: Request, url: URL, env: Catalog
           .all<{ entry: string }>();
         return json(results.map((r) => JSON.parse(r.entry)));
       }
+      if (route.startsWith('/img/')) return await serveImage(env, route.slice('/img/'.length));
       if (route === '/search') return await handleSearch(url.searchParams.get('q') || '', env.POKEMONTCG_API_KEY);
       return json({ error: 'not found' }, 404);
     }
@@ -575,6 +640,8 @@ export async function handleCatalogoApi(request: Request, url: URL, env: Catalog
           return await handleUpdate(env, cat, body);
         case '/refresh-one':
           return await handleRefreshOne(env, cat, body);
+        case '/image':
+          return await handleImage(env, cat, body);
         case '/sale':
           return await handleSale(env, cat, body, userName);
       }

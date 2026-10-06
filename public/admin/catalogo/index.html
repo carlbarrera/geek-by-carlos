@@ -328,6 +328,22 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   <div class="pdf-preview" id="pdfPreview"></div>
 </div>
 
+<div class="modal-overlay" id="imgModal">
+  <div class="modal" style="max-width:460px">
+    <h2>Cambiar foto</h2>
+    <div id="imgCardName" style="color:#9ca3af;font-size:13px;margin-bottom:10px"></div>
+    <img id="imgPreview" src="" alt="" style="width:220px;min-height:60px;background:#0a0f1e">
+    <label class="fl">Subir foto (computador o celular)</label>
+    <input type="file" id="imgFile" accept="image/*" onchange="onImgFileChange(this)" style="color:#e0e0e0;font-size:13px">
+    <label class="fl">… o pegar enlace de una imagen</label>
+    <input type="text" id="imgUrl" placeholder="https://..." oninput="onImgUrlInput(this.value)">
+    <div class="actions">
+      <button class="btn-cancel" onclick="closeImageEditor()">Cancelar</button>
+      <button class="btn-add" id="imgSaveBtn" onclick="saveImage()" disabled>Guardar foto</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -481,6 +497,86 @@ async function confirmSale() {
   btn.disabled = false;
 }
 
+// ---------- Foto propia ----------
+let imgEditCard = null;
+let imgPending = null; // { data_url } o { url }
+
+function openImageEditor(rowIdx) {
+  const c = shownCards[rowIdx];
+  if (!c) return;
+  imgEditCard = c;
+  imgPending = null;
+  document.getElementById('imgCardName').textContent = c.name + ' - ' + c.number + ' · ' + c.variant + ' · ' + (c.language || 'EN');
+  document.getElementById('imgPreview').src = c.image || '';
+  document.getElementById('imgFile').value = '';
+  document.getElementById('imgUrl').value = '';
+  document.getElementById('imgSaveBtn').disabled = true;
+  document.getElementById('imgModal').classList.add('show');
+}
+
+function closeImageEditor() {
+  document.getElementById('imgModal').classList.remove('show');
+  imgEditCard = null;
+  imgPending = null;
+}
+
+// Reduce la foto a máx. 600 px de ancho en JPEG para que pese poco (~50-120 KB).
+function onImgFileChange(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, 600 / img.width);
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      imgPending = { data_url: dataUrl };
+      document.getElementById('imgPreview').src = dataUrl;
+      document.getElementById('imgUrl').value = '';
+      document.getElementById('imgSaveBtn').disabled = false;
+    };
+    img.onerror = () => toast('No se pudo leer esa imagen', true);
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function onImgUrlInput(v) {
+  v = v.trim();
+  if (!/^https:\/\//i.test(v)) { document.getElementById('imgSaveBtn').disabled = true; return; }
+  imgPending = { url: v };
+  document.getElementById('imgFile').value = '';
+  document.getElementById('imgPreview').src = v;
+  document.getElementById('imgSaveBtn').disabled = false;
+}
+
+async function saveImage() {
+  if (!imgEditCard || !imgPending) return;
+  const btn = document.getElementById('imgSaveBtn');
+  btn.disabled = true;
+  try {
+    const resp = await fetch('/api/catalogo/image', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+      catalog: currentCatalogName, id: imgEditCard.id, variant: imgEditCard.variant, lang: imgEditCard.language || 'EN', ...imgPending
+    }) });
+    const data = await resp.json();
+    if (data.ok) {
+      toast('Foto actualizada');
+      closeImageEditor();
+      await loadCatalog();
+    } else {
+      toast(data.error || 'Error guardando la foto', true);
+      btn.disabled = false;
+    }
+  } catch (e) {
+    toast('Error: ' + e.message, true);
+    btn.disabled = false;
+  }
+}
+
 // ---------- Historial ----------
 async function loadHistory() {
   const list = document.getElementById('historyList');
@@ -567,7 +663,6 @@ function renderResults(cards) {
   grid.innerHTML = cards.map((c, idx) => {
     const prices = c.tcgplayer?.prices || {};
     const variants = Object.entries(prices);
-    const cJson = JSON.stringify(c).replace(/'/g, "&#39;").replace(/"/g, '&quot;');
     let priceHtml = '';
     if (variants.length) {
       priceHtml = variants.map(([v, p]) => {
@@ -586,7 +681,8 @@ function renderResults(cards) {
     }
     const inCatalog = catalog.cards.some(cc => (cc.quantity || 0) > 0 && sameCard(cc, c));
     return `<div class="card-result${inCatalog ? ' in-catalog' : ''}" data-idx="${idx}">
-      <img src="${c.images?.small || ''}" alt="${c.name}" loading="lazy" onclick='openModal(${cJson})'>
+      <img src="${c.images?.small || ''}" alt="${esc(c.name)}" loading="lazy" onclick="openModal(lastResults[${idx}])" onerror="onResultImgError(this, ${idx})">
+      <div class="ref-note" id="refnote-${idx}" style="display:none;color:#fbbf24;font-size:11px;margin:-4px 0 6px">Foto de referencia (TCGPlayer no tiene foto de esta publicación)</div>
       <div class="name">${c.name} - ${c.number}</div>
       <div class="set">${c.set?.name || ''} | ${c.rarity || ''}</div>
       <div class="prices">${priceHtml}</div>
@@ -598,6 +694,26 @@ function renderResults(cards) {
       ${inCatalog ? '<div style="color:#fbbf24;font-size:11px;margin-top:4px;font-weight:700">YA EN CATALOGO</div>' : ''}
     </div>`;
   }).join('');
+}
+
+// Algunas publicaciones de TCGPlayer (stamped, jumbo, promos) no tienen foto: su URL da 403/404.
+// Se usa la foto de otro resultado de la misma carta (mismo nombre base + número).
+function baseName(n) {
+  return String(n || '').replace(/\s*\(.*\)\s*$/, '').trim().toLowerCase();
+}
+function onResultImgError(img, idx) {
+  const c = lastResults[idx];
+  if (!c || c._refTried) { img.style.display = 'none'; return; }
+  c._refTried = true;
+  const ref = lastResults.find((o, j) => j !== idx && !o._noImg && !o._refImg
+    && baseName(o.name) === baseName(c.name) && normNum(o.number) === normNum(c.number) && o.images?.small);
+  c._noImg = true;
+  if (!ref) { img.style.display = 'none'; return; }
+  c.images = { small: ref.images.small, large: ref.images.large || ref.images.small };
+  c._refImg = true;
+  img.src = c.images.small;
+  const note = document.getElementById('refnote-' + idx);
+  if (note) note.style.display = 'block';
 }
 
 function openModal(card) {
@@ -903,7 +1019,7 @@ function renderCatalog(filter) {
   empty.style.display = 'none';
   const langOpts = [['EN','EN'],['ES','ES'],['JP','JP'],['KR','KR'],['FR','FR'],['DE','DE'],['IT','IT'],['PT','PT'],['CN','CN']];
   body.innerHTML = filtered.map((c, i) => `<tr>
-    <td class="img-cell"><img src="${c.image}" alt="" loading="lazy"></td>
+    <td class="img-cell"><img src="${esc(c.image)}" alt="" loading="lazy" onclick="openImageEditor(${i})" title="Cambiar foto" style="cursor:pointer"></td>
     <td>${i + 1}</td>
     <td class="name-cell">${c.name} - ${c.number}</td>
     <td class="set-cell">${c.set_name}</td>
