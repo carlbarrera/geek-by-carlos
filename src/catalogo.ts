@@ -523,33 +523,36 @@ async function handleSale(env: CatalogoEnv, cat: string, body: Record<string, an
 const MAX_IMG_BYTES = 1_500_000;
 const IMG_MIMES = ['image/jpeg', 'image/png', 'image/webp'];
 
+/** Guarda una foto subida (data URL) y devuelve la ruta para usarla como `image`. */
+async function storeImage(env: CatalogoEnv, dataUrl: string): Promise<string> {
+  const m = dataUrl.match(/^data:(image\/[a-z]+);base64,(.+)$/);
+  if (!m || !IMG_MIMES.includes(m[1])) throw new HttpError(400, 'formato de imagen no soportado (usa JPG, PNG o WEBP)');
+  const bytes = Uint8Array.from(atob(m[2]), (ch) => ch.charCodeAt(0));
+  if (bytes.byteLength > MAX_IMG_BYTES) throw new HttpError(400, 'la imagen pesa demasiado');
+  const digest = await crypto.subtle.digest('SHA-256', bytes);
+  const key = [...new Uint8Array(digest)].slice(0, 16).map((b) => b.toString(16).padStart(2, '0')).join('');
+  await env.CATALOGO_DB.prepare('INSERT OR IGNORE INTO catalogo_imagenes (key, mime, data, created_at) VALUES (?, ?, ?, ?)')
+    .bind(key, m[1], bytes, nowStamp())
+    .run();
+  return `/api/catalogo/img/${key}`;
+}
+
+function checkImageUrl(url: string): string {
+  const u = url.trim();
+  if (/^\/api\/catalogo\/img\/[0-9a-f]{32}$/.test(u)) return u; // foto propia ya subida
+  if (!/^https:\/\/\S+$/i.test(u)) throw new HttpError(400, 'el enlace debe empezar por https://');
+  return u;
+}
+
 /** Cambia la foto de una carta: por foto subida (data_url) o por enlace (url). */
 async function handleImage(env: CatalogoEnv, cat: string, body: Record<string, any>) {
   const id = String(body.id || '');
   const variant = String(body.variant || '');
   const lang = body.lang as string | undefined;
   let image: string;
-
-  if (body.data_url) {
-    const m = String(body.data_url).match(/^data:(image\/[a-z]+);base64,(.+)$/);
-    if (!m || !IMG_MIMES.includes(m[1])) return json({ error: 'formato de imagen no soportado (usa JPG, PNG o WEBP)' }, 400);
-    const bytes = Uint8Array.from(atob(m[2]), (ch) => ch.charCodeAt(0));
-    if (bytes.byteLength > MAX_IMG_BYTES) return json({ error: 'la imagen pesa demasiado' }, 400);
-    const digest = await crypto.subtle.digest('SHA-256', bytes);
-    const key = [...new Uint8Array(digest)].slice(0, 16).map((b) => b.toString(16).padStart(2, '0')).join('');
-    await env.CATALOGO_DB.prepare(
-      'INSERT OR IGNORE INTO catalogo_imagenes (key, mime, data, created_at) VALUES (?, ?, ?, ?)',
-    )
-      .bind(key, m[1], bytes, nowStamp())
-      .run();
-    image = `/api/catalogo/img/${key}`;
-  } else if (body.url) {
-    const url = String(body.url).trim();
-    if (!/^https:\/\/\S+$/i.test(url)) return json({ error: 'el enlace debe empezar por https://' }, 400);
-    image = url;
-  } else {
-    return json({ error: 'falta la foto o el enlace' }, 400);
-  }
+  if (body.data_url) image = await storeImage(env, String(body.data_url));
+  else if (body.url) image = checkImageUrl(String(body.url));
+  else return json({ error: 'falta la foto o el enlace' }, 400);
 
   const result = await mutate(env, cat, (cards) => {
     const c = cards.find((x) => matches(x, id, variant, lang));
@@ -642,6 +645,8 @@ export async function handleCatalogoApi(request: Request, url: URL, env: Catalog
           return await handleRefreshOne(env, cat, body);
         case '/image':
           return await handleImage(env, cat, body);
+        case '/upload':
+          return json({ ok: true, image: await storeImage(env, String(body.data_url || '')) });
         case '/sale':
           return await handleSale(env, cat, body, userName);
       }

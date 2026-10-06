@@ -292,6 +292,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   <div class="modal">
     <h2 id="modalTitle"></h2>
     <img id="modalImg" src="" alt="">
+    <div style="text-align:center;margin:-8px 0 12px">
+      <button class="btn-refresh" type="button" onclick="document.getElementById('modalImgEdit').style.display='block'; this.style.display='none'">📷 Cambiar foto</button>
+    </div>
+    <div id="modalImgEdit" style="display:none;margin-bottom:12px">
+      <label class="fl">Subir foto (computador o celular)</label>
+      <input type="file" id="modalImgFile" accept="image/*" onchange="onModalImgFile(this)" style="color:#e0e0e0;font-size:13px">
+      <label class="fl">… o pegar enlace de una imagen (Collectr, TCGPlayer, etc.)</label>
+      <input type="text" id="modalImgUrl" placeholder="https://..." oninput="onModalImgUrl(this.value)">
+    </div>
     <div class="info" id="modalInfo"></div>
     <p style="color:#9ca3af;font-size:13px;margin-bottom:8px">Selecciona la variante:</p>
     <div class="variants" id="modalVariants"></div>
@@ -521,28 +530,36 @@ function closeImageEditor() {
 }
 
 // Reduce la foto a máx. 600 px de ancho en JPEG para que pese poco (~50-120 KB).
+function resizeImage(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, 600 / img.width);
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/jpeg', 0.85));
+      };
+      img.onerror = reject;
+      img.src = reader.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 function onImgFileChange(input) {
   const file = input.files && input.files[0];
   if (!file) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    const img = new Image();
-    img.onload = () => {
-      const scale = Math.min(1, 600 / img.width);
-      const canvas = document.createElement('canvas');
-      canvas.width = Math.round(img.width * scale);
-      canvas.height = Math.round(img.height * scale);
-      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-      imgPending = { data_url: dataUrl };
-      document.getElementById('imgPreview').src = dataUrl;
-      document.getElementById('imgUrl').value = '';
-      document.getElementById('imgSaveBtn').disabled = false;
-    };
-    img.onerror = () => toast('No se pudo leer esa imagen', true);
-    img.src = reader.result;
-  };
-  reader.readAsDataURL(file);
+  resizeImage(file).then(dataUrl => {
+    imgPending = { data_url: dataUrl };
+    document.getElementById('imgPreview').src = dataUrl;
+    document.getElementById('imgUrl').value = '';
+    document.getElementById('imgSaveBtn').disabled = false;
+  }).catch(() => toast('No se pudo leer esa imagen', true));
 }
 
 function onImgUrlInput(v) {
@@ -716,9 +733,45 @@ function onResultImgError(img, idx) {
   if (note) note.style.display = 'block';
 }
 
+// Foto elegida en la ventana de agregar: { data_url } o { url }
+let modalCustomImg = null;
+
+function onModalImgFile(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  resizeImage(file).then(dataUrl => {
+    modalCustomImg = { data_url: dataUrl };
+    document.getElementById('modalImg').src = dataUrl;
+    document.getElementById('modalImgUrl').value = '';
+  }).catch(() => toast('No se pudo leer esa imagen', true));
+}
+
+function onModalImgUrl(v) {
+  v = v.trim();
+  if (!/^https:\/\//i.test(v)) { modalCustomImg = null; return; }
+  modalCustomImg = { url: v };
+  document.getElementById('modalImgFile').value = '';
+  document.getElementById('modalImg').src = v;
+}
+
+// Devuelve la ruta/enlace final de la foto personalizada (sube el archivo si hace falta).
+async function resolveModalImage() {
+  if (!modalCustomImg) return null;
+  if (modalCustomImg.url) return modalCustomImg.url;
+  const resp = await fetch('/api/catalogo/upload', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ data_url: modalCustomImg.data_url }) });
+  const data = await resp.json();
+  if (!data.ok) throw new Error(data.error || 'no se pudo subir la foto');
+  return data.image;
+}
+
 function openModal(card) {
   currentCard = card;
   selectedVariant = null;
+  modalCustomImg = null;
+  document.getElementById('modalImgEdit').style.display = 'none';
+  document.querySelector('#modal .btn-refresh').style.display = '';
+  document.getElementById('modalImgFile').value = '';
+  document.getElementById('modalImgUrl').value = '';
   const langEl = document.querySelector(`.lang-select[data-card-id="${card.id}"]`);
   const preselectedLang = langEl ? langEl.value : 'EN';
   document.getElementById('modalTitle').textContent = card.name + ' - ' + card.number;
@@ -872,6 +925,12 @@ async function addToCatalog() {
       const resp = await fetch('/api/catalogo/update', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(ubody) });
       const data = await resp.json();
       if (data.ok) {
+        const customImg = await resolveModalImage();
+        if (customImg) {
+          const iresp = await fetch('/api/catalogo/image', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ catalog: currentCatalogName, id: ubody.id, variant: ubody.variant, lang: ubody.lang, url: customImg }) });
+          const idata = await iresp.json();
+          if (!idata.ok) toast('Cantidad guardada, pero la foto no: ' + (idata.error || ''), true);
+        }
         toast(currentCard.name + ' actualizada a ' + newQty + ' unidades');
         closeModal();
         await loadCatalog();
@@ -900,6 +959,8 @@ async function addToCatalog() {
     catalog: currentCatalogName
   };
   try {
+    const customImg = await resolveModalImage();
+    if (customImg) body.image = customImg;
     const resp = await fetch('/api/catalogo/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
     const data = await resp.json();
     if (data.ok) {
