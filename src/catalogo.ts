@@ -259,10 +259,28 @@ async function enrichCards(cards: Array<Record<string, any>>, budget: Budget) {
   );
 }
 
+// Códigos de One Piece: OP17-104, ST34-002, EB02-010, PRB01-001, P-001. TCGPlayer los busca mal
+// por texto (aproximado), así que se filtra exacto por número dentro de la línea One Piece.
+const ONE_PIECE_CODE = /^((OP|ST|EB|PRB)\d{2}|P)-\d{3}$/i;
+
+async function searchOnePiece(code: string, budget: Budget) {
+  const items = await tcgplayerSearch('', budget, {
+    productLineName: ['one-piece-card-game'],
+    number: [code.toUpperCase()],
+  });
+  const cards = await tcgplayerItemsToCards(items, '', code.toUpperCase(), budget);
+  cards.forEach((c, i) => {
+    c.supertype = 'One Piece';
+    c.rarity = String(items[i].rarityName ?? c.rarity ?? '');
+  });
+  return json({ data: cards, subrequests: budget.used, diag: budget.diag });
+}
+
 async function handleSearch(q: string, apiKey?: string) {
   q = q.trim();
   if (!q) return json({ data: [] });
   const budget = new Budget(apiKey);
+  if (ONE_PIECE_CODE.test(q)) return searchOnePiece(q, budget);
   const isDigit = /^\d+$/.test(q);
   const isPromo = !q.includes(' ') && !q.includes('/') && /\d/.test(q) && !isDigit;
   let query: string;
