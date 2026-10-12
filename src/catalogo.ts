@@ -457,6 +457,12 @@ async function handleUpdate(env: CatalogoEnv, cat: string, body: Record<string, 
       changes.cop = { old: c.cop ?? 0, new: Number(body.cop) };
       c.cop = Number(body.cop);
     }
+    // Revisión diaria de precios: guarda el market de TCGPlayer con el que se calculó el precio.
+    if ('market_price_usd' in body) {
+      changes.usd = { old: c.market_price_usd ?? 0, new: Number(body.market_price_usd) };
+      c.market_price_usd = Number(body.market_price_usd);
+      c.last_price_update = nowMinute();
+    }
     return { card: c, changes };
   });
   if (result && Object.keys(result.changes).length) {
