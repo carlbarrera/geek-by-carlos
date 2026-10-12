@@ -499,6 +499,45 @@ async function handleRefreshOne(env: CatalogoEnv, cat: string, body: Record<stri
  * Venta: descuenta stock de varias cartas en un solo cambio atómico y deja el registro.
  * Si alguna carta no tiene stock suficiente, no se descuenta nada.
  */
+// Anula una venta registrada: devuelve las cartas al stock y deja la anulación en el historial.
+// La venta se identifica por cliente + fecha/hora exacta del registro.
+async function handleSaleReverse(env: CatalogoEnv, cat: string, body: Record<string, any>, userName: string) {
+  const customer = String(body.customer || '');
+  const timestamp = String(body.timestamp || '');
+  const { results } = await env.CATALOGO_DB.prepare('SELECT entry FROM catalogo_log WHERE catalog = ? AND created_at = ?')
+    .bind(cat, timestamp)
+    .all<{ entry: string }>();
+  const entries = results.map((r) => JSON.parse(r.entry) as Record<string, any>);
+  const sale = entries.find((e) => e.type === 'sale' && e.customer === customer);
+  if (!sale) return json({ error: 'venta no encontrada' }, 404);
+  const already = await env.CATALOGO_DB.prepare(
+    "SELECT 1 FROM catalogo_log WHERE catalog = ? AND json_extract(entry, '$.type') = 'sale_reversal' AND json_extract(entry, '$.sale_timestamp') = ? AND json_extract(entry, '$.customer') = ?",
+  )
+    .bind(cat, timestamp, customer)
+    .first();
+  if (already) return json({ error: 'esta venta ya fue anulada' }, 409);
+  const items = (sale.items || []) as Array<Record<string, any>>;
+  const restored = await mutate(env, cat, (cards) =>
+    items.map((it) => {
+      const c = cards.find((x) => matches(x, it.card_id, it.variant, it.language));
+      if (!c) throw new HttpError(404, `carta no encontrada: ${it.card_name} ${it.number}`);
+      c.quantity = (c.quantity || 0) + Number(it.qty);
+      return { card_name: c.name, number: c.number, qty: Number(it.qty), qty_now: c.quantity };
+    }),
+  );
+  await logAction(env, cat, {
+    type: 'sale_reversal',
+    customer,
+    sale_timestamp: timestamp,
+    total_cop: sale.total_cop,
+    items: restored,
+    reason: body.reason || '',
+    registered_by: userName,
+    source: 'web',
+  });
+  return json({ ok: true, items: restored });
+}
+
 async function handleDiscount(env: CatalogoEnv, cat: string, body: Record<string, any>, userName: string) {
   const pct = Number(body.pct);
   if (!Number.isFinite(pct) || pct < 0 || pct > 90) return json({ error: 'el descuento debe estar entre 0 y 90%' }, 400);
@@ -698,6 +737,8 @@ export async function handleCatalogoApi(request: Request, url: URL, env: Catalog
           return json({ ok: true, image: await storeImage(env, String(body.data_url || '')) });
         case '/sale':
           return await handleSale(env, cat, body, userName);
+        case '/sale-reverse':
+          return await handleSaleReverse(env, cat, body, userName);
         case '/discount':
           return await handleDiscount(env, cat, body, userName);
       }

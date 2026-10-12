@@ -643,6 +643,11 @@ function renderHistItem(e) {
   } else if (type === 'removal') {
     title += ' · ' + esc(e.card_name || '') + ' ' + esc(e.number || '');
     body = ['x' + (e.quantity_removed ?? 1), e.cop ? fmt(e.cop) : '', e.customer].filter(Boolean).map(esc).join(' · ');
+  } else if (type === 'sale_reversal') {
+    title = 'Venta ANULADA · ' + esc(e.customer || '') + (e.total_cop != null ? ' · ' + fmt(e.total_cop) : '');
+    body = 'Venta del ' + esc(e.sale_timestamp || '') + '. Volvieron al stock: '
+      + (e.items || []).map(i => esc(i.card_name + ' ' + i.number + ' x' + i.qty)).join(', ')
+      + (e.reason ? '<br>' + esc(e.reason) : '') + (e.registered_by ? '<br>Registró: ' + esc(e.registered_by) : '');
   } else if (type === 'discount') {
     title = Number(e.new) > 0 ? `Descuento ${esc(e.new)}% activado` : 'Descuento quitado (precios normales)';
     body = e.registered_by ? 'Registró: ' + esc(e.registered_by) : '';
