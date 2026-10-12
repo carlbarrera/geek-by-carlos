@@ -1005,7 +1005,7 @@ async function loadCatalogs() {
     const resp = await fetch('/api/catalogo/catalogs');
     catalogsList = await resp.json();
     const sel = document.getElementById('catalogSelect');
-    sel.innerHTML = catalogsList.map(c => `<option value="${c.name}"${c.name === currentCatalogName ? ' selected' : ''}>${c.label} (${c.count})</option>`).join('');
+    sel.innerHTML = catalogsList.map(c => `<option value="${c.name}"${c.name === currentCatalogName ? ' selected' : ''}>${c.label} (${c.count}${c.units != null ? ' · ' + c.units + ' und' : ''})</option>`).join('');
   } catch (e) {
     console.error(e);
   }
@@ -1109,12 +1109,15 @@ function renderCatalog(filter) {
   </tr>`).join('');
   shownCards = filtered;
   const availableCards = catalog.cards.filter(c => (c.quantity || 0) > 0);
-  document.getElementById('catalogCount').textContent = (filter ? shownCards.length + '/' : '') + availableCards.length + ' cartas | ' + fmt(shownCards.reduce((s, c) => s + (c.cop || 0) * (c.quantity || 1), 0)) + ' COP total';
+  const units = list => list.reduce((s, c) => s + Math.max(c.quantity || 0, 0), 0);
+  document.getElementById('catalogCount').textContent = (filter ? shownCards.length + '/' : '') + availableCards.length + ' cartas · '
+    + (filter ? units(shownCards) + '/' : '') + units(availableCards) + ' unidades | ' + fmt(shownCards.reduce((s, c) => s + (c.cop || 0) * (c.quantity || 1), 0)) + ' COP total';
 }
 
 function updateStats() {
-  const available = catalog.cards.filter(c => (c.quantity || 0) > 0).length;
-  document.getElementById('headerStats').textContent = available + ' cartas en catalogo';
+  const availableCards = catalog.cards.filter(c => (c.quantity || 0) > 0);
+  const units = availableCards.reduce((s, c) => s + c.quantity, 0);
+  document.getElementById('headerStats').textContent = availableCards.length + ' cartas · ' + units + ' unidades en catalogo';
 }
 
 

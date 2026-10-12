@@ -621,6 +621,7 @@ export async function handleCatalogoApi(request: Request, url: URL, env: Catalog
             name: r.name,
             label: r.label,
             count: (JSON.parse(r.cards) as Card[]).filter((c) => (c.quantity || 0) > 0).length,
+            units: (JSON.parse(r.cards) as Card[]).reduce((s, c) => s + Math.max(c.quantity || 0, 0), 0),
           })),
         );
       }
