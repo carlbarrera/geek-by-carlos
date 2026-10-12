@@ -224,6 +224,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   <div id="catalogPanel" class="panel">
     <div class="catalog-controls">
       <button class="btn-export" onclick="showPdfPreview()">Exportar PDF</button>
+      <button class="btn-export" id="discountBtn" onclick="setDiscount()" style="margin-left:8px;background:#7c3aed">Descuento: 0%</button>
       <span id="pdfStatus" style="color:#9ca3af;font-size:11px;margin-left:8px;display:none"></span>
       <span class="catalog-count" id="catalogCount"></span>
     </div>
@@ -425,7 +426,7 @@ function addToSale(rowIdx) {
     if (line.qty >= (c.quantity || 0)) { toast('No hay más stock de ' + c.name, true); return; }
     line.qty++;
   } else {
-    saleCart.push({ key, id: c.id, variant: c.variant, language: c.language || 'EN', name: c.name, number: c.number, image: c.image, cop: c.cop || 0, max: c.quantity || 0, qty: 1 });
+    saleCart.push({ key, id: c.id, variant: c.variant, language: c.language || 'EN', name: c.name, number: c.number, image: c.image, cop: discounted(c.cop), max: c.quantity || 0, qty: 1 });
   }
   renderCartBar();
   toast(c.name + ' agregada a la venta');
@@ -642,6 +643,9 @@ function renderHistItem(e) {
   } else if (type === 'removal') {
     title += ' · ' + esc(e.card_name || '') + ' ' + esc(e.number || '');
     body = ['x' + (e.quantity_removed ?? 1), e.cop ? fmt(e.cop) : '', e.customer].filter(Boolean).map(esc).join(' · ');
+  } else if (type === 'discount') {
+    title = Number(e.new) > 0 ? `Descuento ${esc(e.new)}% activado` : 'Descuento quitado (precios normales)';
+    body = e.registered_by ? 'Registró: ' + esc(e.registered_by) : '';
   } else if (type === 'trade') {
     title += ' · ' + esc(e.customer || '');
     body = 'Recibió: ' + esc(e.received || '') + '<br>Entregó: ' + (e.given || []).map(esc).join(', ') + (e.notes ? '<br>' + esc(e.notes) : '');
@@ -1046,6 +1050,7 @@ async function loadCatalog() {
   try {
     const resp = await fetch('/api/catalogo/catalog?catalog=' + encodeURIComponent(currentCatalogName));
     catalog = await resp.json();
+    updateDiscountBtn();
     const q = document.getElementById('searchInput').value.trim().toLowerCase();
     const isCatalogActive = document.getElementById('catalogPanel').classList.contains('active');
     renderCatalog(isCatalogActive ? q : '');
@@ -1054,6 +1059,41 @@ async function loadCatalog() {
   } catch (e) {
     console.error(e);
   }
+}
+
+// Descuento temporal del catálogo: los precios guardados no cambian; se calcula al mostrar/vender.
+// Redondeo hacia abajo a $500 (igual que discountedCop() en el servidor).
+function discountPct() { return Number(catalog?.discount_pct || 0); }
+function discounted(cop) {
+  const pct = discountPct();
+  return pct > 0 ? Math.floor((cop || 0) * (100 - pct) / 100 / 500) * 500 : (cop || 0);
+}
+function updateDiscountBtn() {
+  const pct = discountPct();
+  const btn = document.getElementById('discountBtn');
+  btn.textContent = pct > 0 ? `Descuento ${pct}% ACTIVO · quitar` : 'Descuento: 0%';
+  btn.style.background = pct > 0 ? '#dc2626' : '#7c3aed';
+}
+async function setDiscount() {
+  if (saleCart.length) { toast('Termina o vacía la venta en curso antes de cambiar el descuento', true); return; }
+  let pct;
+  if (discountPct() > 0) {
+    if (!confirm(`¿Quitar el ${discountPct()}% de descuento? Los precios vuelven al normal.`)) return;
+    pct = 0;
+  } else {
+    const v = prompt('Porcentaje de descuento para TODO este catálogo (ej. 15):', '15');
+    if (v === null) return;
+    pct = Number(String(v).replace('%', '').trim());
+    if (!Number.isFinite(pct) || pct <= 0 || pct > 90) { toast('Porcentaje inválido', true); return; }
+  }
+  const resp = await fetch('/api/catalogo/discount', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ catalog: currentCatalogName, pct }),
+  });
+  const data = await resp.json();
+  if (!resp.ok) { toast('Error: ' + (data.error || resp.status), true); return; }
+  toast(pct > 0 ? `Descuento del ${pct}% activado` : 'Descuento quitado: precios normales');
+  await loadCatalog();
 }
 
 function filterCatalog() {
@@ -1098,7 +1138,7 @@ function renderCatalog(filter) {
     <td><select class="lang-edit" data-row="${i}">${langOpts.map(([v,l])=>`<option value="${v}"${c.language===v?' selected':''}>${l}</option>`).join('')}</select></td>
     <td style="text-align:center"><input type="number" class="qty-edit" data-row="${i}" value="${c.quantity}" min="0" max="99"></td>
     <td class="price-cell usd">$${(c.market_price_usd || 0).toFixed(2)}</td>
-    <td class="price-cell cop"><input type="number" class="cop-edit" data-row="${i}" value="${c.cop || 0}" min="0" step="1000"></td>
+    <td class="price-cell cop"><input type="number" class="cop-edit" data-row="${i}" value="${c.cop || 0}" min="0" step="1000">${discountPct() > 0 ? `<div style="color:#f87171;font-size:12px;font-weight:700;margin-top:2px">-${discountPct()}%: ${fmt(discounted(c.cop))}</div>` : ''}</td>
     <td class="date-cell">${c.last_price_update || ''}</td>
     <td class="actions-cell" style="white-space:nowrap">
       <button class="btn-icon sell" onclick="addToSale(${i})">&#x1F6D2;<span class="tip">Agregar a venta</span></button>
@@ -1111,7 +1151,8 @@ function renderCatalog(filter) {
   const availableCards = catalog.cards.filter(c => (c.quantity || 0) > 0);
   const units = list => list.reduce((s, c) => s + Math.max(c.quantity || 0, 0), 0);
   document.getElementById('catalogCount').textContent = (filter ? shownCards.length + '/' : '') + availableCards.length + ' cartas · '
-    + (filter ? units(shownCards) + '/' : '') + units(availableCards) + ' unidades | ' + fmt(shownCards.reduce((s, c) => s + (c.cop || 0) * (c.quantity || 1), 0)) + ' COP total';
+    + (filter ? units(shownCards) + '/' : '') + units(availableCards) + ' unidades | ' + fmt(shownCards.reduce((s, c) => s + discounted(c.cop) * (c.quantity || 1), 0)) + ' COP total'
+    + (discountPct() > 0 ? ` (con ${discountPct()}% de descuento)` : '');
 }
 
 function updateStats() {
@@ -1204,18 +1245,20 @@ function showPdfPreview() {
   const today = new Date().toLocaleDateString('es-CO', {year:'numeric',month:'long',day:'numeric'});
   const totalQty = availableCards.reduce((s,c) => s + (c.quantity||1), 0);
   let sorted = [...availableCards].sort((a,b) => (b.cop||0) - (a.cop||0));
+  const pct = discountPct();
   let cards = sorted.map(c => `<div class="pdf-card">
     <img src="${c.image}" alt="">
     <div class="pdf-card-name">${c.name}</div>
     <div class="pdf-card-detail">${c.number} · ${c.set_name}</div>
     <div class="pdf-card-detail">${langNames[c.language] || c.language}${c.quantity > 1 ? ' · x' + c.quantity : ''}</div>
-    <div class="pdf-card-price">${fmt(c.cop||0)}</div>
+    <div class="pdf-card-price">${pct > 0 ? `<s style="opacity:.55;font-size:.8em;font-weight:400">${fmt(c.cop||0)}</s> ` : ''}${fmt(discounted(c.cop))}</div>
   </div>`).join('');
   document.getElementById('pdfPreview').innerHTML = `
     <div class="pdf-header">
       <img src="/logo.jpeg" alt="Geek By Carlos">
       <h1>Geek By Carlos</h1>
       <div class="pdf-sub">Catálogo Pokemon TCG — ${catalog.label || currentCatalogName} · ${today} · ${availableCards.length} cartas · ${totalQty} unidades</div>
+      ${pct > 0 ? `<div class="pdf-sub" style="font-weight:700;color:#dc2626">🔥 ${pct}% de descuento en todo el catálogo · precios ya rebajados</div>` : ''}
       <div class="pdf-sub">Bogotá, zona norte · Envío corre por cuenta del comprador</div>
     </div>
     <div class="pdf-grid">${cards}</div>

@@ -69,11 +69,18 @@ function matches(c: Card, id: string, variant: string, lang?: string | null): bo
 // ---------- D1 ----------
 
 async function loadCatalog(env: CatalogoEnv, name: string) {
-  const row = await env.CATALOGO_DB.prepare('SELECT label, cards, version FROM catalogos WHERE name = ?')
+  const row = await env.CATALOGO_DB.prepare('SELECT label, cards, version, discount_pct FROM catalogos WHERE name = ?')
     .bind(name)
-    .first<{ label: string; cards: string; version: number }>();
+    .first<{ label: string; cards: string; version: number; discount_pct: number }>();
   if (!row) return null;
-  return { label: row.label, cards: JSON.parse(row.cards) as Card[], version: row.version };
+  return { label: row.label, cards: JSON.parse(row.cards) as Card[], version: row.version, discount_pct: row.discount_pct || 0 };
+}
+
+// Precio con el descuento del catálogo, redondeado hacia abajo a múltiplos de $500.
+// Debe coincidir con discounted() de la UI.
+function discountedCop(cop: number, pct: number): number {
+  if (!pct || pct <= 0) return cop;
+  return Math.floor((cop * (100 - pct)) / 100 / 500) * 500;
 }
 
 async function logAction(env: CatalogoEnv, catalog: string, entry: Record<string, unknown>) {
@@ -486,12 +493,25 @@ async function handleRefreshOne(env: CatalogoEnv, cat: string, body: Record<stri
  * Venta: descuenta stock de varias cartas en un solo cambio atómico y deja el registro.
  * Si alguna carta no tiene stock suficiente, no se descuenta nada.
  */
+async function handleDiscount(env: CatalogoEnv, cat: string, body: Record<string, any>, userName: string) {
+  const pct = Number(body.pct);
+  if (!Number.isFinite(pct) || pct < 0 || pct > 90) return json({ error: 'el descuento debe estar entre 0 y 90%' }, 400);
+  const current = await loadCatalog(env, cat);
+  if (!current) return json({ error: 'catálogo no existe' }, 404);
+  await env.CATALOGO_DB.prepare('UPDATE catalogos SET discount_pct = ?, updated_at = ? WHERE name = ?')
+    .bind(pct, nowStamp(), cat)
+    .run();
+  await logAction(env, cat, { type: 'discount', old: current.discount_pct, new: pct, registered_by: userName, source: 'web' });
+  return json({ ok: true, discount_pct: pct });
+}
+
 async function handleSale(env: CatalogoEnv, cat: string, body: Record<string, any>, userName: string) {
   const customer = String(body.customer || '').trim();
   const items = (body.items || []) as Array<{ id: string; variant: string; language: string; qty: number }>;
   if (!customer) return json({ error: 'nombre del cliente requerido' }, 400);
   if (!items.length) return json({ error: 'no hay cartas en la venta' }, 400);
 
+  const pct = (await loadCatalog(env, cat))?.discount_pct || 0;
   const sold = await mutate(env, cat, (cards) => {
     const lines: Array<Record<string, unknown>> = [];
     for (const it of items) {
@@ -511,7 +531,8 @@ async function handleSale(env: CatalogoEnv, cat: string, body: Record<string, an
         variant: c.variant,
         language: c.language,
         qty,
-        cop: c.cop,
+        cop: discountedCop(c.cop, pct),
+        ...(pct > 0 ? { list_cop: c.cop, discount_pct: pct } : {}),
         qty_left: c.quantity,
       });
     }
@@ -528,6 +549,7 @@ async function handleSale(env: CatalogoEnv, cat: string, body: Record<string, an
     items: sold,
     total_cop: total,
     suggested_total_cop: suggested,
+    ...(pct > 0 ? { discount_pct: pct } : {}),
     payment_method: body.payment_method || '',
     notes: body.notes || '',
     registered_by: userName,
@@ -627,7 +649,9 @@ export async function handleCatalogoApi(request: Request, url: URL, env: Catalog
       }
       if (route === '/catalog') {
         const cat = await loadCatalog(env, url.searchParams.get('catalog') || 'fullart');
-        return json(cat ? { label: cat.label, cards: cat.cards } : { label: '', cards: [] });
+        return json(
+          cat ? { label: cat.label, cards: cat.cards, discount_pct: cat.discount_pct } : { label: '', cards: [], discount_pct: 0 },
+        );
       }
       if (route === '/log') {
         const limit = Math.min(Number(url.searchParams.get('limit') || 300), 2000);
@@ -668,6 +692,8 @@ export async function handleCatalogoApi(request: Request, url: URL, env: Catalog
           return json({ ok: true, image: await storeImage(env, String(body.data_url || '')) });
         case '/sale':
           return await handleSale(env, cat, body, userName);
+        case '/discount':
+          return await handleDiscount(env, cat, body, userName);
       }
       return json({ error: 'not found' }, 404);
     }
