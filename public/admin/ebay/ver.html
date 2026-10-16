@@ -1142,7 +1142,10 @@ body {
             try {
                 const r = await fetch('/api/ebay/sync');
                 const d = await r.json();
-                if (d.ok) { await loadPedidos(); await loadStatus(); }
+                if (d.ok) {
+                    await loadPedidos(); await loadStatus();
+                    alert(`✅ Sincronizado con eBay\n${d.nuevos} pedidos nuevos · ${d.actualizados} actualizados · ${d.sin_cambios} sin cambios\nTotal en el panel: ${d.total_panel}`);
+                }
                 else alert('❌ ' + (d.error || '') + '\n' + JSON.stringify(d.detail || '').slice(0,500));
             } catch(e) { alert('Error: ' + e.message); }
             btn.disabled = false; btn.innerHTML = '&#128260; Sincronizar con eBay';

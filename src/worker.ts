@@ -6,6 +6,7 @@
  */
 
 import { handleCatalogoApi } from './catalogo';
+import { ebaySync } from './ebay_sync';
 
 interface Env {
   ASSETS: Fetcher;
@@ -19,6 +20,10 @@ interface Env {
   EBAY_USER_SOBRINO?: string;
   EBAY_PASS_SOBRINO?: string;
   EBAY_VERIFICATION_TOKEN?: string;
+  EBAY_APP_ID?: string;
+  EBAY_DEV_ID?: string;
+  EBAY_CERT_ID?: string;
+  EBAY_USER_TOKEN?: string;
 }
 
 const EBAY_DELETION_PATH = '/ebay-notifications/account-deletion';
@@ -390,10 +395,15 @@ export default {
       if (path === '/api/ebay/status' && request.method === 'GET') {
         return json({ ok: true, mode: 'manual', logged_in: true });
       }
-      // Los siguientes son sync/scrape/tracking: en la nube no aplican, se responde OK vacío
-      if (path === '/api/ebay/sync' && request.method === 'POST') {
-        return json({ ok: true, mensaje: 'Sincronización no disponible en modo manual' });
+      // Sincronización real con eBay (Trading API → KV). El panel la llama con GET.
+      if (path === '/api/ebay/sync') {
+        try {
+          return json(await ebaySync(env, Math.min(toNum(url.searchParams.get('dias'), 90), 90)));
+        } catch (e) {
+          return json({ ok: false, error: (e as Error).message }, 502);
+        }
       }
+      // Los siguientes son scrape/tracking: en la nube no aplican, se responde OK vacío
       if (path === '/api/ebay/refresh-now' && request.method === 'POST') {
         return json({ ok: true });
       }
