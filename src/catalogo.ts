@@ -437,6 +437,35 @@ async function handleRemove(env: CatalogoEnv, cat: string, body: Record<string, 
   return json({ ok: true });
 }
 
+// Borrado de varias cartas en una sola escritura (todo o nada). Cada carta queda en el historial.
+async function handleRemoveMany(env: CatalogoEnv, cat: string, body: Record<string, any>) {
+  const items = (Array.isArray(body.items) ? body.items : []) as Array<{ id: string; variant: string; lang: string }>;
+  if (!items.length) return json({ error: 'no hay cartas seleccionadas' }, 400);
+  const removed = await mutate(env, cat, (cards) =>
+    items.map((it) => {
+      const idx = cards.findIndex((c) => matches(c, String(it.id), String(it.variant || 'normal'), it.lang));
+      if (idx === -1) throw new HttpError(404, `carta no encontrada: ${it.id}`);
+      return cards.splice(idx, 1)[0];
+    }),
+  );
+  for (const r of removed) {
+    await logAction(env, cat, {
+      type: 'removal',
+      card_id: r.id,
+      card_name: r.name,
+      number: r.number,
+      set_name: r.set_name,
+      variant: r.variant,
+      language: r.language,
+      quantity_removed: r.quantity ?? 1,
+      cop: r.cop ?? 0,
+      reason: 'web_removal_multiple',
+      source: 'web',
+    });
+  }
+  return json({ ok: true, removed: removed.length });
+}
+
 async function handleUpdate(env: CatalogoEnv, cat: string, body: Record<string, any>) {
   const id = String(body.id || '');
   const variant = String(body.variant || '');
@@ -727,6 +756,8 @@ export async function handleCatalogoApi(request: Request, url: URL, env: Catalog
           return await handleAdd(env, cat, body);
         case '/remove':
           return await handleRemove(env, cat, body);
+        case '/remove-many':
+          return await handleRemoveMany(env, cat, body);
         case '/update':
           return await handleUpdate(env, cat, body);
         case '/refresh-one':

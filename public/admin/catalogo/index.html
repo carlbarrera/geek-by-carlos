@@ -225,6 +225,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     <div class="catalog-controls">
       <button class="btn-export" onclick="showPdfPreview()">Exportar PDF</button>
       <button class="btn-export" id="discountBtn" onclick="setDiscount()" style="margin-left:8px;background:#7c3aed">Descuento: 0%</button>
+      <button class="btn-export" id="bulkDeleteBtn" onclick="removeSelected()" style="margin-left:8px;background:#dc2626;display:none">Eliminar seleccionadas</button>
       <span id="pdfStatus" style="color:#9ca3af;font-size:11px;margin-left:8px;display:none"></span>
       <span class="catalog-count" id="catalogCount"></span>
     </div>
@@ -232,6 +233,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     <table class="catalog-table" id="catalogTable" style="display:none">
       <thead>
         <tr>
+          <th style="width:28px"><input type="checkbox" id="selAll" onchange="toggleSelectAll(this.checked)" title="Seleccionar todas las visibles" style="width:16px;height:16px;cursor:pointer"></th>
           <th></th>
           <th>#</th>
           <th>Carta</th>
@@ -1027,6 +1029,7 @@ function switchCatalog(name) {
   }
   saleCart = [];
   renderCartBar();
+  selectedKeys.clear();
   currentCatalogName = name;
   loadCatalog();
   if (document.getElementById('historyPanel').classList.contains('active')) loadHistory();
@@ -1134,7 +1137,8 @@ function renderCatalog(filter) {
   table.style.display = 'table';
   empty.style.display = 'none';
   const langOpts = [['EN','EN'],['ES','ES'],['JP','JP'],['KR','KR'],['FR','FR'],['DE','DE'],['IT','IT'],['PT','PT'],['CN','CN']];
-  body.innerHTML = filtered.map((c, i) => `<tr>
+  body.innerHTML = filtered.map((c, i) => `<tr${selectedKeys.has(cardKey(c)) ? ' style="background:rgba(220,38,38,.15)"' : ''}>
+    <td><input type="checkbox" class="row-sel" data-row="${i}" ${selectedKeys.has(cardKey(c)) ? 'checked' : ''} onchange="toggleSelect(${i}, this.checked)" style="width:16px;height:16px;cursor:pointer"></td>
     <td class="img-cell"><img src="${esc(c.image)}" alt="" loading="lazy" onclick="openImageEditor(${i})" title="Cambiar foto" style="cursor:pointer"></td>
     <td>${i + 1}</td>
     <td class="name-cell">${c.name} - ${c.number}</td>
@@ -1153,6 +1157,9 @@ function renderCatalog(filter) {
     </td>
   </tr>`).join('');
   shownCards = filtered;
+  const existing = new Set(catalog.cards.map(cardKey));
+  [...selectedKeys].forEach(k => { if (!existing.has(k)) selectedKeys.delete(k); });
+  updateBulkUi();
   const availableCards = catalog.cards.filter(c => (c.quantity || 0) > 0);
   const units = list => list.reduce((s, c) => s + Math.max(c.quantity || 0, 0), 0);
   document.getElementById('catalogCount').textContent = (filter ? shownCards.length + '/' : '') + availableCards.length + ' cartas · '
@@ -1177,6 +1184,56 @@ async function refreshOne(id, variant, lang) {
       toast('Precio actualizado');
       await loadCatalog();
     }
+  } catch (e) {
+    toast('Error: ' + e.message, true);
+  }
+}
+
+// ---------- Selección múltiple para borrar ----------
+// Clave estable (no el índice de fila): sobrevive a filtros y recargas.
+const selectedKeys = new Set();
+function cardKey(c) { return c.id + '|' + c.variant + '|' + (c.language || 'EN'); }
+function updateBulkUi() {
+  const btn = document.getElementById('bulkDeleteBtn');
+  btn.style.display = selectedKeys.size ? '' : 'none';
+  btn.textContent = `Eliminar seleccionadas (${selectedKeys.size})`;
+  const all = document.getElementById('selAll');
+  const visible = (shownCards || []).map(cardKey);
+  all.checked = visible.length > 0 && visible.every(k => selectedKeys.has(k));
+}
+function toggleSelect(rowIdx, on) {
+  const c = shownCards[rowIdx];
+  if (!c) return;
+  on ? selectedKeys.add(cardKey(c)) : selectedKeys.delete(cardKey(c));
+  const tr = document.querySelector(`.row-sel[data-row="${rowIdx}"]`)?.closest('tr');
+  if (tr) tr.style.background = on ? 'rgba(220,38,38,.15)' : '';
+  updateBulkUi();
+}
+function toggleSelectAll(on) {
+  (shownCards || []).forEach((c, i) => {
+    on ? selectedKeys.add(cardKey(c)) : selectedKeys.delete(cardKey(c));
+    const cb = document.querySelector(`.row-sel[data-row="${i}"]`);
+    if (cb) { cb.checked = on; cb.closest('tr').style.background = on ? 'rgba(220,38,38,.15)' : ''; }
+  });
+  updateBulkUi();
+}
+async function removeSelected() {
+  const cards = catalog.cards.filter(c => selectedKeys.has(cardKey(c)));
+  if (!cards.length) return;
+  const units = cards.reduce((s, c) => s + (c.quantity || 0), 0);
+  const lista = cards.slice(0, 25).map(c => `• ${c.name} ${c.number} (${c.language || 'EN'}) x${c.quantity}`).join('\n')
+    + (cards.length > 25 ? `\n… y ${cards.length - 25} más` : '');
+  if (!confirm(`¿Eliminar ${cards.length} cartas (${units} unidades) del catálogo?\n\n${lista}\n\nEsto no registra venta: solo las quita del catálogo.`)) return;
+  try {
+    const resp = await fetch('/api/catalogo/remove-many', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ catalog: currentCatalogName, items: cards.map(c => ({ id: c.id, variant: c.variant, lang: c.language || 'EN' })) }),
+    });
+    const data = await resp.json();
+    if (!resp.ok) { toast('Error: ' + (data.error || resp.status), true); return; }
+    selectedKeys.clear();
+    toast(`${data.removed} cartas eliminadas`);
+    await loadCatalog();
   } catch (e) {
     toast('Error: ' + e.message, true);
   }
