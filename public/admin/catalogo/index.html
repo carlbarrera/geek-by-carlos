@@ -435,7 +435,30 @@ function addToSale(rowIdx) {
   toast(c.name + ' agregada a la venta');
 }
 
+// La venta en curso se guarda en este navegador (por catálogo) para no perderla al refrescar.
+function cartStorageKey() { return 'gbc_venta_' + currentCatalogName; }
+function saveCartLocal() {
+  try {
+    if (saleCart.length) localStorage.setItem(cartStorageKey(), JSON.stringify(saleCart));
+    else localStorage.removeItem(cartStorageKey());
+  } catch (e) { /* sin almacenamiento: no pasa nada */ }
+}
+function restoreCartLocal() {
+  if (saleCart.length) return;
+  let saved = [];
+  try { saved = JSON.parse(localStorage.getItem(cartStorageKey()) || '[]'); } catch (e) { return; }
+  // Solo lo que sigue existiendo con stock; cantidad y stock según el catálogo actual.
+  saleCart = saved.flatMap(l => {
+    const c = catalog.cards.find(x => x.id === l.id && x.variant === l.variant && (x.language || 'EN') === l.language);
+    if (!c || (c.quantity || 0) <= 0) return [];
+    return [{ ...l, max: c.quantity, qty: Math.min(l.qty, c.quantity) }];
+  });
+  if (saleCart.length) toast(`Recuperé la venta sin registrar (${saleCart.length} cartas)`);
+  renderCartBar();
+}
+
 function renderCartBar() {
+  saveCartLocal();
   const units = saleCart.reduce((s, l) => s + l.qty, 0);
   const total = saleCart.reduce((s, l) => s + l.qty * l.cop, 0);
   document.getElementById('cartBar').classList.toggle('show', saleCart.length > 0);
@@ -1130,6 +1153,7 @@ async function loadCatalog() {
     const resp = await fetch('/api/catalogo/catalog?catalog=' + encodeURIComponent(currentCatalogName));
     catalog = await resp.json();
     updateDiscountBtn();
+    restoreCartLocal();
     const q = document.getElementById('searchInput').value.trim().toLowerCase();
     const isCatalogActive = document.getElementById('catalogPanel').classList.contains('active');
     renderCatalog(isCatalogActive ? q : '');
